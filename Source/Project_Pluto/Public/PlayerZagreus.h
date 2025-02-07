@@ -7,6 +7,17 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
 #include "PlayerZagreus.generated.h"
 
+UENUM(BlueprintType)
+enum class EPlayerBehaviorState : uint8 {
+	Idle UMETA(DisplayName="Idle"),
+	Move UMETA(DisplayName="Move(WASD)"),
+	Attack UMETA(DisplayName="Attack(Left Click)"),
+	Dodge UMETA(DisplayName="Dodge(Space)"),
+	SpecialAtt UMETA(DisplayName="SpecialAtt(Q)"),
+	Spell UMETA(DisplayName="Spell(Right Click)"),
+	Interaction UMETA(DisplayName="Interaction(E)")
+};
+
 UCLASS()
 class PROJECT_PLUTO_API APlayerZagreus : public ACharacter
 {
@@ -36,12 +47,28 @@ public:
 	class UCameraComponent* camComp;
 
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EPlayerBehaviorState NowState = EPlayerBehaviorState::Idle;
 
-	FVector AttackDirection;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 Combo = 0; // 몇번째 콤보인가
 
-	FVector MouseLocation;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 MaxCombo = 3; // 현재 3콤보까지만 구현
 
-	// 공격할 때 마우스 위치 및 방향
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ComboWaitTime = 0.5f; // 콤보 연결로 판정할 시간
+
+	float CurrentAttackTime = 0.0f;
+
+	bool isCombo = false; // 콤보 연결이 되었는가
+
+
+	FVector AttackDirection; // 공격 방향 (플레이어 기준 마우스 방향)
+
+	FVector MouseLocation; // 마우스 위치 (입력 받은 시점 마우스 위치)
+
+	// 공격할 때 마우스 위치 및 방향 구하기
 	void SetAttackDir();
 
 

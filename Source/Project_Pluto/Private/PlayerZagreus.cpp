@@ -21,7 +21,7 @@ APlayerZagreus::APlayerZagreus()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f), FRotator(0.0f, -90.0f, 0.0f));
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("SkeletalMesh loding fail"));
+		UE_LOG(LogTemp, Error, TEXT("PlayerZagreus SkeletalMesh loding fail."));
 	}
 
 	// 초기 카메라 설정
@@ -60,6 +60,19 @@ void APlayerZagreus::Tick(float DeltaTime)
 		PlayerDir.Normalize();
 		SetActorLocation(GetActorLocation() + PlayerDir * Speed * DeltaTime);
 		PlayerDir = FVector::ZeroVector;
+	}
+
+	{
+		// 콤보 공격 확인
+		if (isCombo && (NowState == EPlayerBehaviorState::Attack || NowState == EPlayerBehaviorState::Idle)) {
+			CurrentAttackTime += DeltaTime;
+			if (CurrentAttackTime >= ComboWaitTime) {
+				isCombo = false;
+				// 공격 시작 시 초기화 해주지만 혹시 모르니 여기서도 콤보 초기화
+				Combo = 0;
+				CurrentAttackTime = 0.0f;
+			}
+		}
 	}
 }
 
@@ -102,10 +115,40 @@ void APlayerZagreus::Move(const FInputActionValue& inputValue)
 
 void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, TEXT("Attack"));
 	SetAttackDir();
 	UE_LOG(LogTemp, Warning, TEXT("Player : %.1f , %.1f"), GetActorLocation().X, GetActorLocation().Y);
 	UE_LOG(LogTemp, Warning, TEXT("Mouse : %.1f , %.1f"), MouseLocation.X, MouseLocation.Y);
+
+	if (!isCombo) { // 콤보 시작 플래그 설정
+		Combo = 0;
+		isCombo = true;
+	}
+
+	Combo++;
+	CurrentAttackTime = 0.0f;
+
+	if (Combo > MaxCombo) {
+		Combo = 1;
+	}
+
+	// 몇번째 콤보인가에 따라 공격 실행
+	switch (Combo)
+	{
+	case 1: // Strike (기본 공격)
+		
+		break;
+	case 2: // Chop
+		
+		break;
+	case 3: // Thrust
+		
+		break;
+	default:
+		break;
+	}
+
+	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, FString::Printf(TEXT("콤보 : %d"), Combo));
+	// 애니메이션 재생 종료까지 대기? -> 애니메이션이 끝나면 다음 입력 없으면 기본 Idle 로 돌아가기
 }
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
