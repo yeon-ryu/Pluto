@@ -4,6 +4,7 @@
 #include "PlayerZagreus.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 
 // Sets default values
@@ -11,8 +12,6 @@ APlayerZagreus::APlayerZagreus()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	// GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true; // 갑자기 언리얼 오류 남
 
 	// 플레이어 메시 에셋 및 초기 위치 각도 설정
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/RGY/Modelings/ParagonGreystone/Characters/Heroes/Greystone/Meshes/Greystone.Greystone'"));
@@ -41,6 +40,14 @@ void APlayerZagreus::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	auto pc = Cast<APlayerController>(Controller);
+	if (pc) {
+		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
+
+		if (subsystem) {
+			subsystem->AddMappingContext(IMC_Player, 0);
+		}
+	}
 }
 
 // Called every frame
@@ -63,7 +70,6 @@ void APlayerZagreus::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	auto PlayerInput = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (PlayerInput) {
-		// 아예 키 입력이 안 먹히는데 원인 조사 필요
 		PlayerInput->BindAction(IA_Move, ETriggerEvent::Triggered, this, &APlayerZagreus::Move);
 		PlayerInput->BindAction(IA_Attack, ETriggerEvent::Started, this, &APlayerZagreus::Attack);
 		PlayerInput->BindAction(IA_Dodge, ETriggerEvent::Started, this, &APlayerZagreus::Dodge);
@@ -96,9 +102,10 @@ void APlayerZagreus::Move(const FInputActionValue& inputValue)
 
 void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Attack!"));
+	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, TEXT("Attack"));
 	SetAttackDir();
-	UE_LOG(LogTemp, Warning, TEXT("%.1f , %.1f"), MouseLocation.X, MouseLocation.Y);
+	UE_LOG(LogTemp, Warning, TEXT("Player : %.1f , %.1f"), GetActorLocation().X, GetActorLocation().Y);
+	UE_LOG(LogTemp, Warning, TEXT("Mouse : %.1f , %.1f"), MouseLocation.X, MouseLocation.Y);
 }
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)

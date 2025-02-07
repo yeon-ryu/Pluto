@@ -3,3 +3,9 @@
 
 #include "HadesGameMode.h"
 
+void AHadesGameMode::StartPlay()
+{
+	Super::StartPlay();
+
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+}
