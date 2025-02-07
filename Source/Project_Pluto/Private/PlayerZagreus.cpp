@@ -26,6 +26,15 @@ APlayerZagreus::APlayerZagreus()
 		UE_LOG(LogTemp, Error, TEXT("PlayerZagreus SkeletalMesh loding fail."));
 	}
 
+	// 애니메이션 클래스 할당
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+
+	ConstructorHelpers::FClassFinder<UAnimInstance> TempAnim(TEXT("/Game/RGY/Blueprints/ABP_PlayerZagreus.ABP_PlayerZagreus_C"));
+
+	if (TempAnim.Succeeded()) {
+		GetMesh()->SetAnimInstanceClass(TempAnim.Class);
+	}
+
 	// 초기 카메라 설정
 	springArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	springArmComp->SetupAttachment(RootComponent);
