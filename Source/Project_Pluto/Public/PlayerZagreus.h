@@ -50,20 +50,30 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	EPlayerBehaviorState NowState = EPlayerBehaviorState::Idle;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 Combo = 0; // 몇번째 콤보인가
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int32 MaxCombo = 3; // 현재 3콤보까지만 구현
+	UPROPERTY(EditAnywhere, Category="PlayerSetting")
+	float Speed = 700.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ComboWaitTime = 0.5f; // 콤보 연결로 판정할 시간
+	FVector PlayerDir;
 
-	float CurrentAttackTime = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
+	int32 InitHP = 50; // 플레이어 초기 체력
 
-	bool isCombo = false; // 콤보 연결이 되었는가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
+	int32 MaxHP = 50; // 플레이어 최대 체력
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerSetting")
+	int32 HP = 50; // 플레이어 현재 체력
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerSetting")
+	float PlusHP = 0; // 영구 강화 : 추가 HP 퍼센트
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerSetting")
+	float PlusAtk = 0; // 영구 강화 : 추가 공격력 퍼센트
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Weapon)
+	class ABlade* weapon;
+public:
 	FVector AttackDirection; // 공격 방향 (플레이어 기준 마우스 방향)
 
 	FVector MouseLocation; // 마우스 위치 (입력 받은 시점 마우스 위치)
@@ -72,10 +82,26 @@ public:
 	void SetAttackDir();
 
 
-	UPROPERTY(EditAnywhere, Category="PlayerSetting")
-	float Speed = 700.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo")
+	int32 Combo = 0; // 몇번째 콤보인가
 
-	FVector PlayerDir;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combo")
+	int32 MaxCombo = 3; // 현재 3콤보까지만 구현
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
+	float ComboWaitTime = 0.5f; // 콤보 연결로 판정할 시간
+
+	float CurrentAttackTime = 0.0f;
+
+	bool isCombo = false; // 콤보 연결이 되었는가
+
+	// 피격
+	void OnDamage(int32 damage);
+
+	void SetPermanetBuff();
+
+	// hp 최대치 변경 아이템 먹었을 경우 / 인자값 : 절대값 플러스, 퍼센트 플러스
+	void SetBuffMaxHP(int32 plusHpAbs, float plusHpPro);
 
 
 public:
