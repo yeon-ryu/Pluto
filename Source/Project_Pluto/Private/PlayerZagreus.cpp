@@ -8,6 +8,7 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "Blade.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 APlayerZagreus::APlayerZagreus()
@@ -33,6 +34,19 @@ APlayerZagreus::APlayerZagreus()
 
 	if (TempAnim.Succeeded()) {
 		GetMesh()->SetAnimInstanceClass(TempAnim.Class);
+		
+	}
+
+	// 플레이어가 이동 방향으로 회전하도록
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+	if (MovementComponent)
+	{
+		MovementComponent->bOrientRotationToMovement = true;
+		MovementComponent->bUseControllerDesiredRotation = false;
 	}
 
 	// 초기 카메라 설정
@@ -41,9 +55,11 @@ APlayerZagreus::APlayerZagreus()
 	springArmComp->SetRelativeLocationAndRotation(FVector(-200.0f, 100.0f, 200.0f), FRotator(-50.0f, -30.0f, 0.0f));
 	springArmComp->TargetArmLength = 700.0f;
 	springArmComp->bDoCollisionTest = false;
+	//springArmComp->bUsePawnControlRotation = false;
 
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
+	//camComp->bUsePawnControlRotation = false;
 
 
 	// 무기 세팅
@@ -69,6 +85,13 @@ void APlayerZagreus::BeginPlay()
 void APlayerZagreus::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	if (PlayerDir == FVector::ZeroVector && NowState == EPlayerBehaviorState::Move) {
+		NowState = EPlayerBehaviorState::Idle;
+	}
+
+	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, UEnum::GetValueAsString(NowState));
 
 	{
 		// 플레이어 이동
