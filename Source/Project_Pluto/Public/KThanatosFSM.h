@@ -8,6 +8,7 @@
 #include "KThanatosFSM.generated.h"
 
 
+
 UCLASS()
 class PROJECT_PLUTO_API UKThanatosFSM : public UKEnemyFSM
 {
@@ -32,6 +33,7 @@ public:
 	void State_Idle()override;
 	void State_Move()override;
 	void State_Attack()override;
+	void State_MoveFar()override;
 
 	//데미지 관련 함수
 	void OnDamagedProcess()override;
@@ -39,10 +41,16 @@ public:
 	void OnAttackProcess()override;
 
 
+
 public:
 	//대기 시간
 	UPROPERTY(EditAnywhere, Category = FSM)
 	float IdleDelayTime = 2.0f;
+
+	//대기 시간
+	UPROPERTY(EditAnywhere, Category = FSM)
+	float WalkingTime = 1.0f;
+
 
 	//경과시간
 	UPROPERTY(EditAnywhere, Category = FSM)
@@ -50,7 +58,7 @@ public:
 
 	//공격 범위
 	UPROPERTY(EditAnywhere, Category = FSM)
-	float attackRange = 500.0f;
+	float attackRange = 1000.0f;
 	
 	UPROPERTY(VisibleAnywhere, Category = FSM)
 	class AKEnemy* target_Enemy;

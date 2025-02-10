@@ -18,7 +18,6 @@ void UKThanatosFSM::BeginPlay()
 	Super::BeginPlay();
 
 	status.attackDelayTime = 2.0f;
-		
 	// ...
 	//월드에서 Enemy를 찾아오기
 	auto actor_Enemy = UGameplayStatics::GetActorOfClass(GetWorld(), AKEnemy::StaticClass());
@@ -46,9 +45,10 @@ void UKThanatosFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 
 	switch (mState)
 	{
-	case EKEnemyState::Idle:	{ State_Idle(); } break;
-	case EKEnemyState::Move:	{ State_Move(); } break;
-	case EKEnemyState::Attack:	{ State_Attack(); } break;
+	case EKEnemyState::Idle:	{ State_Idle();		} break;
+	case EKEnemyState::Move:	{ State_Move();		} break;
+	case EKEnemyState::MoveFar: { State_MoveFar();	} break;
+	case EKEnemyState::Attack:	{ State_Attack();	} break;
 	}
 
 }
@@ -76,24 +76,25 @@ void UKThanatosFSM::State_Move()
 	FVector dir = destination - me->GetActorLocation();
 	me->AddMovementInput(dir.GetSafeNormal());
 
-	//2초(IdleDelayTime) 걸은 후엔 2초 대기하고 싶음
+	//1초(WalkingTime) 걸은 후엔 2초(IdleDelayTime) 대기하고 싶음
 	currentTime += GetWorld()->DeltaTimeSeconds;
 
-	if (currentTime > IdleDelayTime)
+	if (currentTime > WalkingTime)
 	{
 		mState = EKEnemyState::Idle;
 		currentTime = 0.0f;
+		//거리체크
+		if (dir.Size() < attackRange)
+		{
+			//공격 상태로 전환하고 싶다
+			mState = EKEnemyState::Attack;
+			currentTime = 0.0f;
+		}
 	}
 
-	/*
-	//거리체크
-	if (dir.Size() < attackRange)
-	{
-		//공격 상태로 전환하고 싶다
-		mState = EKEnemyState::Attack;
-		currentTime = 0.0f;
-	}
-	*/
+	
+
+
 }
 
 void UKThanatosFSM::State_Attack()
@@ -110,9 +111,36 @@ void UKThanatosFSM::State_Attack()
 
 		//공격 실행 후 초기화
 		currentTime = 0.0f;
+		mState = EKEnemyState::MoveFar;
 	}
+
 }
 
+
+void UKThanatosFSM::State_MoveFar()
+{
+	FVector destination = target_Enemy->GetActorLocation();
+	FVector dir = me->GetActorLocation() - destination;
+	me->AddMovementInput(dir.GetSafeNormal());
+
+	//1초(WalkingTime) 걸은 후엔 2초(IdleDelayTime) 대기하고 싶음
+	currentTime += GetWorld()->DeltaTimeSeconds;
+
+	if (currentTime > WalkingTime)
+	{
+		mState = EKEnemyState::Idle;
+		currentTime = 0.0f;
+		////거리체크
+		//if (dir.Size() > attackRange)
+		//{
+		//	//공격 상태로 전환하고 싶다
+		//	mState = EKEnemyState::Move;
+		//	currentTime = 0.0f;
+		//}
+	}
+
+	
+}
 
 void UKThanatosFSM::OnDamagedProcess()
 {

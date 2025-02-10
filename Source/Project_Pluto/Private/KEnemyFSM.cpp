@@ -40,6 +40,11 @@ void UKEnemyFSM::State_Move()
 {
 }
 
+void UKEnemyFSM::State_MoveFar()
+{
+
+}
+
 void UKEnemyFSM::State_Attack()
 {
 }

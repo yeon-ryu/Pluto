@@ -15,6 +15,7 @@ enum class EKEnemyState : uint8
 {
 	Idle	UMETA(DisplayName = "대기"),
 	Move	UMETA(DisplayName = "이동"),
+	MoveFar UMETA(DisplayName = "이동2"),
 	Attack	UMETA(DisplayName = "공격"),
 	Damaged	UMETA(DisplayName = "데미지"),
 	Dead	UMETA(DisplayName = "사망"),
@@ -47,6 +48,7 @@ public:
 	//기본 State
 	virtual void State_Idle();
 	virtual void State_Move();
+	virtual void State_MoveFar();
 	virtual void State_Attack();
 	virtual void State_Damaged();
 	virtual void State_Dead();
