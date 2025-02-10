@@ -52,9 +52,10 @@ APlayerZagreus::APlayerZagreus()
 	// 초기 카메라 설정
 	springArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	springArmComp->SetupAttachment(RootComponent);
-	springArmComp->SetRelativeLocationAndRotation(FVector(-200.0f, 100.0f, 200.0f), FRotator(-50.0f, -30.0f, 0.0f));
+	springArmComp->SetRelativeLocation(FVector(-200.0f, 100.0f, 200.0f));
 	springArmComp->TargetArmLength = 700.0f;
 	springArmComp->bDoCollisionTest = false;
+	springArmComp->SetWorldRotation(FRotator(-50.0f, -30.0f, 0.0f));
 	//springArmComp->bUsePawnControlRotation = false;
 
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
