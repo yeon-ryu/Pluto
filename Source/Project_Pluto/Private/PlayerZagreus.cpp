@@ -9,6 +9,7 @@
 #include "Blade.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 APlayerZagreus::APlayerZagreus()
@@ -137,13 +138,13 @@ void APlayerZagreus::SetAttackDir()
 {
 	auto PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController) {
-		float MouseX, MouseY;
-		PlayerController->GetMousePosition(MouseX, MouseY);
+		FHitResult hit;
+		PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, hit);
 
-		MouseLocation.X = MouseX;
-		MouseLocation.Y = MouseY;
+		MouseLocation = hit.Location;
 
 		AttackDirection = MouseLocation - GetActorLocation();
+		SetActorRotation(FRotator(0.0f, UKismetMathLibrary::ClampAxis(AttackDirection.Rotation().Yaw), 0.0f));
 	}
 }
 
