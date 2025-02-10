@@ -14,4 +14,6 @@ class PROJECT_PLUTO_API AHadesGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void StartPlay();
 };
