@@ -49,18 +49,19 @@ APlayerZagreus::APlayerZagreus()
 		MovementComponent->bUseControllerDesiredRotation = false;
 	}
 
+	GetCharacterMovement()->MaxWalkSpeed = Speed;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = Speed;
+
 	// 초기 카메라 설정
 	springArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	springArmComp->SetupAttachment(RootComponent);
-	springArmComp->SetRelativeLocation(FVector(-200.0f, 100.0f, 200.0f));
-	springArmComp->TargetArmLength = 700.0f;
+	springArmComp->SetRelativeLocation(FVector(0.0f));
+	springArmComp->TargetArmLength = 1000.0f;
 	springArmComp->bDoCollisionTest = false;
 	springArmComp->SetWorldRotation(FRotator(-50.0f, -30.0f, 0.0f));
-	//springArmComp->bUsePawnControlRotation = false;
 
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
-	//camComp->bUsePawnControlRotation = false;
 
 
 	// 무기 세팅
@@ -96,8 +97,9 @@ void APlayerZagreus::Tick(float DeltaTime)
 
 	{
 		// 플레이어 이동
-		PlayerDir.Normalize();
-		SetActorLocation(GetActorLocation() + PlayerDir * Speed * DeltaTime);
+		//PlayerDir.Normalize();
+		//SetActorLocation(GetActorLocation() + PlayerDir * Speed * DeltaTime);
+		AddMovementInput(PlayerDir.GetSafeNormal());
 		PlayerDir = FVector::ZeroVector;
 	}
 
