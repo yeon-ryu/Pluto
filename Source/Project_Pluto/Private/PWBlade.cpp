@@ -27,7 +27,7 @@ APWBlade::APWBlade()
 	if (TempMesh.Succeeded()) {
 		MeshComp->SetStaticMesh(TempMesh.Object);
 		MeshComp->SetRelativeScale3D(FVector(0.08f));
-		MeshComp->SetRelativeLocationAndRotation(FVector::ZeroVector, FRotator::ZeroRotator);
+		MeshComp->SetRelativeLocationAndRotation(FVector(51.0f, -3.0f, 140.0f), FRotator(-32.0f, -39.0f, 24.0f));
 	}
 	MeshComp->SetCollisionProfileName(TEXT("NoCollision"));
 

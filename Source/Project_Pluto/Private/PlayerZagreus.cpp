@@ -63,9 +63,6 @@ APlayerZagreus::APlayerZagreus()
 
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
-
-	//weapon = CreateDefaultSubobject<APWBlade>(TEXT("PlayerWeapon"));
-	//weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("FX_weapon"));
 }
 
 // Called when the game starts or when spawned
@@ -117,6 +114,8 @@ void APlayerZagreus::Tick(float DeltaTime)
 	{
 		// 콤보 공격 확인
 		if (isCombo && NowState == EPlayerBehaviorState::Attack) {
+			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, FString::Printf(TEXT("Combo : %d"), Combo));
+		
 			CurrentAttackTime += DeltaTime;
 			if (CurrentAttackTime >= ComboWaitTime) {
 				isCombo = false;
@@ -204,8 +203,8 @@ void APlayerZagreus::Move(const FInputActionValue& inputValue)
 void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 {
 	SetAttackDir();
-	UE_LOG(LogTemp, Warning, TEXT("Player : %.1f , %.1f"), GetActorLocation().X, GetActorLocation().Y);
-	UE_LOG(LogTemp, Warning, TEXT("Mouse : %.1f , %.1f"), MouseLocation.X, MouseLocation.Y);
+	//UE_LOG(LogTemp, Warning, TEXT("Player : %.1f , %.1f"), GetActorLocation().X, GetActorLocation().Y);
+	//UE_LOG(LogTemp, Warning, TEXT("Mouse : %.1f , %.1f"), MouseLocation.X, MouseLocation.Y);
 
 	if (!isCombo) { // 콤보 시작 플래그 설정
 		Combo = 0;
@@ -230,9 +229,6 @@ void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 	} else if (NowState != EPlayerBehaviorState::Attack) {
 		NowState = EPlayerBehaviorState::Attack;
 	}
-
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, FString::Printf(TEXT("Combo : %d"), Combo));
-	// 애니메이션 재생 종료까지 대기? -> 애니메이션이 끝나면 다음 입력 없으면 기본 Idle 로 돌아가기
 }
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)

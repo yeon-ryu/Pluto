@@ -106,7 +106,7 @@ public:
 	int32 Combo = 0; // 몇번째 콤보인가
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
-	float ComboWaitTime = 0.5f; // 콤보 연결로 판정할 시간 : 애니메이션 시간보다 길어야 한다
+	float ComboWaitTime = 0.6f; // 콤보 연결로 판정할 시간 : 애니메이션 시간보다 길어야 한다
 
 	float CurrentAttackTime = 0.0f;
 
