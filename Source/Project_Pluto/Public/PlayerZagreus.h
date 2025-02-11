@@ -18,6 +18,11 @@ enum class EPlayerBehaviorState : uint8 {
 	Interaction UMETA(DisplayName="Interaction(E)")
 };
 
+UENUM(BlueprintType)
+enum class EPlayerWeapon : uint8 {
+	Blade UMETA(DisplayName = "Blade")
+};
+
 UCLASS()
 class PROJECT_PLUTO_API APlayerZagreus : public ACharacter
 {
@@ -40,6 +45,8 @@ public:
 
 
 public:
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
 	UPROPERTY(EditAnywhere, Category = Camera)
 	class USpringArmComponent* springArmComp;
 
@@ -47,14 +54,27 @@ public:
 	class UCameraComponent* camComp;
 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerState)
 	EPlayerBehaviorState NowState = EPlayerBehaviorState::Idle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerState)
+	EPlayerWeapon NowWeapon = EPlayerWeapon::Blade;
 
 
 	UPROPERTY(EditAnywhere, Category="PlayerSetting")
 	float Speed = 700.0f;
 
 	FVector PlayerDir;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Weapon)
+	class APlayerWeapon* weapon;
+
+	// void ChangeWeapon();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	TSubclassOf<class APlayerWeapon> weaponFactory;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
 	int32 InitHP = 50; // 플레이어 초기 체력
@@ -65,14 +85,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerSetting")
 	int32 HP = 50; // 플레이어 현재 체력
 
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerSetting")
 	float PlusHP = 0; // 영구 강화 : 추가 HP 퍼센트
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerSetting")
 	float PlusAtk = 0; // 영구 강화 : 추가 공격력 퍼센트
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Weapon)
-	class ABlade* weapon;
+
 public:
 	FVector AttackDirection; // 공격 방향 (플레이어 기준 마우스 방향)
 
@@ -85,11 +105,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo")
 	int32 Combo = 0; // 몇번째 콤보인가
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combo")
-	int32 MaxCombo = 3; // 현재 3콤보까지만 구현
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
-	float ComboWaitTime = 0.5f; // 콤보 연결로 판정할 시간
+	float ComboWaitTime = 0.5f; // 콤보 연결로 판정할 시간 : 애니메이션 시간보다 길어야 한다
 
 	float CurrentAttackTime = 0.0f;
 
