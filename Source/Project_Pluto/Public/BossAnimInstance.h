@@ -19,6 +19,9 @@ class PROJECT_PLUTO_API UBossAnimInstance : public UAnimInstance
 public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
+	class UBossFSM* bossfsm;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FSM")
 	EBossState animState;
 
@@ -28,5 +31,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
 	EAttackType type;
 
+	UFUNCTION()
+	void AnimNotify_AttackEnd();
 
 };

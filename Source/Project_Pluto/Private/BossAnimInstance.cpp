@@ -2,7 +2,9 @@
 
 
 #include "BossAnimInstance.h"
+#include "BossFSM.h"
 #include "Boss.h"
+#include "DebugMacro.h"
 
 void UBossAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
@@ -17,4 +19,11 @@ void UBossAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	type = Boss->GetAttackType();
 
+}
+
+void UBossAnimInstance::AnimNotify_AttackEnd()
+{
+
+	bAttackPlay = false;
+	bossfsm->state = EBossState::Attack_End;
 }

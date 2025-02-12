@@ -47,9 +47,6 @@ ABoss::ABoss()
 
 #pragma endregion initSetting
 
-
-	
-
 }
 
 // Called when the game starts or when spawned

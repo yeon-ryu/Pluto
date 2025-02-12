@@ -29,7 +29,7 @@ void UBossFSM::BeginPlay()
 	me = Cast<ABoss>(GetOwner());
 
 	anim = Cast <UBossAnimInstance>(me->GetMesh()->GetAnimInstance());
-	
+	anim->bossfsm = this;
 }
 
 
@@ -52,7 +52,6 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		case EBossState::Idle:			{ State_Idle(); }				break;
 		case EBossState::Move:			{ State_Move(); }				break;
 		case EBossState::Attack_Start:		{ State_Attack_Start(); }		break;
-		case EBossState::Attack_Ongoing:	{ State_Attack_Ongoing(); }	break;
 		case EBossState::Attack_End:		{ State_Attack_End(); }		break;
 		case EBossState::Hit:				{ State_Hit(); }				break;
 		case EBossState::PhaseChange:		{ State_PhaseChange(); }		break;
@@ -80,14 +79,19 @@ void UBossFSM::State_Idle()
 
 void UBossFSM::State_Move()
 {
+	if (state == EBossState::Attack_Start)
+	{
+		return;
+
+	}
+
 	CallSelectPattern();
 	SetDesDir();
 	if (direction.Size() <= BossAttRange)
 	{
 		state = EBossState::Attack_Start;
 		anim->animState = state;
-		anim->bAttackPlay = true;
-		nowTime = AttackDelayTime;
+		nowTime = AttackDelayTime - 0.5f;
 	}
 
 	FRotator TargetRotation = direction.Rotation();
@@ -104,6 +108,7 @@ void UBossFSM::State_Move()
 
 void UBossFSM::State_Attack_Start()
 {
+	if (anim->bAttackPlay == true) return;
 	SetDesDir();
 	nowTime += GetDeltaTime();
 
@@ -112,30 +117,20 @@ void UBossFSM::State_Attack_Start()
 		me->AttackPlayer(me->GetAttackType());
 		anim->bAttackPlay = true;
 		nowTime = 0.f;
-		state = EBossState::Attack_Ongoing;
-
 	}
 
-
-	/*if (direction.Size() >= BossAttRange)
-	{
-		state = EBossState::Move;
-		anim->animState = state;
-		anim->bAttackPlay = true;
-
-	}*/
-
-}
-
-void UBossFSM::State_Attack_Ongoing()
-{
-	state = EBossState::Attack_End;
 }
 
 void UBossFSM::State_Attack_End()
 {
-	CallSelectPattern();
-	state = EBossState::Idle;
+	nowTime += GetDeltaTime();
+
+	if (nowTime > AttackDelayTime)
+	{
+		state = EBossState::Idle;
+		anim->animState = state;
+	}
+
 }
 
 void UBossFSM::State_Hit()

@@ -14,7 +14,6 @@ enum class EBossState : uint8
 	Idle				UMETA(DisplayName = "Idle"),
 	Move				UMETA(DisplayName = "Move"),
 	Attack_Start		UMETA(DisplayName = "Attack_Start"),
-	Attack_Ongoing	UMETA(DisplayName = "Attack_Ongoing"),
 	Attack_End		UMETA(DisplayName = "Attack_End"),
 	Hit				UMETA(DisplayName = "Hit"),
 	PhaseChange		UMETA(DisplayName = "PhaseChange"),
@@ -55,8 +54,6 @@ public:
 
 	void State_Attack_Start();
 
-	void State_Attack_Ongoing();
-
 	void State_Attack_End();
 
 	void State_Hit();
@@ -73,7 +70,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float PhaseChangeTime = 4.0f;
-	float AttackDelayTime = 2.f;
+	float AttackDelayTime = 4.f;
+	float AttaclEndDelayTime = 0.75f;
 
 	FVector destination;
 	FVector direction;
