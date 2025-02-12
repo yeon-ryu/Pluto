@@ -89,6 +89,8 @@ void APlayerZagreus::BeginPlay()
 			weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("FX_weapon"));
 		}
 	}
+
+	GetCharacterMovement()->MaxWalkSpeed = Speed;
 }
 
 // Called every frame
@@ -101,32 +103,37 @@ void APlayerZagreus::Tick(float DeltaTime)
 		NowState = EPlayerBehaviorState::Idle;
 	}
 
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, UEnum::GetValueAsString(NowState));
-
 	{
 		// 플레이어 이동
-		//PlayerDir.Normalize();
-		//SetActorLocation(GetActorLocation() + PlayerDir * Speed * DeltaTime);
 		AddMovementInput(PlayerDir.GetSafeNormal());
 		PlayerDir = FVector::ZeroVector;
 	}
 
 	{
-		// 콤보 공격 확인
-		if (isCombo && NowState == EPlayerBehaviorState::Attack) {
-			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, FString::Printf(TEXT("Combo : %d"), Combo));
-		
-			CurrentAttackTime += DeltaTime;
-			if (CurrentAttackTime >= ComboWaitTime) {
-				isCombo = false;
-				// 공격 시작 시 초기화 해주지만 혹시 모르니 여기서도 콤보 초기화
-				Combo = 0;
-				CurrentAttackTime = 0.0f;
-				
-				NowState = EPlayerBehaviorState::Idle;
+		if (NowState == EPlayerBehaviorState::Dodge) { // 우선순위 최강 회피
+			CurrentAnimTime += DeltaTime;
+			if (CurrentAnimTime >= AnimWaitTime) {
+				CurrentAnimTime = 0.0f;
+				EndDodge();
+			}
+		}
+		else {
+			if (bAttackProcess) { // 공격 중이면 공격 애니메이션 대기
+				GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, FString::Printf(TEXT("Combo : %d"), Combo));
+
+				CurrentAnimTime += DeltaTime;
+				if (CurrentAnimTime >= AnimWaitTime) {
+					CurrentAnimTime = 0.0f;
+					AttackProcess();
+				}
+			}
+			else if (bReserveAttack) { // 공격 중이 아니고 공격 예약이 결려있으면 공격 프로세스 진행
+				AttackProcess();
 			}
 		}
 	}
+
+	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, UEnum::GetValueAsString(NowState));
 }
 
 // Called to bind functionality to input
@@ -165,6 +172,55 @@ void APlayerZagreus::SetAttackDir()
 	}
 }
 
+void APlayerZagreus::AttackProcess()
+{
+	// 애니메이션 Montrage_Play 로 애니메이션 플레이 시간 세팅
+
+	if(!bAttackProcess) { // 어택 시작
+	
+		bAttackProcess = true;
+		bReserveAttack = false;
+		SetAttackDir();
+
+		Combo++;
+		CurrentAnimTime = 0.0f;
+
+		if (Combo > weapon->MaxCombo) {
+			Combo = 1;
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Attack Start. Combo : %d"), Combo);
+
+		if (NowState != EPlayerBehaviorState::Attack) {
+			NowState = EPlayerBehaviorState::Attack;
+		}
+	}
+	else { // 어택 애니메이션 종료 후 로직
+		UE_LOG(LogTemp, Warning, TEXT("Attack End"));
+		if (!bReserveAttack) {
+			Combo = 0;
+			if (NowState == EPlayerBehaviorState::Attack) {
+				NowState = EPlayerBehaviorState::Idle;
+			}
+		}
+		
+		bAttackProcess = false;
+	}
+}
+
+void APlayerZagreus::EndDodge()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Dodge End"));
+
+	GetCharacterMovement()->MaxWalkSpeed = Speed;
+	// 에너미와 충돌 Overlap 으로 원복
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	if (NowState == EPlayerBehaviorState::Dodge) {
+		NowState = EPlayerBehaviorState::Idle;
+	}
+}
+
 void APlayerZagreus::OnDamage(int32 damage)
 {
 	HP -= damage;
@@ -190,6 +246,8 @@ void APlayerZagreus::SetBuffMaxHP(int32 plusHpAbs, float plusHpPro)
 
 void APlayerZagreus::Move(const FInputActionValue& inputValue)
 {
+	if(NowState == EPlayerBehaviorState::Dodge || NowState == EPlayerBehaviorState::Attack) return;
+
 	if (NowState != EPlayerBehaviorState::Move) {
 		NowState = EPlayerBehaviorState::Move;
 	}
@@ -202,49 +260,30 @@ void APlayerZagreus::Move(const FInputActionValue& inputValue)
 // 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 {
-	SetAttackDir();
-	//UE_LOG(LogTemp, Warning, TEXT("Player : %.1f , %.1f"), GetActorLocation().X, GetActorLocation().Y);
-	//UE_LOG(LogTemp, Warning, TEXT("Mouse : %.1f , %.1f"), MouseLocation.X, MouseLocation.Y);
-
-	if (!isCombo) { // 콤보 시작 플래그 설정
-		Combo = 0;
-		isCombo = true;
-	}
-
-	Combo++;
-	CurrentAttackTime = 0.0f;
-
-	if (Combo > weapon->MaxCombo) {
-		Combo = 1;
-	}
-
 	if (NowState == EPlayerBehaviorState::Dodge) {
-		NowState = EPlayerBehaviorState::Attack;
-		Combo = 3;
-		// Thrust 애니메이션 실행
-
-		Combo = 0;
-		isCombo = false;
-		NowState = EPlayerBehaviorState::Idle;
-	} else if (NowState != EPlayerBehaviorState::Attack) {
-		NowState = EPlayerBehaviorState::Attack;
+		Combo = -100;
 	}
+	bReserveAttack = true;
 }
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Dodge Start"));
+
 	if (NowState != EPlayerBehaviorState::Dodge) {
 		NowState = EPlayerBehaviorState::Dodge;
 	}
 
-	Speed = 1000.0f;
-	// 에너미와 안 부딪히도록 처리
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	if (bAttackProcess) {
+		bAttackProcess = false;
+		bReserveAttack = false;
+		Combo = 0;
+		CurrentAnimTime = 0.0f;
+	}
 
-	
-	// 애니메이션 시간이 끝나면 충돌 체크와 스피드 원복
-	Speed = 700.0f;
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	GetCharacterMovement()->MaxWalkSpeed = DodgeSpeed;
+	// 에너미와 충돌 Ignore
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 }
 
 // 에너미 오버랩 시 공격은 무기에서

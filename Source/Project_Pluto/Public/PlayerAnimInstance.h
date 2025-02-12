@@ -17,6 +17,20 @@ class PROJECT_PLUTO_API UPlayerAnimInstance : public UAnimInstance
 public:
 	UPlayerAnimInstance();
 
+	// 매 프레임 갱신되는 함수
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+	// 플레이어 이동 속도
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = TPSPlayerAnim)
+	float Speed = 0.0f;
+
+	// 재생할 회피 애니메이션 몽타주
+	//UPROPERTY(EditDefaultsOnly, Category = PlayerAnim)
+	//class UAnimMontage* DodgeAnimMontage;
+
+	//// 회피 애니메이션 재생 함수
+	//void PlayDodgeAnim();
+
 	UPROPERTY(BlueprintReadOnly)
 	class APlayerZagreus* player;
 };

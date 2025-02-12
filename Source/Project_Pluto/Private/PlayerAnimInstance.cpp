@@ -9,5 +9,19 @@ UPlayerAnimInstance::UPlayerAnimInstance()
 {
 	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerZagreus::StaticClass());
 	player = Cast<APlayerZagreus>(actor);
-
 }
+
+void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	if(player == nullptr) {
+		player = Cast<APlayerZagreus>(TryGetPawnOwner());
+		if(player == nullptr) return;
+	}
+
+	Speed = player->GetVelocity().Size();
+}
+
+//void UPlayerAnimInstance::PlayDodgeAnim()
+//{
+//
+//}

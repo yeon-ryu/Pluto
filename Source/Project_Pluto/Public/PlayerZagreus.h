@@ -64,6 +64,9 @@ public:
 	UPROPERTY(EditAnywhere, Category="PlayerSetting")
 	float Speed = 700.0f;
 
+	UPROPERTY(EditAnywhere, Category="PlayerSetting")
+	float DodgeSpeed = 1000.0f;
+
 	FVector PlayerDir;
 
 
@@ -94,6 +97,12 @@ public:
 
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
+	float AnimWaitTime = 0.6f; // 애니메이션 대기 시간. 나중에 Montage_Play 로 애니메이션 시간 세팅한다.
+
+	float CurrentAnimTime = 0.0f;
+
+
 	FVector AttackDirection; // 공격 방향 (플레이어 기준 마우스 방향)
 
 	FVector MouseLocation; // 마우스 위치 (입력 받은 시점 마우스 위치)
@@ -105,12 +114,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo")
 	int32 Combo = 0; // 몇번째 콤보인가
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
-	float ComboWaitTime = 0.6f; // 콤보 연결로 판정할 시간 : 애니메이션 시간보다 길어야 한다
+	bool bAttackProcess = false; // 어택 중인가
+	
+	bool bReserveAttack = false; // 어택 예약
 
-	float CurrentAttackTime = 0.0f;
+	void AttackProcess(); // 어택 로직
 
-	bool isCombo = false; // 콤보 연결이 되었는가
+
+	void EndDodge();
+
 
 	// 피격
 	void OnDamage(int32 damage);
