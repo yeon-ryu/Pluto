@@ -17,6 +17,7 @@ enum class EKEnemyState : uint8
 	Move	UMETA(DisplayName = "이동"),
 	MoveFar UMETA(DisplayName = "이동2"),
 	Attack	UMETA(DisplayName = "공격"),
+	Attack2	UMETA(DisplayName = "공격2"),
 	Damaged	UMETA(DisplayName = "데미지"),
 	Dead	UMETA(DisplayName = "사망"),
 	EndState,
@@ -44,6 +45,7 @@ public:
 	//State 관련 처리
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = FSM)
 	EKEnemyState mState = EKEnemyState::Idle;
+
 
 	//기본 State
 	virtual void State_Idle();

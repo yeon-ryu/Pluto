@@ -26,13 +26,13 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
-	public:
+public:
 
 	//기본 State
 	void State_Idle()override;
 	void State_Move()override;
 	void State_Attack()override;
+	void State_Attack2();
 	void State_MoveFar()override;
 
 	//데미지 관련 함수
@@ -62,6 +62,8 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, Category = FSM)
 	class AKEnemy* target_Enemy;
+
+	int count = 0;
 
 	//소유 액터
 	UPROPERTY()

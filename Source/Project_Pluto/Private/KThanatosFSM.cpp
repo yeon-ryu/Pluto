@@ -49,6 +49,7 @@ void UKThanatosFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	case EKEnemyState::Move:	{ State_Move();		} break;
 	case EKEnemyState::MoveFar: { State_MoveFar();	} break;
 	case EKEnemyState::Attack:	{ State_Attack();	} break;
+	case EKEnemyState::Attack2:	{ State_Attack2();	} break;
 	}
 
 }
@@ -100,22 +101,48 @@ void UKThanatosFSM::State_Move()
 void UKThanatosFSM::State_Attack()
 {
 	//일정 시간에 한 번씩 공격
-
-	//시간이 흐르다가
-	currentTime += GetWorld()->DeltaTimeSeconds;
-	//공격 시간이되면 공격을 실행
-	if (currentTime > status.attackDelayTime)
+	if(count == 10)
 	{
-		//공격을 한다
-		//PRINT_LOG(TEXT("- Attack"));
+		mState = EKEnemyState::Attack2;
+	}
 
-		//공격 실행 후 초기화
-		currentTime = 0.0f;
-		mState = EKEnemyState::MoveFar;
+	else
+	{
+		//시간이 흐르다가
+		currentTime += GetWorld()->DeltaTimeSeconds;
+		//공격 시간이되면 공격을 실행
+		if (currentTime > status.attackDelayTime)
+		{
+			//공격을 한다
+			//PRINT_LOG(TEXT("- Attack"));
+
+			//공격 실행 후 초기화
+			currentTime = 0.0f;
+
+			count++;
+			mState = EKEnemyState::MoveFar;
+		}
+	
 	}
 
 }
 
+
+void UKThanatosFSM::State_Attack2()
+{
+	attackRange = 2000.0f;
+	currentTime += GetWorld()->DeltaTimeSeconds;
+
+	//공격 시간이되면 공격을 실행
+	if (currentTime > status.attackDelayTime)
+	{
+		currentTime = 0.0f;
+		mState = EKEnemyState::MoveFar;
+		count=0;
+	}
+
+	attackRange = 1000.0f;
+}
 
 void UKThanatosFSM::State_MoveFar()
 {
