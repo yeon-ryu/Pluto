@@ -99,4 +99,20 @@ void ABoss::SelectPattern(int32 idx)
 	}
 }
 
+void ABoss::AttackPlayer(EAttackType type)
+{
+	switch (type)
+	{
+	case EAttackType::Charge:			{ Charge();			break; }
+	case EAttackType::CurtainFire:		{ CurtainFire();		break; }
+	case EAttackType::Plate:			{ Plate();			break; }
+	}
+}
+
+void ABoss::Charge()
+{
+	FVector dir = GetTargetFromMe();
+	dir.Normalize();
+	this->LaunchCharacter(dir * 12000.f , true, false);
+}
 

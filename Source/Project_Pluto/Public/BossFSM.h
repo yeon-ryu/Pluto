@@ -71,7 +71,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float PhaseChangeTime = 4.0f;
 	float AttackDelayTime = 4.f;
-	float AttaclEndDelayTime = 0.75f;
+	float AttaclEndDelayTime = 0.25f;
 
 	FVector destination;
 	FVector direction;

@@ -61,6 +61,10 @@ public:
 
 	void SelectPattern(int32 idx);
 
+	void AttackPlayer(EAttackType type) override;
+	
+	void Charge() override;
+
 	//virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 private:

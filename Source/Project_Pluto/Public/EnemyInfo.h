@@ -71,13 +71,13 @@ protected:
 #pragma endregion DefaultStat
 
 public:
-	void Charge();
-	void CurtainFire();
-	void Plate();
+	virtual void Charge();
+	virtual void CurtainFire();
+	virtual void Plate();
 
 	FVector GetTargetFromMe();
 
-	void AttackPlayer(EAttackType type);
+	virtual void AttackPlayer(EAttackType type);
 
 	void ReceiveDamage(float damageValue);
 	

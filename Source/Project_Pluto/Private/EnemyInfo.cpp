@@ -34,7 +34,6 @@ void AEnemyInfo::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void AEnemyInfo::Charge()
 {
-	FVector dir = GetTargetFromMe();
 
 }
 
@@ -59,12 +58,7 @@ FVector AEnemyInfo::GetTargetFromMe()
 
 void AEnemyInfo::AttackPlayer(EAttackType type)
 {
-	switch (type)
-	{
-		case EAttackType::Charge:			{ Charge();			break; }
-		case EAttackType::CurtainFire:		{ CurtainFire();		break; }
-		case EAttackType::Plate:			{ Plate();			break; }
-	}
+	
 }
 
 /// <summary>
