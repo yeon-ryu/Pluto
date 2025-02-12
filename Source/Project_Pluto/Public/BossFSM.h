@@ -11,12 +11,14 @@
 UENUM(BlueprintType)
 enum class EBossState : uint8
 {
-	Idle			UMETA(DisplayName = "Idle"),
-	Move			UMETA(DisplayName = "Move"),
-	Attack		UMETA(DisplayName = "Attack"),
-	Hit			UMETA(DisplayName = "Hit"),
-	PhaseChange	UMETA(DisplayName = "PhaseChange"),
-	Die			UMETA(DisplayName = "Die")
+	Idle				UMETA(DisplayName = "Idle"),
+	Move				UMETA(DisplayName = "Move"),
+	Attack_Start		UMETA(DisplayName = "Attack_Start"),
+	Attack_Ongoing	UMETA(DisplayName = "Attack_Ongoing"),
+	Attack_End		UMETA(DisplayName = "Attack_End"),
+	Hit				UMETA(DisplayName = "Hit"),
+	PhaseChange		UMETA(DisplayName = "PhaseChange"),
+	Die				UMETA(DisplayName = "Die")
 };
 
 
@@ -51,7 +53,11 @@ public:
 
 	void State_Move();
 
-	void State_Attack();
+	void State_Attack_Start();
+
+	void State_Attack_Ongoing();
+
+	void State_Attack_End();
 
 	void State_Hit();
 
@@ -67,21 +73,29 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float PhaseChangeTime = 4.0f;
+	float AttackDelayTime = 2.f;
 
 	FVector destination;
 	FVector direction;
 
-
+	float BossAttRange;
+	float BossAttDamage;
+	
 
 #pragma endregion Values for State Change
 
 	UPROPERTY(VisibleAnywhere, Category = "FSM")
 	class ABoss* me;
-	
+
+	UPROPERTY()
+	class UBossAnimInstance* anim;
+
 	//목적지와 그 방향 벡터를 구하는 함수
 	void SetDesDir();
 
 	void OnTakeDamage();
+
+	void CallSelectPattern();
 
 		
 };

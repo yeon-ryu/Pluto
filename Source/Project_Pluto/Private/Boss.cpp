@@ -26,6 +26,12 @@ ABoss::ABoss()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f), FRotator(0.0f, -90.0f, 0.0f));
 	}
 
+	ConstructorHelpers::FClassFinder<UAnimInstance> tempClass(TEXT("/Script/Engine.AnimBlueprint'/Game/MW/Blueprints/ABP_Boss.ABP_Boss_C'"));
+	if (tempClass.Succeeded ())
+	{
+		GetMesh()->SetAnimInstanceClass(tempClass.Class);
+	}
+
 	// Boss Component Ãß°¡
 	fsm = CreateDefaultSubobject<UBossFSM>(TEXT("BossFSM"));
 
@@ -74,19 +80,26 @@ void ABoss::SelectPattern(int32 idx)
 		case 0:
 			{
 				AttTypeEnum = EAttackType::Charge;
+				SetDamage(AttDamages[idx]);
+				SetAttRange(AttRanges[idx]);
 				break;
 			}
 		case 1:
 			{
 				AttTypeEnum = EAttackType::CurtainFire;
+				SetDamage(AttDamages[idx]);
+				SetAttRange(AttRanges[idx]);
 				break;
 			}
 		case 2:
 			{
 				AttTypeEnum = EAttackType::Plate;
+				SetDamage(AttDamages[idx]);
+				SetAttRange(AttRanges[idx]);
 				break;
 			}
 
 	}
 }
+
 

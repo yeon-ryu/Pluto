@@ -57,6 +57,20 @@ FVector AEnemyInfo::GetTargetFromMe()
 
 }
 
+void AEnemyInfo::AttackPlayer(EAttackType type)
+{
+	switch (type)
+	{
+		case EAttackType::Charge:			{ Charge();			break; }
+		case EAttackType::CurtainFire:		{ CurtainFire();		break; }
+		case EAttackType::Plate:			{ Plate();			break; }
+	}
+}
+
+/// <summary>
+/// TakeDamage에서 실행되는 체력 처리 함수
+/// </summary>
+/// <param name="damageValue"> 받은 피해량 </param>
 void AEnemyInfo::ReceiveDamage(float damageValue)
 {
 	NowHp = FMath::Clamp(NowHp - damageValue, 0.f, MaxHp);
