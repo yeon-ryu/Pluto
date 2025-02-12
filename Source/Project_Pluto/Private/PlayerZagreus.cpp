@@ -6,9 +6,10 @@
 #include "Camera/CameraComponent.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
-#include "Blade.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "PWBlade.h"
 
 // Sets default values
 APlayerZagreus::APlayerZagreus()
@@ -49,21 +50,19 @@ APlayerZagreus::APlayerZagreus()
 		MovementComponent->bUseControllerDesiredRotation = false;
 	}
 
+	GetCharacterMovement()->MaxWalkSpeed = Speed;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = Speed;
+
 	// 초기 카메라 설정
 	springArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	springArmComp->SetupAttachment(RootComponent);
-	springArmComp->SetRelativeLocationAndRotation(FVector(-200.0f, 100.0f, 200.0f), FRotator(-50.0f, -30.0f, 0.0f));
-	springArmComp->TargetArmLength = 700.0f;
+	springArmComp->SetRelativeLocation(FVector(0.0f));
+	springArmComp->TargetArmLength = 1000.0f;
 	springArmComp->bDoCollisionTest = false;
-	//springArmComp->bUsePawnControlRotation = false;
+	springArmComp->SetWorldRotation(FRotator(-50.0f, -30.0f, 0.0f));
 
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
-	//camComp->bUsePawnControlRotation = false;
-
-
-	// 무기 세팅
-	weapon = CreateDefaultSubobject<ABlade>(TEXT("weapon"));
 }
 
 // Called when the game starts or when spawned
@@ -77,6 +76,17 @@ void APlayerZagreus::BeginPlay()
 
 		if (subsystem) {
 			subsystem->AddMappingContext(IMC_Player, 0);
+		}
+	}
+
+	{
+		// 무기 세팅
+		FName WeaponSocket(TEXT("muzzle_01")); // FX_weapon
+		FTransform weaponPosition = GetMesh()->GetSocketTransform(TEXT("muzzle_01"));
+		auto CurrentWeapon = GetWorld()->SpawnActor<APWBlade>(FVector::ZeroVector, FRotator::ZeroRotator);
+		if (CurrentWeapon != nullptr) {
+			weapon = CurrentWeapon;
+			weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("FX_weapon"));
 		}
 	}
 }
@@ -95,20 +105,25 @@ void APlayerZagreus::Tick(float DeltaTime)
 
 	{
 		// 플레이어 이동
-		PlayerDir.Normalize();
-		SetActorLocation(GetActorLocation() + PlayerDir * Speed * DeltaTime);
+		//PlayerDir.Normalize();
+		//SetActorLocation(GetActorLocation() + PlayerDir * Speed * DeltaTime);
+		AddMovementInput(PlayerDir.GetSafeNormal());
 		PlayerDir = FVector::ZeroVector;
 	}
 
 	{
 		// 콤보 공격 확인
-		if (isCombo && (NowState == EPlayerBehaviorState::Attack || NowState == EPlayerBehaviorState::Idle)) {
+		if (isCombo && NowState == EPlayerBehaviorState::Attack) {
+			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, FString::Printf(TEXT("Combo : %d"), Combo));
+		
 			CurrentAttackTime += DeltaTime;
 			if (CurrentAttackTime >= ComboWaitTime) {
 				isCombo = false;
 				// 공격 시작 시 초기화 해주지만 혹시 모르니 여기서도 콤보 초기화
 				Combo = 0;
 				CurrentAttackTime = 0.0f;
+				
+				NowState = EPlayerBehaviorState::Idle;
 			}
 		}
 	}
@@ -130,17 +145,23 @@ void APlayerZagreus::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
+void APlayerZagreus::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	// 돌진 은혜 시 적과 부딪히면 적한테 대미지
+
+}
+
 void APlayerZagreus::SetAttackDir()
 {
 	auto PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController) {
-		float MouseX, MouseY;
-		PlayerController->GetMousePosition(MouseX, MouseY);
+		FHitResult hit;
+		PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, hit);
 
-		MouseLocation.X = MouseX;
-		MouseLocation.Y = MouseY;
+		MouseLocation = hit.Location;
 
 		AttackDirection = MouseLocation - GetActorLocation();
+		SetActorRotation(FRotator(0.0f, UKismetMathLibrary::ClampAxis(AttackDirection.Rotation().Yaw), 0.0f));
 	}
 }
 
@@ -154,7 +175,6 @@ void APlayerZagreus::OnDamage(int32 damage)
 void APlayerZagreus::SetPermanetBuff()
 {
 	MaxHP = InitHP + FMath::Floor(InitHP * PlusHP);
-	// weapon->Atk = weapon->InitAtk + FMath::Floor(weapon->InitAtk * PlusAtk); // <- 공격마다 대미지가 달라서
 }
 
 void APlayerZagreus::SetBuffMaxHP(int32 plusHpAbs, float plusHpPro)
@@ -179,11 +199,12 @@ void APlayerZagreus::Move(const FInputActionValue& inputValue)
 	PlayerDir.Y = value.Y;
 }
 
+// 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 {
 	SetAttackDir();
-	UE_LOG(LogTemp, Warning, TEXT("Player : %.1f , %.1f"), GetActorLocation().X, GetActorLocation().Y);
-	UE_LOG(LogTemp, Warning, TEXT("Mouse : %.1f , %.1f"), MouseLocation.X, MouseLocation.Y);
+	//UE_LOG(LogTemp, Warning, TEXT("Player : %.1f , %.1f"), GetActorLocation().X, GetActorLocation().Y);
+	//UE_LOG(LogTemp, Warning, TEXT("Mouse : %.1f , %.1f"), MouseLocation.X, MouseLocation.Y);
 
 	if (!isCombo) { // 콤보 시작 플래그 설정
 		Combo = 0;
@@ -193,40 +214,21 @@ void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 	Combo++;
 	CurrentAttackTime = 0.0f;
 
-	if (Combo > MaxCombo) {
+	if (Combo > weapon->MaxCombo) {
 		Combo = 1;
 	}
 
 	if (NowState == EPlayerBehaviorState::Dodge) {
-		Combo = 3;
 		NowState = EPlayerBehaviorState::Attack;
-		weapon->Thrust();
+		Combo = 3;
+		// Thrust 애니메이션 실행
 
-		// 애니메이션 대기?
 		Combo = 0;
 		isCombo = false;
+		NowState = EPlayerBehaviorState::Idle;
 	} else if (NowState != EPlayerBehaviorState::Attack) {
 		NowState = EPlayerBehaviorState::Attack;
 	}
-
-	// 몇번째 콤보인가에 따라 공격 실행
-	switch (Combo)
-	{
-	case 1: // Strike (기본 공격)
-		weapon->Strike();
-		break;
-	case 2: // Chop
-		weapon->Chop();
-		break;
-	case 3: // Thrust
-		weapon->Thrust();
-		break;
-	default:
-		break;
-	}
-
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, FString::Printf(TEXT("Combo : %d"), Combo));
-	// 애니메이션 재생 종료까지 대기? -> 애니메이션이 끝나면 다음 입력 없으면 기본 Idle 로 돌아가기
 }
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
@@ -236,19 +238,24 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 	}
 
 	Speed = 1000.0f;
+	// 에너미와 안 부딪히도록 처리
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+
 	
 	// 애니메이션 시간이 끝나면 충돌 체크와 스피드 원복
 	Speed = 700.0f;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 }
 
+// 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::SpecialAtt(const FInputActionValue& inputValue)
 {
 	if (NowState != EPlayerBehaviorState::SpecialAtt) {
 		NowState = EPlayerBehaviorState::SpecialAtt;
 	}
 	SetAttackDir();
+
+	// 특수공격 애니메이션 -> 끝나면 NowState 변경
 }
 
 void APlayerZagreus::Spell(const FInputActionValue& inputValue)
@@ -257,6 +264,8 @@ void APlayerZagreus::Spell(const FInputActionValue& inputValue)
 		NowState = EPlayerBehaviorState::Spell;
 	}
 	SetAttackDir();
+
+	// 마법 애니메이션 -> 끝나면 NowState 변경
 }
 
 void APlayerZagreus::Interaction(const FInputActionValue& inputValue)
@@ -264,4 +273,6 @@ void APlayerZagreus::Interaction(const FInputActionValue& inputValue)
 	if (NowState != EPlayerBehaviorState::Interaction) {
 		NowState = EPlayerBehaviorState::Interaction;
 	}
+
+	// 상호작용
 }

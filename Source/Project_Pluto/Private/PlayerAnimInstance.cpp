@@ -9,4 +9,5 @@ UPlayerAnimInstance::UPlayerAnimInstance()
 {
 	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerZagreus::StaticClass());
 	player = Cast<APlayerZagreus>(actor);
+
 }
