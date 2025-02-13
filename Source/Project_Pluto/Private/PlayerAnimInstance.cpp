@@ -18,7 +18,15 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		if(player == nullptr) return;
 	}
 
-	Speed = player->GetVelocity().Size();
+	FVector velocity = player->GetVelocity();
+	FVector forwardVector = player->GetActorForwardVector();
+
+	// 앞 뒤 이동속도
+	Speed = FVector::DotProduct(forwardVector, velocity);
+
+	// 좌 우 이동속도
+	FVector rightVector = player->GetActorRightVector();
+	Direction = FVector::DotProduct(rightVector, velocity);
 }
 
 //void UPlayerAnimInstance::PlayDodgeAnim()

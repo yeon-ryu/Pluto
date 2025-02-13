@@ -44,6 +44,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
+// 플레이어 설정
 public:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
@@ -75,9 +76,6 @@ public:
 
 	// void ChangeWeapon();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
-	TSubclassOf<class APlayerWeapon> weaponFactory;
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
 	int32 InitHP = 50; // 플레이어 초기 체력
@@ -96,6 +94,11 @@ public:
 	float PlusAtk = 0; // 영구 강화 : 추가 공격력 퍼센트
 
 
+	UPROPERTY()
+	class UPlayerAnimInstance* AnimInstance;
+
+
+// 플레이어 로직
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
 	float AnimWaitTime = 0.6f; // 애니메이션 대기 시간. 나중에 Montage_Play 로 애니메이션 시간 세팅한다.
@@ -133,6 +136,7 @@ public:
 	void SetBuffMaxHP(int32 plusHpAbs, float plusHpPro);
 
 
+// Input
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* IMC_Player;

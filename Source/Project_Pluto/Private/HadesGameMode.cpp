@@ -7,5 +7,11 @@ void AHadesGameMode::StartPlay()
 {
 	Super::StartPlay();
 
-	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+	auto controller = GetWorld()->GetFirstPlayerController();
+	
+	if(controller == nullptr) return;
+
+	controller->bShowMouseCursor = true;
+	controller->DefaultMouseCursor = EMouseCursor::Default;
+	controller->CurrentMouseCursor = EMouseCursor::Default;
 }

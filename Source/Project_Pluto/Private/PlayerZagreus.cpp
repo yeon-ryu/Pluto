@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PWBlade.h"
+#include "PlayerAnimInstance.h"
 
 // Sets default values
 APlayerZagreus::APlayerZagreus()
@@ -28,16 +29,6 @@ APlayerZagreus::APlayerZagreus()
 		UE_LOG(LogTemp, Error, TEXT("PlayerZagreus SkeletalMesh loding fail."));
 	}
 
-	// 애니메이션 클래스 할당
-	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-
-	ConstructorHelpers::FClassFinder<UAnimInstance> TempAnim(TEXT("/Game/RGY/Blueprints/ABP_PlayerZagreus.ABP_PlayerZagreus_C"));
-
-	if (TempAnim.Succeeded()) {
-		GetMesh()->SetAnimInstanceClass(TempAnim.Class);
-		
-	}
-
 	// 플레이어가 이동 방향으로 회전하도록
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -53,11 +44,22 @@ APlayerZagreus::APlayerZagreus()
 	GetCharacterMovement()->MaxWalkSpeed = Speed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = Speed;
 
+
+	// 애니메이션 클래스 할당
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+
+	ConstructorHelpers::FClassFinder<UAnimInstance> TempAnim(TEXT("/Game/RGY/Blueprints/ABP_PlayerZagreus.ABP_PlayerZagreus_C"));
+
+	if (TempAnim.Succeeded()) {
+		GetMesh()->SetAnimInstanceClass(TempAnim.Class);
+	}
+
+
 	// 초기 카메라 설정
 	springArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	springArmComp->SetupAttachment(RootComponent);
 	springArmComp->SetRelativeLocation(FVector(0.0f));
-	springArmComp->TargetArmLength = 1000.0f;
+	springArmComp->TargetArmLength = 1200.0f;
 	springArmComp->bDoCollisionTest = false;
 	springArmComp->SetWorldRotation(FRotator(-50.0f, -30.0f, 0.0f));
 
@@ -69,7 +71,11 @@ APlayerZagreus::APlayerZagreus()
 void APlayerZagreus::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 애니메이션 Instance 가져오기
+	AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	
+	// Input 용 컨트롤러 세팅
 	auto pc = Cast<APlayerController>(Controller);
 	if (pc) {
 		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
@@ -80,7 +86,7 @@ void APlayerZagreus::BeginPlay()
 	}
 
 	{
-		// 무기 세팅
+		// 무기 소환 세팅
 		FName WeaponSocket(TEXT("muzzle_01")); // FX_weapon
 		FTransform weaponPosition = GetMesh()->GetSocketTransform(TEXT("muzzle_01"));
 		auto CurrentWeapon = GetWorld()->SpawnActor<APWBlade>(FVector::ZeroVector, FRotator::ZeroRotator);
@@ -90,6 +96,7 @@ void APlayerZagreus::BeginPlay()
 		}
 	}
 
+	// 캐릭터 초기 이동 스피드
 	GetCharacterMovement()->MaxWalkSpeed = Speed;
 }
 
@@ -98,7 +105,7 @@ void APlayerZagreus::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
+	// 플레이어가 Move 상태인데 움직임이 없을 경우 Idle 상태로 변경
 	if (PlayerDir == FVector::ZeroVector && NowState == EPlayerBehaviorState::Move) {
 		NowState = EPlayerBehaviorState::Idle;
 	}

@@ -24,6 +24,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = TPSPlayerAnim)
 	float Speed = 0.0f;
 
+	// 플레이어 좌우 이동 속도 -> 솔직히 없지 않나 싶은데
+	UPROPERTY( EditDefaultsOnly , BlueprintReadWrite , Category = TPSPlayerAnim )
+	float Direction = 0.0f;
+
 	// 재생할 회피 애니메이션 몽타주
 	//UPROPERTY(EditDefaultsOnly, Category = PlayerAnim)
 	//class UAnimMontage* DodgeAnimMontage;
