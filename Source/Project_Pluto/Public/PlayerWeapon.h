@@ -25,7 +25,7 @@ public:
 
 
 protected:
-	// 영구 은혜 등 읽어와서 적용해야할게 많기에 불러온다
+	// 영구 은혜 등 읽어와서 적용해야할게 많기에? 불러온다
 	UPROPERTY()
 	class APlayerZagreus* player;
 

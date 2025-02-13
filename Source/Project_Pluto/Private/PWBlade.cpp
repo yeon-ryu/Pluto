@@ -12,6 +12,8 @@
 
 APWBlade::APWBlade()
 {
+	CollisionComp->SetBoxExtent(FVector(10.0f, 10.0f, 60.0f));
+
 	BoxTraceStart = CreateDefaultSubobject<USceneComponent>(TEXT("Box Trace Start"));
 	BoxTraceStart->SetupAttachment(GetRootComponent());
 
@@ -27,7 +29,12 @@ APWBlade::APWBlade()
 	if (TempMesh.Succeeded()) {
 		MeshComp->SetStaticMesh(TempMesh.Object);
 		MeshComp->SetRelativeScale3D(FVector(0.08f));
-		MeshComp->SetRelativeLocationAndRotation(FVector(51.0f, -3.0f, 140.0f), FRotator(-32.0f, -39.0f, 24.0f));
+		MeshComp->SetRelativeLocationAndRotation(FVector(60.0f, 30.0f, 30.0f), FRotator(-22.0f, -45.0f, 37.0f));
+		// Player 가 잡기 위한 수치 : FVector(51.0f, -3.0f, 140.0f), FRotator(-32.0f, -39.0f, 24.0f)
+		// Collision Box 와 맞춤 (X=60.0,Y=30.0,Z=30.0)
+		// Collision Box 와 맞춤 (Pitch=-22.0,Yaw=-45.0,Roll=37.0)
+
+		// Spawn 되야 하는 차이 : (-9.0f, -33.0f, 110.0f), (-50.0f, 6.0f, -13.0f)
 	}
 	MeshComp->SetCollisionProfileName(TEXT("NoCollision"));
 
