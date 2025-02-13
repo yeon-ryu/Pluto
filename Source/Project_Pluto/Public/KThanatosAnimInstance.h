@@ -17,6 +17,12 @@ class PROJECT_PLUTO_API UKThanatosAnimInstance : public UAnimInstance
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 public:
-	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = TPSThanatosAnimInstance)
+	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = TPSThanatosAnim)
 	float Speed = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = TPSThanatosAnim)
+	float Direction = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = TPSThanatosAnim)
+	bool IsAttack;
 };

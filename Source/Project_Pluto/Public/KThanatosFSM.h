@@ -39,7 +39,7 @@ public:
 	void OnDamagedProcess()override;
 	//공격 관련 함수
 	void OnAttackProcess()override;
-
+	bool GetIsAttack();
 
 
 public:
@@ -64,6 +64,10 @@ public:
 	class AKEnemy* target_Enemy;
 
 	int count = 0;
+
+	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = FSM)
+	bool IsAttack;
+
 
 	//소유 액터
 	UPROPERTY()

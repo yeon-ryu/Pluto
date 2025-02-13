@@ -101,30 +101,18 @@ void UKThanatosFSM::State_Move()
 void UKThanatosFSM::State_Attack()
 {
 	//일정 시간에 한 번씩 공격
-	if(count == 10)
+
+	//시간이 흐르다가
+	currentTime += GetWorld()->DeltaTimeSeconds;
+	//공격 시간이되면 공격을 실행
+	if (currentTime > status.attackDelayTime)
 	{
-		mState = EKEnemyState::Attack2;
+		currentTime = 0.0f;
+
+		count++;
+		mState = EKEnemyState::MoveFar;
+		IsAttack = false;
 	}
-
-	else
-	{
-		//시간이 흐르다가
-		currentTime += GetWorld()->DeltaTimeSeconds;
-		//공격 시간이되면 공격을 실행
-		if (currentTime > status.attackDelayTime)
-		{
-			//공격을 한다
-			//PRINT_LOG(TEXT("- Attack"));
-
-			//공격 실행 후 초기화
-			currentTime = 0.0f;
-
-			count++;
-			mState = EKEnemyState::MoveFar;
-		}
-	
-	}
-
 }
 
 
@@ -137,11 +125,13 @@ void UKThanatosFSM::State_Attack2()
 	if (currentTime > status.attackDelayTime)
 	{
 		currentTime = 0.0f;
-		mState = EKEnemyState::MoveFar;
+		
 		count=0;
+		mState = EKEnemyState::MoveFar;
 	}
 
 	attackRange = 1000.0f;
+	IsAttack = false;
 }
 
 void UKThanatosFSM::State_MoveFar()
@@ -160,13 +150,6 @@ void UKThanatosFSM::State_MoveFar()
 	{
 		mState = EKEnemyState::Idle;
 		currentTime = 0.0f;
-		////거리체크
-		//if (dir.Size() > attackRange)
-		//{
-		//	//공격 상태로 전환하고 싶다
-		//	mState = EKEnemyState::Move;
-		//	currentTime = 0.0f;
-		//}
 	}
 
 	
@@ -179,6 +162,23 @@ void UKThanatosFSM::OnDamagedProcess()
 
 void UKThanatosFSM::OnAttackProcess()
 {
+		IsAttack = true;
 
+
+		if (count >= 10)
+		{
+			mState = EKEnemyState::Attack2;
+		}
+
+		else
+		{
+			mState = EKEnemyState::Attack;
+
+		}
+}
+
+bool UKThanatosFSM::GetIsAttack()
+{
+	return IsAttack;
 }
 
