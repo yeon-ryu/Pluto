@@ -16,6 +16,11 @@ APlayerWeapon::APlayerWeapon()
 	// 무기 collision
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("RootCollisionComp"));
 	CollisionComp->SetupAttachment(CollisionComp);
+
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
+	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap); // 나중에 적으로 변경 & 벽도 필요?
 }
 
 // Called when the game starts or when spawned
