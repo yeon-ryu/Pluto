@@ -31,4 +31,7 @@ public:
 	UPROPERTY(VisibleAnywhere , BlueprintReadOnly, Category = FSMComponent)
 	class UKThanatosFSM* fsm;
 
+public:
+
+
 };

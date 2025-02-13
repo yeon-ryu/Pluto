@@ -148,6 +148,9 @@ void UKThanatosFSM::State_MoveFar()
 {
 	FVector destination = target_Enemy->GetActorLocation();
 	FVector dir = me->GetActorLocation() - destination;
+
+
+
 	me->AddMovementInput(dir.GetSafeNormal());
 
 	//1초(WalkingTime) 걸은 후엔 2초(IdleDelayTime) 대기하고 싶음
