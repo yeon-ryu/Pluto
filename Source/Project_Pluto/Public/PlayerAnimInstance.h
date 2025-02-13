@@ -28,13 +28,6 @@ public:
 	UPROPERTY( EditDefaultsOnly , BlueprintReadWrite , Category = TPSPlayerAnim )
 	float Direction = 0.0f;
 
-	// 재생할 회피 애니메이션 몽타주
-	//UPROPERTY(EditDefaultsOnly, Category = PlayerAnim)
-	//class UAnimMontage* DodgeAnimMontage;
-
-	//// 회피 애니메이션 재생 함수
-	//void PlayDodgeAnim();
-
 	UPROPERTY(BlueprintReadOnly)
 	class APlayerZagreus* player;
 };

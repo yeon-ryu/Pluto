@@ -72,13 +72,13 @@ void APlayerZagreus::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 애니메이션 Instance 가져오기
+	// 애니메이션 Instance 가져오기 -> AnimMontage 가 필요할 경우 사용
 	AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	
 	// Input 용 컨트롤러 세팅
-	auto pc = Cast<APlayerController>(Controller);
-	if (pc) {
-		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
+	pController = Cast<APlayerController>(Controller);
+	if (pController) {
+		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pController->GetLocalPlayer());
 
 		if (subsystem) {
 			subsystem->AddMappingContext(IMC_Player, 0);
@@ -112,8 +112,14 @@ void APlayerZagreus::Tick(float DeltaTime)
 
 	{
 		// 플레이어 이동
-		AddMovementInput(PlayerDir.GetSafeNormal());
-		PlayerDir = FVector::ZeroVector;
+		if(NowState == EPlayerBehaviorState::Move || NowState == EPlayerBehaviorState::Dodge) {
+			if (PlayerDir == FVector::ZeroVector) {
+				if (pController != nullptr) {
+					PlayerDir = pController->GetPawn()->GetActorForwardVector();
+				}
+			}
+			AddMovementInput(PlayerDir.GetSafeNormal());
+		}
 	}
 
 	{
@@ -125,6 +131,7 @@ void APlayerZagreus::Tick(float DeltaTime)
 			}
 		}
 		else {
+			PlayerDir = FVector::ZeroVector;
 			if (bAttackProcess) { // 공격 중이면 공격 애니메이션 대기
 				GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, FString::Printf(TEXT("Combo : %d"), Combo));
 
@@ -217,8 +224,6 @@ void APlayerZagreus::AttackProcess()
 
 void APlayerZagreus::EndDodge()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Dodge End"));
-
 	GetCharacterMovement()->MaxWalkSpeed = Speed;
 	// 에너미와 충돌 Overlap 으로 원복
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
@@ -226,6 +231,8 @@ void APlayerZagreus::EndDodge()
 	if (NowState == EPlayerBehaviorState::Dodge) {
 		NowState = EPlayerBehaviorState::Idle;
 	}
+
+	AnimWaitTime = DefaultAnimWaitTime;
 }
 
 void APlayerZagreus::OnDamage(int32 damage)
@@ -253,7 +260,14 @@ void APlayerZagreus::SetBuffMaxHP(int32 plusHpAbs, float plusHpPro)
 
 void APlayerZagreus::Move(const FInputActionValue& inputValue)
 {
-	if(NowState == EPlayerBehaviorState::Dodge || NowState == EPlayerBehaviorState::Attack) return;
+	if(NowState == EPlayerBehaviorState::Dodge || NowState == EPlayerBehaviorState::Attack) {
+		if (PlayerDir == FVector::ZeroVector) {
+			FVector2D value = inputValue.Get<FVector2D>();
+			PlayerDir.X = value.X;
+			PlayerDir.Y = value.Y;
+		}
+		return;
+	}
 
 	if (NowState != EPlayerBehaviorState::Move) {
 		NowState = EPlayerBehaviorState::Move;
@@ -275,8 +289,6 @@ void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Dodge Start"));
-
 	if (NowState != EPlayerBehaviorState::Dodge) {
 		NowState = EPlayerBehaviorState::Dodge;
 	}
@@ -291,6 +303,8 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 	GetCharacterMovement()->MaxWalkSpeed = DodgeSpeed;
 	// 에너미와 충돌 Ignore
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+
+	AnimWaitTime = DodgeTime;
 }
 
 // 에너미 오버랩 시 공격은 무기에서

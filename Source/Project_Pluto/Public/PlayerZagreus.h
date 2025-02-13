@@ -66,9 +66,7 @@ public:
 	float Speed = 700.0f;
 
 	UPROPERTY(EditAnywhere, Category="PlayerSetting")
-	float DodgeSpeed = 1000.0f;
-
-	FVector PlayerDir;
+	float DodgeSpeed = 4000.0f;
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Weapon)
@@ -100,10 +98,19 @@ public:
 
 // 플레이어 로직
 public:
+	class APlayerController* pController;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
-	float AnimWaitTime = 0.6f; // 애니메이션 대기 시간. 나중에 Montage_Play 로 애니메이션 시간 세팅한다.
+	float AnimWaitTime = 0.6f; // 애니메이션 대기 시간. Montage_Play 로 애니메이션 시간 세팅
 
 	float CurrentAnimTime = 0.0f;
+
+	float DefaultAnimWaitTime = 0.6f;
+
+	float DodgeTime = 0.5f;
+
+
+	FVector PlayerDir;
 
 
 	FVector AttackDirection; // 공격 방향 (플레이어 기준 마우스 방향)

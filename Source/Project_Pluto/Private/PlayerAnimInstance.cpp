@@ -28,8 +28,3 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	FVector rightVector = player->GetActorRightVector();
 	Direction = FVector::DotProduct(rightVector, velocity);
 }
-
-//void UPlayerAnimInstance::PlayDodgeAnim()
-//{
-//
-//}
