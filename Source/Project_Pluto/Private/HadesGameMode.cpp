@@ -11,6 +11,7 @@ void AHadesGameMode::StartPlay()
 	
 	if(controller == nullptr) return;
 
+	// 마우스 커서 설정
 	controller->bShowMouseCursor = true;
 	controller->DefaultMouseCursor = EMouseCursor::Default;
 	controller->CurrentMouseCursor = EMouseCursor::Default;
