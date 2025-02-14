@@ -61,9 +61,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerState)
 	EPlayerWeapon NowWeapon = EPlayerWeapon::Blade;
 
+	float Speed = 1000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetting")
-	float Speed = 1000.0f; // 기본 속도
+	float RunSpeed = 1000.0f; // 달리기 속도
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetting")
 	float DodgeSpeed = 4000.0f; // 회피 속도

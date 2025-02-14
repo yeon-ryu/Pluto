@@ -34,16 +34,6 @@ APlayerZagreus::APlayerZagreus()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	//UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
-	//if (MovementComponent)
-	//{
-	//	MovementComponent->bOrientRotationToMovement = true;
-	//	MovementComponent->bUseControllerDesiredRotation = false;
-	//}
-
-	GetCharacterMovement()->MaxWalkSpeed = Speed;
-	GetCharacterMovement()->MaxWalkSpeedCrouched = Speed;
-
 
 	// 애니메이션 클래스 할당
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
@@ -97,7 +87,7 @@ void APlayerZagreus::BeginPlay()
 	AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
 	// 캐릭터 초기 이동 스피드
-	GetCharacterMovement()->MaxWalkSpeed = Speed;
+	Speed = RunSpeed;
 }
 
 // Called every frame
@@ -121,15 +111,7 @@ void APlayerZagreus::Tick(float DeltaTime)
 
 			SetActorRotation(FRotator(0.0f, UKismetMathLibrary::ClampAxis(PlayerDir.Rotation().Yaw), 0.0f));
 
-			// 나중에 이 부분 하나로 정리
-			if (NowState == EPlayerBehaviorState::Move) {
-				SetActorLocation(GetActorLocation() + PlayerDir * Speed * DeltaTime);
-			}
-			else if (NowState == EPlayerBehaviorState::Dodge) {
-				SetActorLocation(GetActorLocation() + PlayerDir * DodgeSpeed * DeltaTime);
-			}
-
-			// AddMovementInput(PlayerDir.GetSafeNormal());
+			SetActorLocation(GetActorLocation() + PlayerDir.GetSafeNormal() * Speed * DeltaTime, true);
 		}
 	}
 
@@ -236,7 +218,7 @@ void APlayerZagreus::AttackProcess()
 
 void APlayerZagreus::EndDodge()
 {
-	GetCharacterMovement()->MaxWalkSpeed = Speed;
+	Speed = RunSpeed;
 	// 에너미와 충돌 Overlap 으로 원복
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
@@ -312,7 +294,7 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 		CurrentAnimTime = 0.0f;
 	}
 
-	GetCharacterMovement()->MaxWalkSpeed = DodgeSpeed;
+	Speed = DodgeSpeed;
 	// 에너미와 충돌 Ignore
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
