@@ -40,7 +40,7 @@ public:
 protected:
 
 	#pragma region DefaultStat
-UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DefaultStat")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DefaultStat")
 	float Damage;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DefaultStat")
@@ -71,11 +71,13 @@ UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DefaultStat")
 #pragma endregion DefaultStat
 
 public:
-	void Charge();
-	void CurtainFire();
-	void Plate();
+	virtual void Charge();
+	virtual void CurtainFire();
+	virtual void Plate();
 
 	FVector GetTargetFromMe();
+
+	virtual void AttackPlayer(EAttackType type);
 
 	void ReceiveDamage(float damageValue);
 	
