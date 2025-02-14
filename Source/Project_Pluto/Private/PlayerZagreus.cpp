@@ -72,9 +72,6 @@ void APlayerZagreus::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 애니메이션 Instance 가져오기 -> AnimMontage 가 필요할 경우 사용
-	AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-	
 	// Input 용 컨트롤러 세팅
 	pController = Cast<APlayerController>(Controller);
 	if (pController) {
@@ -95,6 +92,9 @@ void APlayerZagreus::BeginPlay()
 			weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("FX_weapon"));
 		}
 	}
+
+	// 애니메이션 Instance 가져오기
+	AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
 	// 캐릭터 초기 이동 스피드
 	GetCharacterMovement()->MaxWalkSpeed = Speed;

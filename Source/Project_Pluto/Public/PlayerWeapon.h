@@ -30,6 +30,9 @@ protected:
 	class APlayerZagreus* player;
 
 public:
+	UPROPERTY(EditAnywhere)
+	class USceneComponent* RootComp;
+
 	// ¹«±â overlap
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UBoxComponent* CollisionComp;

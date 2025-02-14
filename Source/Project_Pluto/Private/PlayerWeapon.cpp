@@ -13,9 +13,12 @@ APlayerWeapon::APlayerWeapon()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
+	SetRootComponent(RootComp);
+
 	// ¹«±â collision
-	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("RootCollisionComp"));
-	CollisionComp->SetupAttachment(CollisionComp);
+	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComp"));
+	CollisionComp->SetupAttachment(RootComp);
 
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
