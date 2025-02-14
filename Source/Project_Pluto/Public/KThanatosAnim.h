@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "KThanatosAnimInstance.generated.h"
+#include "KThanatosAnim.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECT_PLUTO_API UKThanatosAnimInstance : public UAnimInstance
+class PROJECT_PLUTO_API UKThanatosAnim : public UAnimInstance
 {
 	GENERATED_BODY()
-
+	
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 public:
@@ -25,4 +25,5 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = TPSThanatosAnim)
 	bool IsAttack;
+
 };
