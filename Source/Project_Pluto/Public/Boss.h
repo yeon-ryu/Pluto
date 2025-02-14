@@ -31,7 +31,8 @@ public:
 public:
 
 #pragma region Getter/Setter
-	FORCEINLINE int32 GetDamage( int32 index ) { return this->AttDamages[index]; }
+	FORCEINLINE int32 GetDamage() { return this->Damage; }
+	FORCEINLINE void SetDamage(int32 damage_value) { this->Damage = damage_value; }
 
 	FORCEINLINE int32 GetNowHp() { return this->NowHp; }
 	FORCEINLINE void SetNowHp(int32 nowhp_value) { this->NowHp = nowhp_value; }
@@ -40,7 +41,7 @@ public:
 	FORCEINLINE void SetMaxHp(int32 maxhp_value) { this->MaxHp = maxhp_value; }
 
 	FORCEINLINE float GetAttRange() { return this->AttRange; }
-	FORCEINLINE void SetAttRange(float attrange_value) { this->AttRange = attrange_value; }
+	FORCEINLINE void SetAttRange(float attrange_value) { this->AttRange= attrange_value; }
 
 	FORCEINLINE float GetCoolDown() { return this->AttCoolDown; }
 	FORCEINLINE void SetCoolDown(float cooldown_value) { this->AttCoolDown = cooldown_value; }
@@ -52,19 +53,49 @@ public:
 	FORCEINLINE void SetSpeed(float speed_value) { this->Speed = speed_value; }
 
 	FORCEINLINE int32 GetAttPatternslength() { return AttPatterns.Num(); }
+	FORCEINLINE EAttackType GetAttackType() { return this->AttTypeEnum; }
 #pragma endregion Getter/Setter
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSMComponent")
 	class UBossFSM* fsm;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<class ACurtainFireProjectile> ProjectileFactory;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
+	class UArrowComponent* ArrowComp;
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
 	void SelectPattern(int32 idx);
 
+	void AddAttPatterns();
+
+	void AttackPlayer(EAttackType type) override;
+	
+	void Charge() override;
+	void CurtainFire() override;
+	void SpawnProjectile();
+	//타이머 핸들러
+	FTimerHandle TimerHandle;
+
 	//virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	//디버그용 함수
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void SelectCharge();
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void SelectCurtainFire();
 
 private:
 	float HpPercent;
 
 	TArray<EAttackType> AttPatterns;
 	TArray<int32> AttDamages = { 13, 4, 8 };
+	TArray<float> AttRanges = { 800.f, 10000.f, 10000.f };
+
+	int32 fireCounter = 0;
+
+
+	
 
 };

@@ -4,6 +4,7 @@
 #include "BossFSM.h"
 #include "DebugMacro.h"
 #include "Boss.h"
+#include "BossAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 
 
@@ -26,7 +27,9 @@ void UBossFSM::BeginPlay()
 	//...
 
 	me = Cast<ABoss>(GetOwner());
-	
+
+	anim = Cast <UBossAnimInstance>(me->GetMesh()->GetAnimInstance());
+	anim->bossfsm = this;
 }
 
 
@@ -38,19 +41,18 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// ...
 
 	FString logMsg = UEnum::GetValueAsString(state);
-	//GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, logMsg);
-
-	Debug::Print(logMsg);
+	//Debug::Print(logMsg);
 	
 
 	switch (state)
 	{
-		case EBossState::Idle:		{ State_Idle(); }			break;
-		case EBossState::Move:		{ State_Move(); }			break;
-		case EBossState::Attack:		{ State_Attack(); }		break;
-		case EBossState::Hit:			{ State_Hit(); }			break;
-		case EBossState::PhaseChange:	{ State_PhaseChange(); }	break;
-		case EBossState::Die:			{ State_Die(); }			break;
+		case EBossState::Idle:			{ State_Idle(); }				break;
+		case EBossState::Move:			{ State_Move(); }				break;
+		case EBossState::Attack_Start:		{ State_Attack_Start(); }		break;
+		case EBossState::Attack_End:		{ State_Attack_End(); }		break;
+		case EBossState::Hit:				{ State_Hit(); }				break;
+		case EBossState::PhaseChange:		{ State_PhaseChange(); }		break;
+		case EBossState::Die:				{ State_Die(); }				break;
 	}
 
 
@@ -58,24 +60,32 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 void UBossFSM::State_Idle()
 {
-	//nowTime += GetDeltaTime();
 	SetDesDir();
 
 	if (direction.Size() <= me->GetDetectRange())
 	{
 		state = EBossState::Move;
 
-		//nowTime = 0.0f;
+		anim->animState = state;
 	}
 	
 }
 
 void UBossFSM::State_Move()
 {
-	SetDesDir();
-	if (direction.Size() <= me->GetAttRange())
+	if (state == EBossState::Attack_Start)
 	{
-		state = EBossState::Attack;
+		return;
+
+	}
+
+	//CallSelectPattern();
+	SetDesDir();
+	if (direction.Size() <= BossAttRange)
+	{
+		state = EBossState::Attack_Start;
+		anim->animState = state;
+		nowTime = AttackDelayTime - 0.5f;
 	}
 
 	FRotator TargetRotation = direction.Rotation();
@@ -90,15 +100,29 @@ void UBossFSM::State_Move()
 
 }
 
-void UBossFSM::State_Attack()
+void UBossFSM::State_Attack_Start()
 {
-	int32 randnum = FMath::RandRange(0, me->GetAttPatternslength ()-1);
-	me->SelectPattern(randnum);
-
+	if (anim->bAttackPlay == true) return;
 	SetDesDir();
-	if (direction.Size() >= me->GetAttRange())
+	nowTime += GetDeltaTime();
+
+	if (nowTime > AttackDelayTime)
+	{
+		me->AttackPlayer(me->GetAttackType());
+		anim->bAttackPlay = true;
+		nowTime = 0.f;
+	}
+
+}
+
+void UBossFSM::State_Attack_End()
+{
+	nowTime += GetDeltaTime();
+
+	if (nowTime > AttackDelayTime)
 	{
 		state = EBossState::Idle;
+		anim->animState = state;
 	}
 
 }
@@ -106,11 +130,12 @@ void UBossFSM::State_Attack()
 void UBossFSM::State_Hit()
 {
 
-	float percent = me->GetNowHp() / me->GetMaxHp();
+	float percent = float(me->GetNowHp()) / me->GetMaxHp();
 
 	if (percent <= 0.75f && percent > 0.5f)
 	{
 		state = EBossState::PhaseChange;
+		me->AddAttPatterns();
 	}
 
 	if (percent <= 0.5f && percent > 0.25f)
@@ -121,12 +146,15 @@ void UBossFSM::State_Hit()
 	if (percent <= 0.25f && percent > 0.f)
 	{
 		state = EBossState::PhaseChange;
+		me->AddAttPatterns();
 	}
 
 	if (percent <= 0)
 	{
 		state = EBossState::Die;
 	}
+
+	anim->animState = state;
 
 }
 
@@ -140,7 +168,8 @@ void UBossFSM::State_PhaseChange()
 	{
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		nowTime = 0.f;
-		state = EBossState::Move;
+		state = EBossState::Idle;
+		anim->animState = state;
 	}
 }
 
@@ -159,6 +188,7 @@ void UBossFSM::SetDesDir()
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	this->destination = PlayerController->GetPawn()->GetActorLocation();
 
+
 	this->direction = this->destination - me->GetActorLocation();
 }
 
@@ -173,5 +203,16 @@ void UBossFSM::OnTakeDamage()
 		state = EBossState::Die;
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+	anim->animState = state;
+}
+
+void UBossFSM::CallSelectPattern()
+{
+	int32 randnum = FMath::RandRange(0, me->GetAttPatternslength() - 1);
+	me->SelectPattern(randnum);
+
+	BossAttDamage = me->GetDamage();
+	BossAttRange = me->GetAttRange();
+
 }
 
