@@ -63,7 +63,7 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetting")
-	float Speed = 700.0f;
+	float Speed = 1000.0f; // 기본 속도
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetting")
 	float DodgeSpeed = 4000.0f; // 회피 속도
