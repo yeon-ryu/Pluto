@@ -16,12 +16,6 @@ APWBlade::APWBlade()
 	// CollisionComp->SetRelativeLocationAndRotation(FVector(60.0f, 5.0f, 80.0f), FRotator(-32.0f, -42.0f, 24.0f));
 	CollisionComp->SetRelativeLocation(FVector(-6.0f, 4.0f, 105.0f));
 
-	BoxTraceStart = CreateDefaultSubobject<USceneComponent>(TEXT("Box Trace Start"));
-	BoxTraceStart->SetupAttachment(GetRootComponent());
-
-	BoxTraceEnd = CreateDefaultSubobject<USceneComponent>(TEXT("Box Trace End"));
-	BoxTraceEnd->SetupAttachment(GetRootComponent());
-
 	// 검 모양 액터
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BladeMeshComp"));
 	MeshComp->SetupAttachment(CollisionComp);
@@ -55,7 +49,8 @@ void APWBlade::Tick(float DeltaTime)
 
 void APWBlade::Attack(AActor* OtherActor)
 {
-	if (OtherActor->IsA<AEnemyInfo>()) {
+	// 수정해야할 사항 : EnemyInfo 를 상속한 타입인지 확인 할 수 있어야함
+	if (OtherActor->GetParentActor()->IsA<AEnemyInfo>()) { UE_LOG(LogTemp, Error, TEXT("Attack to Enemy!"));
 		AEnemyInfo* enemy = Cast<AEnemyInfo>(OtherActor);
 
 		// 몇번째 콤보인가에 따라 공격 실행
@@ -127,24 +122,15 @@ void APWBlade::BackstabBan(AEnemyInfo* Enemy)
 
 void APWBlade::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	const FVector Start = BoxTraceStart->GetComponentLocation();
-	const FVector End = BoxTraceEnd->GetComponentLocation();
-
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(this);
-	FHitResult BoxHit;
-
-	UKismetSystemLibrary::BoxTraceSingle(
-		this,
-		Start,
-		End,
-		FVector(5.f, 5.f, 5.f),
-		BoxTraceStart->GetComponentRotation(),
-		ETraceTypeQuery::TraceTypeQuery1,
-		false,
-		ActorsToIgnore,		//무시할거
-		EDrawDebugTrace::ForDuration,
-		BoxHit,
-		true		//자신무시
-	);
+	switch (player->NowState)
+	{
+	case EPlayerBehaviorState::Attack:
+		Attack(OtherActor);
+		break;
+	case EPlayerBehaviorState::SpecialAtt:
+		SpecialAtt(OtherActor);
+		break;
+	default:
+		break;
+	}
 }

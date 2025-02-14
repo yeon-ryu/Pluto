@@ -34,12 +34,12 @@ APlayerZagreus::APlayerZagreus()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
-	if (MovementComponent)
-	{
-		MovementComponent->bOrientRotationToMovement = true;
-		MovementComponent->bUseControllerDesiredRotation = false;
-	}
+	//UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+	//if (MovementComponent)
+	//{
+	//	MovementComponent->bOrientRotationToMovement = true;
+	//	MovementComponent->bUseControllerDesiredRotation = false;
+	//}
 
 	GetCharacterMovement()->MaxWalkSpeed = Speed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = Speed;
@@ -118,7 +118,18 @@ void APlayerZagreus::Tick(float DeltaTime)
 					PlayerDir = pController->GetPawn()->GetActorForwardVector();
 				}
 			}
-			AddMovementInput(PlayerDir.GetSafeNormal());
+
+			SetActorRotation(FRotator(0.0f, UKismetMathLibrary::ClampAxis(PlayerDir.Rotation().Yaw), 0.0f));
+
+			// 나중에 이 부분 하나로 정리
+			if (NowState == EPlayerBehaviorState::Move) {
+				SetActorLocation(GetActorLocation() + PlayerDir * Speed * DeltaTime);
+			}
+			else if (NowState == EPlayerBehaviorState::Dodge) {
+				SetActorLocation(GetActorLocation() + PlayerDir * DodgeSpeed * DeltaTime);
+			}
+
+			// AddMovementInput(PlayerDir.GetSafeNormal());
 		}
 	}
 

@@ -62,11 +62,14 @@ public:
 	EPlayerWeapon NowWeapon = EPlayerWeapon::Blade;
 
 
-	UPROPERTY(EditAnywhere, Category="PlayerSetting")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetting")
 	float Speed = 700.0f;
 
-	UPROPERTY(EditAnywhere, Category="PlayerSetting")
-	float DodgeSpeed = 4000.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetting")
+	float DodgeSpeed = 4000.0f; // 회피 속도
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
+	float DodgeTime = 0.2f; // 회피 동작 시간
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Weapon)
@@ -106,8 +109,6 @@ public:
 	float CurrentAnimTime = 0.0f;
 
 	float DefaultAnimWaitTime = 0.6f;
-
-	float DodgeTime = 0.5f;
 
 
 	FVector PlayerDir;
