@@ -10,7 +10,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PWBlade.h"
-#include "Boss.h"
 #include "PlayerAnimInstance.h"
 
 // Sets default values
