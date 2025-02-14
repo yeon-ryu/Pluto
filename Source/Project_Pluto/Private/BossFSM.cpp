@@ -41,10 +41,7 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// ...
 
 	FString logMsg = UEnum::GetValueAsString(state);
-	//GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, logMsg);
-	FString type1 = UEnum::GetValueAsString(me->GetAttackType ());
-	Debug::Print(logMsg);
-	//Debug::Print(type1);
+	//Debug::Print(logMsg);
 	
 
 	switch (state)
@@ -63,14 +60,11 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 void UBossFSM::State_Idle()
 {
-	//nowTime += GetDeltaTime();
 	SetDesDir();
 
 	if (direction.Size() <= me->GetDetectRange())
 	{
 		state = EBossState::Move;
-
-		//nowTime = 0.0f;
 
 		anim->animState = state;
 	}
@@ -85,7 +79,7 @@ void UBossFSM::State_Move()
 
 	}
 
-	CallSelectPattern();
+	//CallSelectPattern();
 	SetDesDir();
 	if (direction.Size() <= BossAttRange)
 	{
@@ -136,11 +130,12 @@ void UBossFSM::State_Attack_End()
 void UBossFSM::State_Hit()
 {
 
-	float percent = me->GetNowHp() / me->GetMaxHp();
+	float percent = float(me->GetNowHp()) / me->GetMaxHp();
 
 	if (percent <= 0.75f && percent > 0.5f)
 	{
 		state = EBossState::PhaseChange;
+		me->AddAttPatterns();
 	}
 
 	if (percent <= 0.5f && percent > 0.25f)
@@ -151,6 +146,7 @@ void UBossFSM::State_Hit()
 	if (percent <= 0.25f && percent > 0.f)
 	{
 		state = EBossState::PhaseChange;
+		me->AddAttPatterns();
 	}
 
 	if (percent <= 0)

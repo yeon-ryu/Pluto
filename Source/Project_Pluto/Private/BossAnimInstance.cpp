@@ -23,7 +23,6 @@ void UBossAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 void UBossAnimInstance::AnimNotify_AttackEnd()
 {
-
 	bAttackPlay = false;
 	bossfsm->state = EBossState::Attack_End;
 }

@@ -59,13 +59,32 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSMComponent")
 	class UBossFSM* fsm;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<class ACurtainFireProjectile> ProjectileFactory;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
+	class UArrowComponent* ArrowComp;
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
 	void SelectPattern(int32 idx);
+
+	void AddAttPatterns();
 
 	void AttackPlayer(EAttackType type) override;
 	
 	void Charge() override;
+	void CurtainFire() override;
+	void SpawnProjectile();
+	//타이머 핸들러
+	FTimerHandle TimerHandle;
 
 	//virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	//디버그용 함수
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void SelectCharge();
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void SelectCurtainFire();
 
 private:
 	float HpPercent;
@@ -73,5 +92,10 @@ private:
 	TArray<EAttackType> AttPatterns;
 	TArray<int32> AttDamages = { 13, 4, 8 };
 	TArray<float> AttRanges = { 800.f, 10000.f, 10000.f };
+
+	int32 fireCounter = 0;
+
+
+	
 
 };
