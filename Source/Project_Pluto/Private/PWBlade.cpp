@@ -65,10 +65,6 @@ void APWBlade::Attack(AActor* OtherActor)
 		case 3:
 			Thrust(enemy);
 			break;
-		case -100: // 대시 공격
-			player->Combo = 3;
-			Thrust(enemy);
-			break;
 		default:
 			break;
 		}

@@ -227,6 +227,11 @@ void APlayerZagreus::EndDodge()
 	}
 
 	AnimWaitTime = DefaultAnimWaitTime;
+
+	if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
+		Combo = weapon->MaxCombo - 1;
+		AttackProcess();
+	}
 }
 
 void APlayerZagreus::OnDamage(int32 damage)
@@ -275,9 +280,6 @@ void APlayerZagreus::Move(const FInputActionValue& inputValue)
 // 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 {
-	if (NowState == EPlayerBehaviorState::Dodge) {
-		Combo = -100;
-	}
 	bReserveAttack = true;
 }
 
