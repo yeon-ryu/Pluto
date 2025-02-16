@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "KThanatosFSM.h"
 #include "KThanatosAnim.generated.h"
 
 /**
@@ -23,7 +24,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = TPSThanatosAnim)
 	float Direction = 0.f;
 
-	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = TPSThanatosAnim)
-	bool IsAttack;
+	
+	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = FSM)
+	EThanatosState AnimState = EThanatosState::Idle;
+
+	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = FSM)
+	bool bAttackPlay = false;
+
+public:
+	void AnimNotify_AttackEnd();
 
 };

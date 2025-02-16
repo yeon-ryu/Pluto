@@ -4,23 +4,30 @@
 #include "KThanatosAnim.h"
 #include "KThanatos.h"
 #include "KThanatosFSM.h"
-
 void UKThanatosAnim::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
 	/*Cast<ATPSPlayer>(TryGetPawnOwner());*/
-	AKThanatos* npc = Cast<AKThanatos>(TryGetPawnOwner());
-	if (!npc) return;
+	AKThanatos* thanatos = Cast<AKThanatos>(TryGetPawnOwner());
+	//UKThanatosFSM* thanatosFsm = Cast<UKThanatosFSM>
+	if (!thanatos) return;
 
-	FVector velocity = npc->GetVelocity();
-	FVector forwardVector = npc->GetActorForwardVector();
+	FVector velocity = thanatos->GetVelocity();
+	FVector forwardVector = thanatos->GetActorForwardVector();
 
 	Speed = FVector::DotProduct(velocity, forwardVector);
 
-	FVector rightVector = npc->GetActorRightVector();
+	FVector rightVector = thanatos->GetActorRightVector();
 	Direction = FVector::DotProduct(velocity, rightVector);
 
+	//IsAttack = thanatosFsm->GetIsAttack();
+}
 
-	IsAttack = npc->fsm->GetIsAttack();
+void UKThanatosAnim::AnimNotify_AttackEnd()
+{
+	if (AKThanatos* thanatos = Cast<AKThanatos>( TryGetPawnOwner() ))
+	{
+		thanatos->fsm->OnAttackEnd();
+	}
 }
