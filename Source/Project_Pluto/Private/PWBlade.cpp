@@ -12,11 +12,14 @@
 
 APWBlade::APWBlade()
 {
-	CollisionComp->SetBoxExtent(FVector(10.0f, 10.0f, 60.0f));
-	// CollisionComp->SetRelativeLocationAndRotation(FVector(60.0f, 5.0f, 80.0f), FRotator(-32.0f, -42.0f, 24.0f));
-	CollisionComp->SetRelativeLocation(FVector(-6.0f, 4.0f, 105.0f));
+	// 주석 처리 : 충돌을 칼날 부분에 맞도록 했을 경우. 플레이어의 타격감을 위해 충돌 범위를 확 늘림
 
-	// 검 모양 액터
+	CollisionComp->SetBoxExtent(FVector(50.0f, 50.0f, 100.0f));
+	//CollisionComp->SetBoxExtent(FVector(10.0f, 10.0f, 60.0f));
+	CollisionComp->SetRelativeLocation(FVector(-6.0f, 4.0f, 90.0f));
+	//CollisionComp->SetRelativeLocation(FVector(-6.0f, 4.0f, 105.0f));
+
+	// 검 에셋
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BladeMeshComp"));
 	MeshComp->SetupAttachment(CollisionComp);
 
@@ -25,9 +28,8 @@ APWBlade::APWBlade()
 	if (TempMesh.Succeeded()) {
 		MeshComp->SetStaticMesh(TempMesh.Object);
 		MeshComp->SetRelativeScale3D(FVector(0.08f));
-		//MeshComp->SetRelativeLocationAndRotation(FVector(51.0f, -3.0f, 140.0f), FRotator(-32.0f, -39.0f, 24.0f));
-		MeshComp->SetRelativeLocationAndRotation(FVector(45.0f, 45.0f, 25.0f), FRotator(-23.0f, -23.0f, 36.0f));
-		// Collision 이 영점일 때 Player 가 잡기 위한 수치 : FVector(51.0f, -3.0f, 140.0f), FRotator(-32.0f, -39.0f, 24.0f)
+		MeshComp->SetRelativeLocationAndRotation(FVector(45.0f, 45.0f, 50.0f), FRotator(-23.0f, -23.0f, 36.0f));
+		//MeshComp->SetRelativeLocationAndRotation(FVector(45.0f, 45.0f, 25.0f), FRotator(-23.0f, -23.0f, 36.0f));
 	}
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -96,6 +98,7 @@ void APWBlade::Thrust(AEnemyInfo* Enemy)
 	// 30 대미지
 
 	Knockback(Enemy);
+	player->LaunchCharacter(player->AttackDirection.GetSafeNormal() * 3000, false, true);
 }
 
 void APWBlade::NovaSmash(AEnemyInfo* Enemy)
@@ -109,6 +112,7 @@ void APWBlade::NovaSmash(AEnemyInfo* Enemy)
 void APWBlade::Knockback(AEnemyInfo* Enemy)
 {
 	// 넉백
+	Enemy->LaunchCharacter(player->AttackDirection.GetSafeNormal() * 3000, false, true);
 }
 
 void APWBlade::BackstabBan(AEnemyInfo* Enemy)

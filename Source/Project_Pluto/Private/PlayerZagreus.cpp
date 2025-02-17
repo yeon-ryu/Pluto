@@ -95,6 +95,22 @@ void APlayerZagreus::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bDodgeAttackWait) {
+		// 회피 도중 공격 (사람 인식으로)씹힘이 잦아 공격 인풋 더 기다려 줌
+		CurrentWaitTime += DeltaTime;
+
+		if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentWaitTime >= DodgeAttackTime) {
+			bDodgeAttackWait = false;
+			CurrentWaitTime = 0.0f;
+		}
+
+		if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
+			Combo = weapon->MaxCombo - 1;
+			bDodgeAttackWait = false;
+			CurrentWaitTime = 0.0f;
+		}
+	}
+
 	// 플레이어가 Move 상태인데 움직임이 없을 경우 Idle 상태로 변경
 	if (PlayerDir == FVector::ZeroVector && NowState == EPlayerBehaviorState::Move) {
 		NowState = EPlayerBehaviorState::Idle;
@@ -176,6 +192,7 @@ void APlayerZagreus::SetAttackDir()
 		MouseLocation = hit.Location;
 
 		AttackDirection = MouseLocation - GetActorLocation();
+		AttackDirection = FVector(AttackDirection.X, AttackDirection.Y, 0.0f); // Z 축 값이 혹여나 안 들어오게 처리
 		SetActorRotation(FRotator(0.0f, UKismetMathLibrary::ClampAxis(AttackDirection.Rotation().Yaw), 0.0f));
 	}
 }
@@ -232,6 +249,9 @@ void APlayerZagreus::EndDodge()
 		Combo = weapon->MaxCombo - 1;
 		AttackProcess();
 	}
+
+	bDodgeAttackWait = true;
+	CurrentWaitTime = 0.0f;
 }
 
 void APlayerZagreus::OnDamage(int32 damage)
@@ -300,6 +320,7 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 	// 에너미와 충돌 Ignore
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
+	bDodgeAttackWait = false;
 	AnimWaitTime = DodgeTime;
 }
 
