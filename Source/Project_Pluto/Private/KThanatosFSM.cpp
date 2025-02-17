@@ -4,6 +4,9 @@
 #include "KThanatosFSM.h"
 #include "Kismet/GameplayStatics.h"
 #include "KEnemy.h"
+#include "KThanatosAnim.h"
+#include "KDestroyBox.h"
+
 
 UKThanatosFSM::UKThanatosFSM()
 {
@@ -22,15 +25,22 @@ void UKThanatosFSM::BeginPlay()
 	//월드에서 Enemy를 찾아오기
 	auto actor_Enemy = UGameplayStatics::GetActorOfClass(GetWorld(), AKEnemy::StaticClass());
 
+	//스킬 1번 체크가 안 되어 있을때도 조건으로.
 	if (actor_Enemy != nullptr)
 	{
 		target_Enemy = Cast<AKEnemy>(actor_Enemy);
 	}
 
+
 	//소유 객체 가져오기
 	me = Cast<AKThanatos>(GetOwner());
 
 
+	if (me)
+	{
+		Anim = Cast<UKThanatosAnim>(me->GetMesh()->GetAnimInstance());
+		Anim->AnimState = mState;
+	}
 
 }
 
@@ -44,15 +54,34 @@ void UKThanatosFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	
 
 	switch (mState)
-	{
-	case EKEnemyState::Idle:	{ State_Idle();		} break;
-	case EKEnemyState::Move:	{ State_Move();		} break;
-	case EKEnemyState::MoveFar: { State_MoveFar();	} break;
-	case EKEnemyState::Attack:	{ State_Attack();	} break;
-	case EKEnemyState::Attack2:	{ State_Attack2();	} break;
+	{	
+	case EThanatosState::Start: { State_Start(); } break;
+	case EThanatosState::Idle: { State_Idle(); } break;
+	case EThanatosState::Move: { State_Move(); } break;
+	case EThanatosState::MoveFar: { State_MoveFar(); } break;
+	case EThanatosState::Attack1: { State_Attack1(); } break;
+	case EThanatosState::Attack2: { State_Attack2(); } break;
 	}
 
 }
+
+
+void UKThanatosFSM::State_Start()
+{
+	currentTime += GetWorld()->DeltaTimeSeconds;
+
+	if (currentTime > 3.0f)
+	{
+		//이동 상태로 전환
+		mState = EThanatosState::Idle;
+		Anim->AnimState = mState;
+
+		//전환 후 시간 초기화
+		currentTime = 0.0f;
+	}
+
+}
+
 
 void UKThanatosFSM::State_Idle()
 {
@@ -60,10 +89,11 @@ void UKThanatosFSM::State_Idle()
 	currentTime += GetWorld()->DeltaTimeSeconds;
 
 	//만약 경과 시간이 대기 시간을 초과했다면
-	if (currentTime > IdleDelayTime)
+	if (currentTime > status.idleDelayTime)
 	{
 		//이동 상태로 전환
-		mState = EKEnemyState::Move;
+		mState = EThanatosState::Move;
+		Anim->AnimState = mState;
 
 		//전환 후 시간 초기화
 		currentTime = 0.0f;
@@ -75,30 +105,56 @@ void UKThanatosFSM::State_Move()
 {
 	FVector destination = target_Enemy->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();
-	me->AddMovementInput(dir.GetSafeNormal());
 
 	//1초(WalkingTime) 걸은 후엔 2초(IdleDelayTime) 대기하고 싶음
 	currentTime += GetWorld()->DeltaTimeSeconds;
 
-	if (currentTime > WalkingTime)
+	if (dir.Size() > status.attackRange)
 	{
-		mState = EKEnemyState::Idle;
-		currentTime = 0.0f;
-		//거리체크
-		if (dir.Size() < attackRange)
+		me->AddMovementInput(dir.GetSafeNormal());
+
+		if (currentTime > status.walkingTime)
 		{
-			//공격 상태로 전환하고 싶다
-			mState = EKEnemyState::Attack;
+			mState = EThanatosState::Idle;
+			Anim->AnimState = mState;
 			currentTime = 0.0f;
+			//거리체크
 		}
 	}
 
-	
+	//(dir.Size() < status.attackRange)
+	else 
+	{
+		//공격 상태로 전환하고 싶다
+		OnAttackProcess();
+
+		currentTime = 0.0f;
+	}
+}
+ 
+
+void UKThanatosFSM::State_MoveFar()
+{
+	FVector destination = target_Enemy->GetActorLocation();
+	FVector dir = me->GetActorLocation() - destination;
+
+	me->AddMovementInput(dir.GetSafeNormal());
 
 
+	//1초(WalkingTime) 걸은 후엔 2초(IdleDelayTime) 대기하고 싶음
+	currentTime += GetWorld()->DeltaTimeSeconds;
+
+	if (currentTime > status.walkingTime)
+	{
+		mState = EThanatosState::Idle;
+		Anim->AnimState = mState;
+		currentTime = 0.0f;
+	}
 }
 
-void UKThanatosFSM::State_Attack()
+
+
+void UKThanatosFSM::State_Attack1()
 {
 	//일정 시간에 한 번씩 공격
 
@@ -107,52 +163,38 @@ void UKThanatosFSM::State_Attack()
 	//공격 시간이되면 공격을 실행
 	if (currentTime > status.attackDelayTime)
 	{
+
+		++skillCount;
+		if (skillCount == maxSkillCount)
+		{
+			status.attackRange = 2000.0f;
+		}
+		
 		currentTime = 0.0f;
 
-		count++;
-		mState = EKEnemyState::MoveFar;
-		IsAttack = false;
+
+		EndAttackProcess();
 	}
 }
 
 
 void UKThanatosFSM::State_Attack2()
 {
-	attackRange = 2000.0f;
 	currentTime += GetWorld()->DeltaTimeSeconds;
+	
 
 	//공격 시간이되면 공격을 실행
 	if (currentTime > status.attackDelayTime)
 	{
+		GetWorld()->SpawnActor<AKDestroyBox>(boxPos, target_Enemy->GetTransform());
+		//GetWorld()->SpawnActor<AKDestroyBox>(boxPos, FTransform(FRotator(0, 0, 0), FVector(2000, 2000, 2000), FVector(1.0f, 1.0f, 1.0f)));
+		skillCount =0;
+		status.attackRange = 1000.0f;
+
 		currentTime = 0.0f;
-		
-		count=0;
-		mState = EKEnemyState::MoveFar;
+
+		EndAttackProcess();
 	}
-
-	attackRange = 1000.0f;
-	IsAttack = false;
-}
-
-void UKThanatosFSM::State_MoveFar()
-{
-	FVector destination = target_Enemy->GetActorLocation();
-	FVector dir = me->GetActorLocation() - destination;
-
-
-
-	me->AddMovementInput(dir.GetSafeNormal());
-
-	//1초(WalkingTime) 걸은 후엔 2초(IdleDelayTime) 대기하고 싶음
-	currentTime += GetWorld()->DeltaTimeSeconds;
-
-	if (currentTime > WalkingTime)
-	{
-		mState = EKEnemyState::Idle;
-		currentTime = 0.0f;
-	}
-
-	
 }
 
 void UKThanatosFSM::OnDamagedProcess()
@@ -162,23 +204,47 @@ void UKThanatosFSM::OnDamagedProcess()
 
 void UKThanatosFSM::OnAttackProcess()
 {
-		IsAttack = true;
+		//IsAttack = true;
+		Anim->bAttackPlay = true;
 
-
-		if (count >= 10)
+		if (skillCount >= maxSkillCount)
 		{
-			mState = EKEnemyState::Attack2;
+			mState = EThanatosState::Attack2;
+			Anim->AnimState = mState;
 		}
 
 		else
 		{
-			mState = EKEnemyState::Attack;
+			mState = EThanatosState::Attack1;
+			Anim->AnimState = mState;
 
 		}
 }
 
-bool UKThanatosFSM::GetIsAttack()
+
+void UKThanatosFSM::EndAttackProcess()
 {
-	return IsAttack;
+	//테스트용 패트롤.
+	mState = EThanatosState::Idle;
+	Anim->AnimState = mState;
+
+	OnAttackEnd();
+
+	/*
+	if (스킬 걸리지 않은 에너미가 있을 시)
+	{
+		그 쪽으로 향함.
+	}
+
+	else (랜덤 패트롤)
+	*/
 }
+
+
+
+void UKThanatosFSM::OnAttackEnd()
+{
+	Anim->bAttackPlay = false;
+}
+
 
