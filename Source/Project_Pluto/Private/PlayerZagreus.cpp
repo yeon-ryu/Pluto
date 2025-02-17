@@ -330,7 +330,6 @@ void APlayerZagreus::SpecialAtt(const FInputActionValue& inputValue)
 	if (NowState != EPlayerBehaviorState::SpecialAtt) {
 		NowState = EPlayerBehaviorState::SpecialAtt;
 	}
-	SetAttackDir();
 
 	// 특수공격 애니메이션 -> 끝나면 NowState 변경
 }

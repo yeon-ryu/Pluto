@@ -111,7 +111,7 @@ public:
 	class APlayerController* pController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
-	float AnimWaitTime = 0.6f; // 애니메이션 대기 시간. Montage_Play 로 애니메이션 시간 세팅
+	float AnimWaitTime = 0.6f; // 애니메이션 대기 시간
 
 	float CurrentAnimTime = 0.0f;
 

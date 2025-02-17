@@ -8,6 +8,7 @@
 #include "Engine/StaticMesh.h"
 #include "Components/SceneComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 APWBlade::APWBlade()
@@ -33,6 +34,16 @@ APWBlade::APWBlade()
 	}
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	// 스페셜 어택 범위
+	EffectCollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("EffectCollisionComp"));
+	EffectCollisionComp->SetupAttachment(RootComp);
+	EffectCollisionComp->SetSphereRadius(500.0f);
+	EffectCollisionComp->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
+	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
 void APWBlade::BeginPlay()
@@ -41,6 +52,7 @@ void APWBlade::BeginPlay()
 
 	MaxCombo = 3;
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &APWBlade::OnBoxOverlap);
+	EffectCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &APWBlade::OnEffectOverlap);
 }
 
 void APWBlade::Tick(float DeltaTime)
@@ -52,7 +64,8 @@ void APWBlade::Tick(float DeltaTime)
 void APWBlade::Attack(AActor* OtherActor)
 {
 	// EnemyInfo 를 상속한 타입으로 확인 됨. -> EnemyInfo 입장에서 PlayerWeapon overlap 으로 바꾸는거 잊지 말기!!!
-	if (OtherActor->IsA<AEnemyInfo>()) { UE_LOG(LogTemp, Error, TEXT("Attack to Enemy!"));
+	if (OtherActor->IsA<AEnemyInfo>()) {
+		UE_LOG(LogTemp, Error, TEXT("Attack to Enemy!"));
 		AEnemyInfo* enemy = Cast<AEnemyInfo>(OtherActor);
 
 		// 몇번째 콤보인가에 따라 공격 실행
@@ -76,6 +89,7 @@ void APWBlade::Attack(AActor* OtherActor)
 void APWBlade::SpecialAtt(AActor* OtherActor)
 {
 	if (OtherActor->IsA<AEnemyInfo>()) {
+		UE_LOG(LogTemp, Error, TEXT("Special Attack to Enemy!"));
 		AEnemyInfo* enemy = Cast<AEnemyInfo>(OtherActor);
 		NovaSmash(enemy);
 	}
@@ -127,8 +141,18 @@ void APWBlade::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	case EPlayerBehaviorState::Attack:
 		Attack(OtherActor);
 		break;
+	default:
+		break;
+	}
+}
+
+void APWBlade::OnEffectOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	switch (player->NowState)
+	{
 	case EPlayerBehaviorState::SpecialAtt:
-		SpecialAtt(OtherActor);
+		// 스페셜 어택인 상태이면서 애니메이션 진행이 되어야 함.. <- Notify_애니메이션 태그 사용
+		if(bSpecialAtt) SpecialAtt(OtherActor);
 		break;
 	default:
 		break;
