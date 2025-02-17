@@ -30,4 +30,16 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	class APlayerZagreus* player;
+
+	// Q Skill Attack Effect Start
+	UFUNCTION()
+	void AnimNotify_AttackEffect();
+
+	// Q Skill Attack Effect End
+	UFUNCTION()
+	void AnimNotify_AttackEnd();
+
+	// Q Skill Attack Anim End
+	UFUNCTION()
+	void AnimNotify_SpecialAttEnd();
 };

@@ -121,6 +121,10 @@ public:
 	float CurrentWaitTime = 0.0f;
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bSpecialAtt = false;
+
+
 	FVector PlayerDir;
 
 

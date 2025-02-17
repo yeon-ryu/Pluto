@@ -152,7 +152,7 @@ void APWBlade::OnEffectOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	{
 	case EPlayerBehaviorState::SpecialAtt:
 		// 스페셜 어택인 상태이면서 애니메이션 진행이 되어야 함.. <- Notify_애니메이션 태그 사용
-		if(bSpecialAtt) SpecialAtt(OtherActor);
+		if(player->bSpecialAtt) SpecialAtt(OtherActor);
 		break;
 	default:
 		break;

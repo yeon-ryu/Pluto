@@ -95,6 +95,9 @@ void APlayerZagreus::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 바닥에 검 박고 Q 스킬 어택 도중에는 스스로 아무 것도 하지 못한다.
+	if(bSpecialAtt) return;
+
 	if (bDodgeAttackWait) {
 		// 회피 도중 공격 (사람 인식으로)씹힘이 잦아 공격 인풋 더 기다려 줌
 		CurrentWaitTime += DeltaTime;
@@ -330,8 +333,6 @@ void APlayerZagreus::SpecialAtt(const FInputActionValue& inputValue)
 	if (NowState != EPlayerBehaviorState::SpecialAtt) {
 		NowState = EPlayerBehaviorState::SpecialAtt;
 	}
-
-	// 특수공격 애니메이션 -> 끝나면 NowState 변경
 }
 
 void APlayerZagreus::Spell(const FInputActionValue& inputValue)
