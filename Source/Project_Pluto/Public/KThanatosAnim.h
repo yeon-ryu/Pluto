@@ -7,9 +7,7 @@
 #include "KThanatosFSM.h"
 #include "KThanatosAnim.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class PROJECT_PLUTO_API UKThanatosAnim : public UAnimInstance
 {

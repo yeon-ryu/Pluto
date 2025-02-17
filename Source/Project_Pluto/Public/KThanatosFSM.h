@@ -22,7 +22,6 @@ enum class EThanatosState : uint8
 };
 
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_PLUTO_API UKThanatosFSM : public UActorComponent
 {
@@ -40,10 +39,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
-	
 public:
-
 	struct Status
 	{
 
@@ -66,9 +62,7 @@ public:
 	//공격 딜레이 타임
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
 	float attackDelayTime = 0.9f;
-
 	};
-
 
 
 public:
@@ -108,6 +102,11 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = FSM)
 	class AKEnemy* target_Enemy;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf <class AKDestroyBox> boxPos;
+	
+	class AKDestroyBox* destroyBox;
+
 	int skillCount = 0;
 	int maxSkillCount = 4;
 
@@ -120,9 +119,5 @@ public:
 
 	UPROPERTY()
 	class UKThanatosAnim* Anim;
-
-//
-//	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = FSM)
-//	bool IsAttack = false;
 
 };
