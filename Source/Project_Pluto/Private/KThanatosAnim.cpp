@@ -23,10 +23,13 @@ void UKThanatosAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 }
 
+
 void UKThanatosAnim::AnimNotify_AttackEnd()
 {
+
 	if (AKThanatos* thanatos = Cast<AKThanatos>( TryGetPawnOwner() ))
 	{
 		thanatos->fsm->OnAttackEnd();
 	}
+
 }

@@ -102,16 +102,16 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = FSM)
 	class AKEnemy* target_Enemy;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf <class AKDestroyBox> boxPos;
-	
+
+	//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//	TSubclassOf <class AKDestroyBox> boxPos;
+
 	class AKDestroyBox* destroyBox;
 
 	int skillCount = 0;
 	int maxSkillCount = 4;
 
 	Status status;
-
 
 	//소유 액터
 	UPROPERTY()
@@ -120,4 +120,5 @@ public:
 	UPROPERTY()
 	class UKThanatosAnim* Anim;
 
+	FVector ReturnDest();
 };

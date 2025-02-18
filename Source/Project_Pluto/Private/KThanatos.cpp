@@ -4,6 +4,7 @@
 #include "KThanatos.h"
 #include "KThanatosFSM.h"
 #include "Engine/SkeletalMesh.h"
+#include "KDestroyBox.h"
 
 // Sets default values
 AKThanatos::AKThanatos()
@@ -30,7 +31,10 @@ AKThanatos::AKThanatos()
 void AKThanatos::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	destroyBox = GetWorld()->SpawnActor<AKDestroyBox>(BoxFactory, FTransform(FRotator(0, 0, 0), FVector(2000), FVector(1.0f, 1.0f, 1.0f)));
+
+
 }
 
 // Called every frame
@@ -40,6 +44,15 @@ void AKThanatos::Tick(float DeltaTime)
 
 }
 
+
+void AKThanatos::SetDestroyBox()
+{
+	destroyBox->SetActorLocation(fsm->ReturnDest());
+	destroyBox->SetbOnSpawn();
+
+}
+
+/*
 // Called to bind functionality to input
 void AKThanatos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -47,3 +60,4 @@ void AKThanatos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 }
 
+*/

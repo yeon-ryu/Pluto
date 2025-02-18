@@ -163,15 +163,14 @@ void UKThanatosFSM::State_Attack1()
 	//공격 시간이되면 공격을 실행
 	if (currentTime > status.attackDelayTime)
 	{
-
 		++skillCount;
+
 		if (skillCount == maxSkillCount)
 		{
 			status.attackRange = 2000.0f;
 		}
 		
 		currentTime = 0.0f;
-
 
 		EndAttackProcess();
 	}
@@ -186,14 +185,21 @@ void UKThanatosFSM::State_Attack2()
 	//공격 시간이되면 공격을 실행
 	if (currentTime > status.attackDelayTime)
 	{
-		GetWorld()->SpawnActor<AKDestroyBox>(boxPos, target_Enemy->GetTransform());
+
+		//GetWorld()->SpawnActor<AKDestroyBox>(boxPos, target_Enemy->GetTransform());
 		//GetWorld()->SpawnActor<AKDestroyBox>(boxPos, FTransform(FRotator(0, 0, 0), FVector(2000, 2000, 2000), FVector(1.0f, 1.0f, 1.0f)));
-		skillCount =0;
+
+
+		skillCount = 0;
+
 		status.attackRange = 1000.0f;
 
 		currentTime = 0.0f;
 
+		me->SetDestroyBox();
+
 		EndAttackProcess();
+
 	}
 }
 
@@ -204,6 +210,7 @@ void UKThanatosFSM::OnDamagedProcess()
 
 void UKThanatosFSM::OnAttackProcess()
 {
+
 		//IsAttack = true;
 		Anim->bAttackPlay = true;
 
@@ -219,6 +226,7 @@ void UKThanatosFSM::OnAttackProcess()
 			Anim->AnimState = mState;
 
 		}
+
 }
 
 
@@ -247,4 +255,10 @@ void UKThanatosFSM::OnAttackEnd()
 	Anim->bAttackPlay = false;
 }
 
+FVector UKThanatosFSM::ReturnDest()
+{
+	FVector destination = target_Enemy->GetActorLocation();
+
+	return destination;
+}
 
