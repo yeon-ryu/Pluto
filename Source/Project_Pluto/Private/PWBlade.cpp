@@ -40,12 +40,12 @@ APWBlade::APWBlade()
 	EffectCollisionComp->SetSphereRadius(500.0f);
 	EffectCollisionComp->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 
-	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
 	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
-	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	EffectCollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
 	EffectCollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	EffectCollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
@@ -63,10 +63,9 @@ void APWBlade::BeginPlay()
 void APWBlade::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-void APWBlade::Attack(AActor* OtherActor)
+void APWBlade::AttackProcess(AActor* OtherActor)
 {
 	// EnemyInfo 를 상속한 타입으로 확인 됨. -> EnemyInfo 입장에서 PlayerWeapon overlap 으로 바꾸는거 잊지 말기!!!
 	if (OtherActor->IsA<AEnemyInfo>()) {
@@ -91,13 +90,33 @@ void APWBlade::Attack(AActor* OtherActor)
 	}
 }
 
-void APWBlade::SpecialAtt(AActor* OtherActor)
+void APWBlade::SpecialAttProcess(AActor* OtherActor)
 {
 	if (OtherActor->IsA<AEnemyInfo>()) {
 		UE_LOG(LogTemp, Warning, TEXT("Special Attack to Enemy!"));
 		AEnemyInfo* enemy = Cast<AEnemyInfo>(OtherActor);
 		NovaSmash(enemy);
 	}
+}
+
+void APWBlade::StartAttack()
+{
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void APWBlade::EndAttack()
+{
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void APWBlade::StartSpecialAtt()
+{
+	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void APWBlade::EndSpecialAtt()
+{
+	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 // 공격에 atkBuff, 영구적 은혜 (있을 시 백어택 확인후 적용) 적용
@@ -144,7 +163,7 @@ void APWBlade::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	switch (player->NowState)
 	{
 	case EPlayerBehaviorState::Attack:
-		Attack(OtherActor);
+		AttackProcess(OtherActor);
 		break;
 	default:
 		break;
@@ -156,8 +175,7 @@ void APWBlade::OnEffectOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	switch (player->NowState)
 	{
 	case EPlayerBehaviorState::SpecialAtt:
-		// 스페셜 어택인 상태이면서 애니메이션 진행이 되어야 함.. <- Notify_애니메이션 태그 사용
-		if(player->bSpecialAtt) SpecialAtt(OtherActor);
+		if(player->bSpecialAtt) SpecialAttProcess(OtherActor);
 		break;
 	default:
 		break;

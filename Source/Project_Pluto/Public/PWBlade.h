@@ -26,10 +26,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+protected:
+	virtual void AttackProcess(AActor* OtherActor) override;
+	virtual void SpecialAttProcess(AActor* OtherActor) override;
 
 public:
-	virtual void Attack(AActor* OtherActor) override;
-	virtual void SpecialAtt(AActor* OtherActor) override;
+	virtual void StartAttack() override;
+	virtual void EndAttack() override;
+	virtual void StartSpecialAtt() override;
+	virtual void EndSpecialAtt() override;
 
 private:
 	// overlap 이벤트에서 적인거 확인하고 넘기기
@@ -48,7 +53,6 @@ public:
 	// 스페셜 어택 공격 범위
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USphereComponent* EffectCollisionComp;
-
 
 	UFUNCTION()
 	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

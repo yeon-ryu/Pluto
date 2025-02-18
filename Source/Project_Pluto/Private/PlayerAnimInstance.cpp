@@ -4,6 +4,7 @@
 #include "PlayerAnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerZagreus.h"
+#include "PlayerWeapon.h"
 
 UPlayerAnimInstance::UPlayerAnimInstance()
 {
@@ -34,12 +35,14 @@ void UPlayerAnimInstance::AnimNotify_AttackEffect()
 	// 플레이어가 가지고 있는 무기의 공격 범위 ovelap 체크 시작
 	// 이 순간 부터 우선 순위 최상 -> 회피, 이동, 공격 등 이 애니메이션이 끝나기 전까지 아무것도 적용할 수 없다.
 	player->bSpecialAtt = true;
+	player->weapon->StartSpecialAtt();
 }
 
 void UPlayerAnimInstance::AnimNotify_AttackEnd()
 {
 	// 플레이어가 가지고 있는 무기의 공격 범위 overlap 체크 종료
 	player->bSpecialAtt = false;
+	player->weapon->EndSpecialAtt();
 }
 
 void UPlayerAnimInstance::AnimNotify_SpecialAttEnd()

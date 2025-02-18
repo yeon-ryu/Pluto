@@ -149,6 +149,7 @@ void APlayerZagreus::Tick(float DeltaTime)
 				}
 			}
 			else if (bReserveAttack) { // 공격 중이 아니고 공격 예약이 결려있으면 공격 프로세스 진행
+				weapon->StartAttack();
 				AttackProcess();
 			}
 		}
@@ -248,6 +249,7 @@ void APlayerZagreus::AttackProcess()
 			if (NowState == EPlayerBehaviorState::Attack) {
 				NowState = EPlayerBehaviorState::Idle;
 			}
+			weapon->EndAttack();
 		}
 		
 		bAttackProcess = false;
@@ -329,7 +331,7 @@ void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 {
-	if(bDodgeDelayWait) return; // 연속으로 회피 못하도록
+	if(bDodgeDelayWait || bSpecialAtt) return; // 연속으로 회피 못하도록
 
 	if (NowState != EPlayerBehaviorState::Dodge) {
 		NowState = EPlayerBehaviorState::Dodge;
@@ -340,6 +342,7 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 		bReserveAttack = false;
 		Combo = 0;
 		CurrentAnimTime = 0.0f;
+		weapon->EndAttack();
 	}
 
 	Speed = DodgeSpeed;

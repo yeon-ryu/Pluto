@@ -42,11 +42,27 @@ void APlayerWeapon::Tick(float DeltaTime)
 
 }
 
-void APlayerWeapon::Attack(AActor* OtherActor)
+void APlayerWeapon::AttackProcess(AActor* OtherActor)
 {
 }
 
-void APlayerWeapon::SpecialAtt(AActor* OtherActor)
+void APlayerWeapon::SpecialAttProcess(AActor* OtherActor)
+{
+}
+
+void APlayerWeapon::StartAttack()
+{
+}
+
+void APlayerWeapon::EndAttack()
+{
+}
+
+void APlayerWeapon::StartSpecialAtt()
+{
+}
+
+void APlayerWeapon::EndSpecialAtt()
 {
 }
 
