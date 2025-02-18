@@ -48,6 +48,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buff")
 	float attackBuff = 0.0f; // 일반 공격 강화 (일시적 강화)
-
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 };

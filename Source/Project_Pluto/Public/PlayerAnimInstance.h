@@ -20,6 +20,7 @@ public:
 	// 매 프레임 갱신되는 함수
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+
 	// 플레이어 이동 속도
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = TPSPlayerAnim)
 	float Speed = 0.0f;
@@ -30,6 +31,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	class APlayerZagreus* player;
+
 
 	// Q Skill Attack Effect Start
 	UFUNCTION()

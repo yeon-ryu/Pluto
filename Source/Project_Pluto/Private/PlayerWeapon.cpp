@@ -50,18 +50,3 @@ void APlayerWeapon::SpecialAtt(AActor* OtherActor)
 {
 }
 
-void APlayerWeapon::NotifyActorBeginOverlap(AActor* OtherActor)
-{
-	//switch (player->NowState)
-	//{
-	//case EPlayerBehaviorState::Attack:
-	//	Attack(OtherActor);
-	//	break;
-	//case EPlayerBehaviorState::SpecialAtt:
-	//	SpecialAtt(OtherActor);
-	//	break;
-	//default:
-	//	break;
-	//}
-}
-
