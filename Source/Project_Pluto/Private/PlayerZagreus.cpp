@@ -96,7 +96,7 @@ void APlayerZagreus::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// 바닥에 검 박고 Q 스킬 어택 도중에는 스스로 아무 것도 하지 못한다.
+	// 바닥에 검 박고 Q 스킬 어택 ~ 검을 빼고 설 때까지 스스로 아무 것도 하지 못한다.
 	if(bSpecialAtt) return;
 
 	// 회피 도중 공격 (사람 인식으로)씹힘이 잦아 공격 인풋 더 기다려 줌
@@ -116,7 +116,7 @@ void APlayerZagreus::Tick(float DeltaTime)
 
 	// 플레이어 이동
 	{
-		if(NowState == EPlayerBehaviorState::Move || NowState == EPlayerBehaviorState::Dodge) {
+		if(NowState == EPlayerBehaviorState::Move || NowState == EPlayerBehaviorState::Dodge || NowState == EPlayerBehaviorState::SpecialAtt) {
 			if (PlayerDir == FVector::ZeroVector) {
 				if (pController != nullptr) {
 					PlayerDir = pController->GetPawn()->GetActorForwardVector();
@@ -207,6 +207,35 @@ void APlayerZagreus::CheckDodgeAttackInput(float DeltaTime)
 	}
 }
 
+void APlayerZagreus::EndDodge()
+{
+	Speed = RunSpeed;
+	// 에너미와 충돌 Overlap 으로 원복
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	if (NowState == EPlayerBehaviorState::Dodge) {
+		NowState = EPlayerBehaviorState::Idle;
+	}
+
+	AnimWaitTime = DefaultAnimWaitTime;
+
+	bDodgeAttackWait = true;
+	CurrentDodgeDelayWait = 0.0f;
+
+	bDodgeDelayWait = true;
+	CurrentDodgeAttackWait = 0.0f;
+
+	if (bForceSpecialAtt) {
+		StartSpecialAtt();
+		return;
+	}
+
+	if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
+		Combo = weapon->MaxCombo - 1;
+		AttackProcess();
+	}
+}
+
 void APlayerZagreus::SetAttackDir()
 {
 	auto PlayerController = GetWorld()->GetFirstPlayerController();
@@ -256,28 +285,12 @@ void APlayerZagreus::AttackProcess()
 	}
 }
 
-void APlayerZagreus::EndDodge()
+void APlayerZagreus::StartSpecialAtt()
 {
-	Speed = RunSpeed;
-	// 에너미와 충돌 Overlap 으로 원복
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-
-	if (NowState == EPlayerBehaviorState::Dodge) {
-		NowState = EPlayerBehaviorState::Idle;
+	if (NowState != EPlayerBehaviorState::SpecialAtt) {
+		NowState = EPlayerBehaviorState::SpecialAtt;
+		Speed = SpecialAttRunSpeed;
 	}
-
-	AnimWaitTime = DefaultAnimWaitTime;
-
-	if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
-		Combo = weapon->MaxCombo - 1;
-		AttackProcess();
-	}
-
-	bDodgeAttackWait = true;
-	CurrentDodgeDelayWait = 0.0f;
-
-	bDodgeDelayWait = true;
-	CurrentDodgeAttackWait = 0.0f;
 }
 
 void APlayerZagreus::OnDamage(int32 damage)
@@ -305,7 +318,9 @@ void APlayerZagreus::SetBuffMaxHP(int32 plusHpAbs, float plusHpPro)
 
 void APlayerZagreus::Move(const FInputActionValue& inputValue)
 {
-	if(NowState == EPlayerBehaviorState::Dodge || NowState == EPlayerBehaviorState::Attack) {
+	if(bSpecialAtt) return;
+
+	if(NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) {
 		if (PlayerDir == FVector::ZeroVector) {
 			FVector2D value = inputValue.Get<FVector2D>();
 			PlayerDir.X = value.X;
@@ -326,12 +341,24 @@ void APlayerZagreus::Move(const FInputActionValue& inputValue)
 // 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 {
+	if(bSpecialAtt) return;
 	bReserveAttack = true;
+	Speed = RunSpeed;
+	bForceSpecialAtt = false;
 }
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 {
 	if(bDodgeDelayWait || bSpecialAtt) return; // 연속으로 회피 못하도록
+
+	if (NowState == EPlayerBehaviorState::SpecialAtt) {
+		if (bForceSpecialAtt) {
+			return;
+		}
+		else {
+			bForceSpecialAtt = true;
+		}
+	}
 
 	if (NowState != EPlayerBehaviorState::Dodge) {
 		NowState = EPlayerBehaviorState::Dodge;
@@ -356,9 +383,7 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 // 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::SpecialAtt(const FInputActionValue& inputValue)
 {
-	if (NowState != EPlayerBehaviorState::SpecialAtt) {
-		NowState = EPlayerBehaviorState::SpecialAtt;
-	}
+	StartSpecialAtt();
 }
 
 void APlayerZagreus::Spell(const FInputActionValue& inputValue)

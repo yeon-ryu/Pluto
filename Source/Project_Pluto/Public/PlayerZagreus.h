@@ -67,6 +67,9 @@ public:
 	float RunSpeed = 1000.0f; // 달리기 속도
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetting")
+	float SpecialAttRunSpeed = 300.0f; // 스페셜 어택할 때 속도
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetting")
 	float DodgeSpeed = 4000.0f; // 회피 속도
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
@@ -131,9 +134,13 @@ public:
 
 	void CheckDodgeAttackInput(float DeltaTime);
 
+	void EndDodge();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bForceSpecialAtt = false;
+
 	bool bSpecialAtt = false;
+
+	void StartSpecialAtt();
 
 
 	FVector PlayerDir;
@@ -155,9 +162,6 @@ public:
 	bool bReserveAttack = false; // 어택 예약
 
 	void AttackProcess(); // 어택 로직
-
-
-	void EndDodge();
 
 
 	// 피격
