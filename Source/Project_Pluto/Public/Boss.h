@@ -65,6 +65,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
 	class UArrowComponent* ArrowComp;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Niagara")
+	TSubclassOf <class APlateActor> PlateFactory;
+
+
 	UFUNCTION(BlueprintCallable, Category = "FSM")
 	void SelectPattern(int32 idx);
 
@@ -75,6 +79,11 @@ public:
 	void Charge() override;
 	void CurtainFire() override;
 	void SpawnProjectile();
+	void Plate();
+	void SpawnPlate();
+
+	FVector GetRandomPos(FVector pos);
+
 	//타이머 핸들러
 	FTimerHandle TimerHandle;
 
@@ -86,6 +95,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 	void SelectCurtainFire();
 
+public:
+#pragma region Debug_Values
+
+	UPROPERTY(EditAnywhere, Category = "DebugValue")
+	float dxdyRange = 450.f;
+
+	UPROPERTY(EditAnywhere, Category = "DebugValue")
+	float minRange = 100.f;
+
+	UPROPERTY(EditAnywhere, Category = "DebugValue")
+	float maxRange = 500.f;
+
+
+#pragma endregion Debug_Values
+
 private:
 	float HpPercent;
 
@@ -94,8 +118,8 @@ private:
 	TArray<float> AttRanges = { 800.f, 10000.f, 10000.f };
 
 	int32 fireCounter = 0;
+	int32 plateCounter = 0;
 
-
-	
+	TArray<TArray<int32>> index = { {0,1,2},{0,1,3},{0,2,3},{1,2,3} };
 
 };

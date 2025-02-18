@@ -69,8 +69,8 @@ public:
 	float nowTime = 0.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
-	float PhaseChangeTime = 4.0f;
-	float AttackDelayTime = 4.f;
+	float PhaseChangeTime = 2.0f;
+	float AttackDelayTime = 1.f;
 	float AttaclEndDelayTime = 0.25f;
 
 	FVector destination;

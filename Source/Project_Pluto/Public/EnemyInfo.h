@@ -73,7 +73,6 @@ protected:
 public:
 	virtual void Charge();
 	virtual void CurtainFire();
-	virtual void Plate();
 
 	FVector GetTargetFromMe();
 

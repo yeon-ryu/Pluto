@@ -42,11 +42,6 @@ void AEnemyInfo::CurtainFire()
 
 }
 
-void AEnemyInfo::Plate()
-{
-
-}
-
 FVector AEnemyInfo::GetTargetFromMe()
 {
 	APlayerController* controller = GetWorld()->GetFirstPlayerController();

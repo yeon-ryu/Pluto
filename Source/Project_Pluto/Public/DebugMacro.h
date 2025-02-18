@@ -142,7 +142,7 @@ namespace DrawDebug
 		if (nullptr == InWorld)
 			return;
 
-		DrawDebugSphere(InWorld, InLocation, InRadius, InSegments, InColor, false, -1.f, 0U, 4.f);
+		DrawDebugSphere(InWorld, InLocation, InRadius, InSegments, InColor, false, 15.f, 0U, 4.f);
 	}
 
 	inline static void DrawLine(const UWorld* InWorld, const FVector& InStartLocation, const FVector& InEndLocation, FColor InColor = FColor::Black)
