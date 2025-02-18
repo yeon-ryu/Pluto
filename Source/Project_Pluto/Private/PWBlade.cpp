@@ -135,27 +135,30 @@ void APWBlade::Thrust(AEnemyInfo* Enemy)
 {
 	// 30 대미지
 
-	Knockback(Enemy);
-	player->LaunchCharacter(player->AttackDirection.GetSafeNormal() * 3000, false, true);
+	FVector direction = FVector(player->AttackDirection.X, player->AttackDirection.Y, 0.0f);
+	Knockback(Enemy, direction);
+	player->LaunchCharacter(direction.GetSafeNormal() * 3000, false, false);
 }
 
 void APWBlade::NovaSmash(AEnemyInfo* Enemy)
 {
 	// 50 대미지
 
+	FVector direction = Enemy->GetActorLocation() - this->GetActorLocation();
+	direction = FVector(direction.X, direction.Y, 0.0f);
 	BackstabBan(Enemy);
-	Knockback(Enemy);
+	Knockback(Enemy, direction);
 }
 
-void APWBlade::Knockback(AEnemyInfo* Enemy)
+void APWBlade::Knockback(AEnemyInfo* Enemy, FVector dir)
 {
 	// 넉백
-	Enemy->LaunchCharacter(player->AttackDirection.GetSafeNormal() * 3000, false, true);
+	Enemy->LaunchCharacter(dir.GetSafeNormal() * 3000, false, false);
 }
 
 void APWBlade::BackstabBan(AEnemyInfo* Enemy)
 {
-	// 백스텝 불가
+	// 백스탭 불가 -> 배후 공격 대미지 적용 X
 }
 
 void APWBlade::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

@@ -42,7 +42,7 @@ private:
 	void Chop(class AEnemyInfo* Enemy);
 	void Thrust(class AEnemyInfo* Enemy);
 	void NovaSmash(class AEnemyInfo* Enemy);
-	void Knockback(class AEnemyInfo* Enemy);
+	void Knockback(class AEnemyInfo* Enemy, FVector dir);
 	void BackstabBan(class AEnemyInfo* Enemy);
 
 public:
