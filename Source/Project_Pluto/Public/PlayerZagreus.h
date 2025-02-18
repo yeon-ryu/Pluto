@@ -127,6 +127,10 @@ public:
 
 	float CurrentDodgeAttackWait = 0.0f;
 
+	void CheckDodgeDelay(float DeltaTime);
+
+	void CheckDodgeAttackInput(float DeltaTime);
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bSpecialAtt = false;

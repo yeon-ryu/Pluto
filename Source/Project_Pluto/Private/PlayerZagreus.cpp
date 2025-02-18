@@ -28,6 +28,7 @@ APlayerZagreus::APlayerZagreus()
 	else {
 		UE_LOG(LogTemp, Error, TEXT("PlayerZagreus SkeletalMesh loding fail."));
 	}
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// 플레이어가 이동 방향으로 회전하도록
 	bUseControllerRotationPitch = false;
@@ -55,9 +56,6 @@ APlayerZagreus::APlayerZagreus()
 
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
-
-	// 충돌 설정
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 // Called when the game starts or when spawned
@@ -75,8 +73,8 @@ void APlayerZagreus::BeginPlay()
 		}
 	}
 
+	// 무기 소환 세팅
 	{
-		// 무기 소환 세팅
 		FName WeaponSocket(TEXT("muzzle_01")); // FX_weapon
 		FTransform weaponPosition = GetMesh()->GetSocketTransform(TEXT("muzzle_01"));
 		auto CurrentWeapon = GetWorld()->SpawnActor<APWBlade>(FVector::ZeroVector, FRotator::ZeroRotator);
@@ -89,7 +87,7 @@ void APlayerZagreus::BeginPlay()
 	// 애니메이션 Instance 가져오기
 	AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
-	// 캐릭터 초기 이동 스피드
+	// 캐릭터 초기 이동 스피드 세팅
 	Speed = RunSpeed;
 }
 
@@ -101,29 +99,14 @@ void APlayerZagreus::Tick(float DeltaTime)
 	// 바닥에 검 박고 Q 스킬 어택 도중에는 스스로 아무 것도 하지 못한다.
 	if(bSpecialAtt) return;
 
+	// 회피 도중 공격 (사람 인식으로)씹힘이 잦아 공격 인풋 더 기다려 줌
 	if (bDodgeAttackWait) {
-		// 회피 도중 공격 (사람 인식으로)씹힘이 잦아 공격 인풋 더 기다려 줌
-		CurrentDodgeDelayWait += DeltaTime;
-
-		if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeDelayWait >= DodgeAttackTime) {
-			bDodgeAttackWait = false;
-			CurrentDodgeDelayWait = 0.0f;
-		}
-
-		if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
-			Combo = weapon->MaxCombo - 1;
-			bDodgeAttackWait = false;
-			CurrentDodgeDelayWait = 0.0f;
-		}
+		CheckDodgeAttackInput(DeltaTime);
 	}
 
+	// 회피 후 연속 회피 안되도록 Delay 타임 체크
 	if (bDodgeDelayWait) {
-		CurrentDodgeDelayWait += DeltaTime;
-
-		if (CurrentDodgeDelayWait >= DodgeDelayTime) {
-			bDodgeDelayWait = false;
-			CurrentDodgeDelayWait = 0.0f;
-		}
+		CheckDodgeDelay(DeltaTime);
 	}
 
 	// 플레이어가 Move 상태인데 움직임이 없을 경우 Idle 상태로 변경
@@ -131,8 +114,8 @@ void APlayerZagreus::Tick(float DeltaTime)
 		NowState = EPlayerBehaviorState::Idle;
 	}
 
+	// 플레이어 이동
 	{
-		// 플레이어 이동
 		if(NowState == EPlayerBehaviorState::Move || NowState == EPlayerBehaviorState::Dodge) {
 			if (PlayerDir == FVector::ZeroVector) {
 				if (pController != nullptr) {
@@ -197,6 +180,32 @@ void APlayerZagreus::NotifyActorBeginOverlap(AActor* OtherActor)
 
 }
 
+void APlayerZagreus::CheckDodgeDelay(float DeltaTime)
+{
+	CurrentDodgeDelayWait += DeltaTime;
+
+	if (CurrentDodgeDelayWait >= DodgeDelayTime) {
+		bDodgeDelayWait = false;
+		CurrentDodgeDelayWait = 0.0f;
+	}
+}
+
+void APlayerZagreus::CheckDodgeAttackInput(float DeltaTime)
+{
+	CurrentDodgeDelayWait += DeltaTime;
+
+	if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeDelayWait >= DodgeAttackTime) {
+		bDodgeAttackWait = false;
+		CurrentDodgeDelayWait = 0.0f;
+	}
+
+	if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
+		Combo = weapon->MaxCombo - 1;
+		bDodgeAttackWait = false;
+		CurrentDodgeDelayWait = 0.0f;
+	}
+}
+
 void APlayerZagreus::SetAttackDir()
 {
 	auto PlayerController = GetWorld()->GetFirstPlayerController();
@@ -229,14 +238,11 @@ void APlayerZagreus::AttackProcess()
 			Combo = 1;
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("Attack Start. Combo : %d"), Combo);
-
 		if (NowState != EPlayerBehaviorState::Attack) {
 			NowState = EPlayerBehaviorState::Attack;
 		}
 	}
 	else { // 어택 애니메이션 종료 후 로직
-		UE_LOG(LogTemp, Warning, TEXT("Attack End"));
 		if (!bReserveAttack) {
 			Combo = 0;
 			if (NowState == EPlayerBehaviorState::Attack) {

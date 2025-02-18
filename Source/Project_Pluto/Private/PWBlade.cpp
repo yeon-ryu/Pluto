@@ -70,7 +70,7 @@ void APWBlade::Attack(AActor* OtherActor)
 {
 	// EnemyInfo 를 상속한 타입으로 확인 됨. -> EnemyInfo 입장에서 PlayerWeapon overlap 으로 바꾸는거 잊지 말기!!!
 	if (OtherActor->IsA<AEnemyInfo>()) {
-		UE_LOG(LogTemp, Error, TEXT("Attack to Enemy!"));
+		UE_LOG(LogTemp, Warning, TEXT("Attack to Enemy!"));
 		AEnemyInfo* enemy = Cast<AEnemyInfo>(OtherActor);
 
 		// 몇번째 콤보인가에 따라 공격 실행
@@ -94,7 +94,7 @@ void APWBlade::Attack(AActor* OtherActor)
 void APWBlade::SpecialAtt(AActor* OtherActor)
 {
 	if (OtherActor->IsA<AEnemyInfo>()) {
-		UE_LOG(LogTemp, Error, TEXT("Special Attack to Enemy!"));
+		UE_LOG(LogTemp, Warning, TEXT("Special Attack to Enemy!"));
 		AEnemyInfo* enemy = Cast<AEnemyInfo>(OtherActor);
 		NovaSmash(enemy);
 	}
