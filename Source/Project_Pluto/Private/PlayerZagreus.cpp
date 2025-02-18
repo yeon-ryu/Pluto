@@ -55,6 +55,9 @@ APlayerZagreus::APlayerZagreus()
 
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
+
+	// 충돌 설정
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 // Called when the game starts or when spawned
@@ -100,17 +103,26 @@ void APlayerZagreus::Tick(float DeltaTime)
 
 	if (bDodgeAttackWait) {
 		// 회피 도중 공격 (사람 인식으로)씹힘이 잦아 공격 인풋 더 기다려 줌
-		CurrentWaitTime += DeltaTime;
+		CurrentDodgeDelayWait += DeltaTime;
 
-		if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentWaitTime >= DodgeAttackTime) {
+		if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeDelayWait >= DodgeAttackTime) {
 			bDodgeAttackWait = false;
-			CurrentWaitTime = 0.0f;
+			CurrentDodgeDelayWait = 0.0f;
 		}
 
 		if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
 			Combo = weapon->MaxCombo - 1;
 			bDodgeAttackWait = false;
-			CurrentWaitTime = 0.0f;
+			CurrentDodgeDelayWait = 0.0f;
+		}
+	}
+
+	if (bDodgeDelayWait) {
+		CurrentDodgeDelayWait += DeltaTime;
+
+		if (CurrentDodgeDelayWait >= DodgeDelayTime) {
+			bDodgeDelayWait = false;
+			CurrentDodgeDelayWait = 0.0f;
 		}
 	}
 
@@ -254,7 +266,10 @@ void APlayerZagreus::EndDodge()
 	}
 
 	bDodgeAttackWait = true;
-	CurrentWaitTime = 0.0f;
+	CurrentDodgeDelayWait = 0.0f;
+
+	bDodgeDelayWait = true;
+	CurrentDodgeAttackWait = 0.0f;
 }
 
 void APlayerZagreus::OnDamage(int32 damage)
@@ -308,6 +323,8 @@ void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 {
+	if(bDodgeDelayWait) return; // 연속으로 회피 못하도록
+
 	if (NowState != EPlayerBehaviorState::Dodge) {
 		NowState = EPlayerBehaviorState::Dodge;
 	}

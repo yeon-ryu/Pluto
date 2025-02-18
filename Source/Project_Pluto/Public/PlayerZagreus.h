@@ -73,6 +73,11 @@ public:
 	float DodgeTime = 0.2f; // 회피 동작 시간
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
+	float DodgeDelayTime = 0.2f; // 회피 재사용 딜레이 시간
+
+	bool bDodgeDelayWait = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
 	float DodgeAttackTime = 0.1f; // 회피 공격 추가 입력 시간
 
 	bool bDodgeAttackWait = false;
@@ -118,7 +123,9 @@ public:
 	float DefaultAnimWaitTime = 0.6f;
 
 
-	float CurrentWaitTime = 0.0f;
+	float CurrentDodgeDelayWait = 0.0f;
+
+	float CurrentDodgeAttackWait = 0.0f;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

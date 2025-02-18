@@ -44,6 +44,11 @@ APWBlade::APWBlade()
 	CollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
 	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	EffectCollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
+	EffectCollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	EffectCollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
 void APWBlade::BeginPlay()
