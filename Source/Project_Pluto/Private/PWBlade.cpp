@@ -121,6 +121,15 @@ void APWBlade::EndSpecialAtt()
 	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+void APWBlade::LastCombo()
+{
+	if (player->Combo == 3) {
+		FVector playerDirection = FVector(player->AttackDirection.X, player->AttackDirection.Y, 0.0f);
+		UE_LOG(LogTemp, Error, TEXT("Launch!"));
+		player->LaunchCharacter(playerDirection.GetSafeNormal() * 3000, false, false);
+	}
+}
+
 // 공격에 atkBuff, 영구적 은혜 (있을 시 백어택 확인후 적용) 적용
 
 void APWBlade::Strike(AEnemyInfo* Enemy)
@@ -149,8 +158,6 @@ void APWBlade::Thrust(AEnemyInfo* Enemy)
 	FVector direction = Enemy->GetActorLocation() - this->GetActorLocation();
 	direction = FVector(direction.X, direction.Y, 0.0f);
 	Knockback(Enemy, direction);
-	FVector playerDirection = FVector(player->AttackDirection.X, player->AttackDirection.Y, 0.0f);
-	player->LaunchCharacter(playerDirection.GetSafeNormal() * 3000, false, false);
 }
 
 void APWBlade::NovaSmash(AEnemyInfo* Enemy)

@@ -68,3 +68,10 @@ void UPlayerAnimInstance::AnimNotify_DamageEnd()
 		player->NowState = EPlayerBehaviorState::Die;
 	}
 }
+
+void UPlayerAnimInstance::AnimNotify_LastCombo()
+{
+	if (player->Combo == player->weapon->MaxCombo) {
+		player->weapon->LastCombo();
+	}
+}

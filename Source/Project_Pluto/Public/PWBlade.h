@@ -36,6 +36,8 @@ public:
 	virtual void StartSpecialAtt() override;
 	virtual void EndSpecialAtt() override;
 
+	virtual void LastCombo() override;
+
 private:
 	// overlap 이벤트에서 적인거 확인하고 넘기기
 	void Strike(class AEnemyInfo* Enemy);

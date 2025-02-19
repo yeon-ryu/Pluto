@@ -49,6 +49,8 @@ public:
 	virtual void StartSpecialAtt();
 	virtual void EndSpecialAtt();
 
+	virtual void LastCombo();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buff")
 	float attackBuff = 0.0f; // 일반 공격 강화 (일시적 강화)
 };

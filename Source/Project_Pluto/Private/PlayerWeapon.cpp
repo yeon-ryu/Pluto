@@ -69,3 +69,8 @@ void APlayerWeapon::EndSpecialAtt()
 {
 }
 
+void APlayerWeapon::LastCombo()
+{
+
+}
+
