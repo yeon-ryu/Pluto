@@ -103,33 +103,44 @@ void UKThanatosFSM::State_Idle()
 
 void UKThanatosFSM::State_Move()
 {
-	FVector destination = target_Enemy->GetActorLocation();
-	FVector dir = destination - me->GetActorLocation();
-
-	//1초(WalkingTime) 걸은 후엔 2초(IdleDelayTime) 대기하고 싶음
-	currentTime += GetWorld()->DeltaTimeSeconds;
-
-	if (dir.Size() > status.attackRange)
+	if (target_Enemy != nullptr)
 	{
-		me->AddMovementInput(dir.GetSafeNormal());
+		FVector destination = target_Enemy->GetActorLocation();
+		FVector dir = destination - me->GetActorLocation();
 
-		if (currentTime > status.walkingTime)
+
+		//1초(WalkingTime) 걸은 후엔 2초(IdleDelayTime) 대기하고 싶음
+		currentTime += GetWorld()->DeltaTimeSeconds;
+
+		if (dir.Size() > status.attackRange)
 		{
-			mState = EThanatosState::Idle;
-			Anim->AnimState = mState;
+			me->AddMovementInput(dir.GetSafeNormal());
+
+			if (currentTime > status.walkingTime)
+			{
+				mState = EThanatosState::Idle;
+				Anim->AnimState = mState;
+				currentTime = 0.0f;
+				//거리체크
+			}
+		}
+
+		//(dir.Size() < status.attackRange)
+		else
+		{
+			//공격 상태로 전환하고 싶다
+			OnAttackProcess();
+
 			currentTime = 0.0f;
-			//거리체크
 		}
 	}
-
-	//(dir.Size() < status.attackRange)
-	else 
+	
+	else
 	{
-		//공격 상태로 전환하고 싶다
-		OnAttackProcess();
-
-		currentTime = 0.0f;
+		mState = EThanatosState::Idle;
+		Anim->AnimState = mState;
 	}
+
 }
  
 
