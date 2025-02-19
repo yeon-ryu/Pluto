@@ -17,7 +17,8 @@ enum class EPlayerBehaviorState : uint8 {
 	Spell UMETA(DisplayName="Spell(Right Click)"),
 	Interaction UMETA(DisplayName="Interaction(E)"),
 	Damaged UMETA(DisplayName="Damaged"),
-	Died UMETA(DisplayName="Died")
+	Died UMETA(DisplayName="Died"),
+	Spawn UMETA(DisplayName="Spawn")
 };
 
 UENUM(BlueprintType)
@@ -174,7 +175,8 @@ public:
 	// hp 최대치 변경 아이템 먹었을 경우 / 인자값 : 절대값 플러스, 퍼센트 플러스
 	void SetBuffMaxHP(int32 plusHpAbs, float plusHpPro);
 
-	bool IsNormalState();
+	// 현재 상태에서 state 로 변할 수 있는지 값 반환 (같은 상태는 true)
+	bool CheckChangeStateEnabled(EPlayerBehaviorState state);
 
 // Input
 public:

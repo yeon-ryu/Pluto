@@ -49,8 +49,8 @@ void UPlayerAnimInstance::AnimNotify_AttackEnd()
 void UPlayerAnimInstance::AnimNotify_SpecialAttEnd()
 {
 	// 끝나면 NowState 무조건 Idle 로 변경
-	player->bSpecialAtt = false;
-	player->bForceSpecialAtt = false;
 	player->Speed = player->RunSpeed;
 	player->NowState = EPlayerBehaviorState::Idle;
+	player->bSpecialAtt = false;
+	player->bForceSpecialAtt = false;
 }
