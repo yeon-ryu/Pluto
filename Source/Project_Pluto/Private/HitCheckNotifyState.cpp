@@ -32,7 +32,11 @@ void UHitCheckNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 
 void UHitCheckNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-
+	if (CapsuleComp)
+	{
+		// 충돌 이벤트 삭제
+		CapsuleComp->OnComponentBeginOverlap.RemoveDynamic(this, &UHitCheckNotifyState::OnPlayerOverlap);
+	}
 }
 
 void UHitCheckNotifyState::OnPlayerOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -41,10 +45,11 @@ void UHitCheckNotifyState::OnPlayerOverlap(UPrimitiveComponent* OverlappedCompon
 	APlayerZagreus* player = Cast<APlayerZagreus>(OtherActor);
 	if (!!player)
 	{
-		//UGameplayStatics::ApplyDamage(player, OwnCharacter->
+		UGameplayStatics::ApplyDamage(player, OwnCharacter->GetDamage(), OwnCharacter->GetController(), OwnCharacter, UDamageType::StaticClass());
 
+		UE_LOG(LogTemp, Warning, TEXT("%s hit %s! Applied %d Damage!"), *OwnCharacter->GetName(), *player->GetName(), OwnCharacter->GetDamage ());
 
-		player->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Ignore);
+		OwnCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Ignore);
 	}
 
 }
