@@ -99,7 +99,19 @@ void APlayerZagreus::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// 바닥에 검 박고 Q 스킬 어택 ~ 검을 빼고 설 때까지 스스로 아무 것도 하지 못한다.
-	if(bSpecialAtt) return;
+	if(bSpecialAtt) {
+		// 버그났을 경우
+		if (NowState != EPlayerBehaviorState::SpecialAtt) {
+			// Q 스킬 효과 제거
+			weapon->EndSpecialAtt();
+			bSpecialAtt = false;
+			bForceSpecialAtt = false;
+			if (Speed == SpecialAttRunSpeed) {
+				Speed = RunSpeed;
+			}
+		}
+		return;
+	}
 
 	// 회피 도중 공격 (사람 인식으로)씹힘이 잦아 공격 인풋 더 기다려 줌
 	if (bDodgeAttackWait) {
@@ -123,6 +135,11 @@ void APlayerZagreus::Tick(float DeltaTime)
 				if (pController != nullptr) {
 					PlayerDir = pController->GetPawn()->GetActorForwardVector();
 				}
+			}
+
+			if (NowState != EPlayerBehaviorState::SpecialAtt && Speed == SpecialAttRunSpeed) {
+				if(NowState == EPlayerBehaviorState::Dodge) Speed = DodgeSpeed;
+				else Speed = RunSpeed;
 			}
 
 			SetActorRotation(FRotator(0.0f, UKismetMathLibrary::ClampAxis(PlayerDir.Rotation().Yaw), 0.0f));
@@ -159,7 +176,6 @@ void APlayerZagreus::Tick(float DeltaTime)
 	}
 
 	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, UEnum::GetValueAsString(NowState));
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *UEnum::GetValueAsString(NowState));
 }
 
 // Called to bind functionality to input
@@ -295,6 +311,8 @@ void APlayerZagreus::StartSpecialAtt()
 	if (NowState != EPlayerBehaviorState::SpecialAtt && CheckChangeStateEnabled(EPlayerBehaviorState::SpecialAtt)) {
 		NowState = EPlayerBehaviorState::SpecialAtt;
 		Speed = SpecialAttRunSpeed;
+		bForceSpecialAtt = false;
+		bSpecialAtt = false;
 	}
 }
 
@@ -328,11 +346,11 @@ bool APlayerZagreus::CheckChangeStateEnabled(EPlayerBehaviorState state)
 	switch (NowState)
 	{
 	case EPlayerBehaviorState::Idle:
-		if(state != EPlayerBehaviorState::Spawn && state != EPlayerBehaviorState::Died)
+		if(state != EPlayerBehaviorState::Spawn && state != EPlayerBehaviorState::Die)
 			return true;
 		break;
 	case EPlayerBehaviorState::Move:
-		if (state != EPlayerBehaviorState::Spawn && state != EPlayerBehaviorState::Died)
+		if (state != EPlayerBehaviorState::Spawn && state != EPlayerBehaviorState::Die)
 			return true;
 		break;
 	case EPlayerBehaviorState::Attack:
@@ -352,10 +370,10 @@ bool APlayerZagreus::CheckChangeStateEnabled(EPlayerBehaviorState state)
 	case EPlayerBehaviorState::Interaction:
 		break;
 	case EPlayerBehaviorState::Damaged:
-		if(state == EPlayerBehaviorState::Idle || state == EPlayerBehaviorState::Died)
+		if(state == EPlayerBehaviorState::Idle || state == EPlayerBehaviorState::Die)
 			return true;
 		break;
-	case EPlayerBehaviorState::Died:
+	case EPlayerBehaviorState::Die:
 		break;
 	case EPlayerBehaviorState::Spawn:
 		if(state == EPlayerBehaviorState::Idle)

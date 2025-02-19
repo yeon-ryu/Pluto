@@ -30,12 +30,16 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Direction = FVector::DotProduct(rightVector, velocity);
 }
 
+void UPlayerAnimInstance::AnimNotify_SpecialAttStart()
+{
+	// 이 순간 부터 우선 순위 최상 -> 이동, 공격 등 이 애니메이션이 끝나기 전까지 아무것도 적용할 수 없다.
+	player->bSpecialAtt = true;
+	//player->bForceSpecialAtt = true;
+}
+
 void UPlayerAnimInstance::AnimNotify_AttackEffect()
 {
 	// 플레이어가 가지고 있는 무기의 공격 범위 ovelap 체크 시작
-	// 이 순간 부터 우선 순위 최상 -> 회피, 이동, 공격 등 이 애니메이션이 끝나기 전까지 아무것도 적용할 수 없다.
-	player->bSpecialAtt = true;
-	player->bForceSpecialAtt = true;
 	player->SetAttackDir();
 	player->weapon->StartSpecialAtt();
 }

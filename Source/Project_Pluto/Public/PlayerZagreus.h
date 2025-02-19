@@ -17,7 +17,7 @@ enum class EPlayerBehaviorState : uint8 {
 	Spell UMETA(DisplayName="Spell(Right Click)"),
 	Interaction UMETA(DisplayName="Interaction(E)"),
 	Damaged UMETA(DisplayName="Damaged"),
-	Died UMETA(DisplayName="Died"),
+	Die UMETA(DisplayName="Die"),
 	Spawn UMETA(DisplayName="Spawn")
 };
 
@@ -139,8 +139,10 @@ public:
 
 	void EndDodge();
 
+	// false 인 동안은 회피->스페셜 공격 가능
 	bool bForceSpecialAtt = false;
 
+	// 스페셜 어택만 가능
 	bool bSpecialAtt = false;
 
 	void StartSpecialAtt();

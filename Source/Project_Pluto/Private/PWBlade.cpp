@@ -10,6 +10,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 APWBlade::APWBlade()
 {
@@ -124,16 +125,25 @@ void APWBlade::EndSpecialAtt()
 void APWBlade::Strike(AEnemyInfo* Enemy)
 {
 	// 20 대미지
+	int32 damage = 20;
+
+	UGameplayStatics::ApplyDamage(Enemy, damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 }
 
 void APWBlade::Chop(AEnemyInfo* Enemy)
 {
 	// 25 대미지
+	int32 damage = 25;
+
+	UGameplayStatics::ApplyDamage(Enemy, damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 }
 
 void APWBlade::Thrust(AEnemyInfo* Enemy)
 {
 	// 30 대미지
+	int32 damage = 30;
+
+	UGameplayStatics::ApplyDamage(Enemy, damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 
 	FVector direction = FVector(player->AttackDirection.X, player->AttackDirection.Y, 0.0f);
 	Knockback(Enemy, direction);
@@ -143,6 +153,9 @@ void APWBlade::Thrust(AEnemyInfo* Enemy)
 void APWBlade::NovaSmash(AEnemyInfo* Enemy)
 {
 	// 50 대미지
+	int32 damage = 50;
+
+	UGameplayStatics::ApplyDamage(Enemy, damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 
 	FVector direction = Enemy->GetActorLocation() - this->GetActorLocation();
 	direction = FVector(direction.X, direction.Y, 0.0f);

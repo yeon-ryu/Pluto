@@ -35,6 +35,10 @@ public:
 
 	// Q Skill Attack Effect Start
 	UFUNCTION()
+	void AnimNotify_SpecialAttStart();
+
+	// Q Skill Attack Effect Start
+	UFUNCTION()
 	void AnimNotify_AttackEffect();
 
 	// Q Skill Attack Effect End

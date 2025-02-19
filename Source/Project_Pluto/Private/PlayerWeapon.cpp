@@ -33,6 +33,9 @@ void APlayerWeapon::BeginPlay()
 	
 	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerZagreus::StaticClass());
 	player = Cast<APlayerZagreus>(actor);
+
+	SetOwner(player);
+	SetInstigator(player);
 }
 
 // Called every frame
