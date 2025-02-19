@@ -48,4 +48,8 @@ public:
 	// Q Skill Attack Anim End
 	UFUNCTION()
 	void AnimNotify_SpecialAttEnd();
+
+	// 피격 애니메이션 종료
+	UFUNCTION()
+	void AnimNotify_DamageEnd();
 };

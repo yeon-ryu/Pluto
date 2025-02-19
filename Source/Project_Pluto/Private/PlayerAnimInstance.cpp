@@ -58,3 +58,13 @@ void UPlayerAnimInstance::AnimNotify_SpecialAttEnd()
 	player->bSpecialAtt = false;
 	player->bForceSpecialAtt = false;
 }
+
+void UPlayerAnimInstance::AnimNotify_DamageEnd()
+{
+	if (player->HP > 0) {
+		player->NowState = EPlayerBehaviorState::Idle;
+	}
+	else {
+		player->NowState = EPlayerBehaviorState::Die;
+	}
+}

@@ -170,7 +170,7 @@ public:
 
 
 	// ÇÇ°Ý
-	void OnDamage(int32 damage);
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	void SetPermanetBuff();
 

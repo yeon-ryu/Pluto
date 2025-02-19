@@ -306,6 +306,13 @@ void APlayerZagreus::AttackProcess()
 	}
 }
 
+float APlayerZagreus::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	HP = FMath::Clamp(HP-Damage, 0.f, 100.f);
+	NowState = EPlayerBehaviorState::Damaged;
+	return HP;
+}
+
 void APlayerZagreus::StartSpecialAtt()
 {
 	if (NowState != EPlayerBehaviorState::SpecialAtt && CheckChangeStateEnabled(EPlayerBehaviorState::SpecialAtt)) {
@@ -314,13 +321,6 @@ void APlayerZagreus::StartSpecialAtt()
 		bForceSpecialAtt = false;
 		bSpecialAtt = false;
 	}
-}
-
-void APlayerZagreus::OnDamage(int32 damage)
-{
-	HP -= damage;
-
-	// 피격 애니메이션
 }
 
 void APlayerZagreus::SetPermanetBuff()

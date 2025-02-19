@@ -11,6 +11,7 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Boss.h"
 
 APWBlade::APWBlade()
 {
@@ -145,9 +146,11 @@ void APWBlade::Thrust(AEnemyInfo* Enemy)
 
 	UGameplayStatics::ApplyDamage(Enemy, damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 
-	FVector direction = FVector(player->AttackDirection.X, player->AttackDirection.Y, 0.0f);
+	FVector direction = Enemy->GetActorLocation() - this->GetActorLocation();
+	direction = FVector(direction.X, direction.Y, 0.0f);
 	Knockback(Enemy, direction);
-	player->LaunchCharacter(direction.GetSafeNormal() * 3000, false, false);
+	FVector playerDirection = FVector(player->AttackDirection.X, player->AttackDirection.Y, 0.0f);
+	player->LaunchCharacter(playerDirection.GetSafeNormal() * 3000, false, false);
 }
 
 void APWBlade::NovaSmash(AEnemyInfo* Enemy)
@@ -165,8 +168,12 @@ void APWBlade::NovaSmash(AEnemyInfo* Enemy)
 
 void APWBlade::Knockback(AEnemyInfo* Enemy, FVector dir)
 {
-	// 넉백
-	Enemy->LaunchCharacter(dir.GetSafeNormal() * 3000, false, false);
+	int32 knockbackDistance = 3000;
+	if (Enemy->IsA<ABoss>()) {
+		// 보스일 경우 넉백 수치 작음
+		knockbackDistance = 1000;
+	}
+	Enemy->LaunchCharacter(dir.GetSafeNormal() * knockbackDistance, false, false);
 }
 
 void APWBlade::BackstabBan(AEnemyInfo* Enemy)
