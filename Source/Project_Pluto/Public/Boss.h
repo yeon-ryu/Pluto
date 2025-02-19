@@ -31,29 +31,10 @@ public:
 public:
 
 #pragma region Getter/Setter
-	FORCEINLINE int32 GetDamage() { return this->Damage; }
-	FORCEINLINE void SetDamage(int32 damage_value) { this->Damage = damage_value; }
-
-	FORCEINLINE int32 GetNowHp() { return this->NowHp; }
-	FORCEINLINE void SetNowHp(int32 nowhp_value) { this->NowHp = nowhp_value; }
-
-	FORCEINLINE int32 GetMaxHp() { return this->MaxHp; }
-	FORCEINLINE void SetMaxHp(int32 maxhp_value) { this->MaxHp = maxhp_value; }
-
-	FORCEINLINE float GetAttRange() { return this->AttRange; }
-	FORCEINLINE void SetAttRange(float attrange_value) { this->AttRange= attrange_value; }
-
-	FORCEINLINE float GetCoolDown() { return this->AttCoolDown; }
-	FORCEINLINE void SetCoolDown(float cooldown_value) { this->AttCoolDown = cooldown_value; }
-
-	FORCEINLINE float GetDetectRange() { return this->DetectRange; }
-	FORCEINLINE void SetDetectRange(float detect_value) { this->DetectRange = detect_value; }
-
-	FORCEINLINE float GetSpeed() { return this->Speed; }
-	FORCEINLINE void SetSpeed(float speed_value) { this->Speed = speed_value; }
 
 	FORCEINLINE int32 GetAttPatternslength() { return AttPatterns.Num(); }
 	FORCEINLINE EAttackType GetAttackType() { return this->AttTypeEnum; }
+
 #pragma endregion Getter/Setter
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSMComponent")
