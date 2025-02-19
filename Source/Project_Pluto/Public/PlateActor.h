@@ -48,4 +48,6 @@ public:
 	float nowTime = 0.f;
 
 
+private:
+	float DamageRadius = 400.f;
 };

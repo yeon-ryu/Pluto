@@ -11,6 +11,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -140,7 +142,8 @@ void ABoss::Charge()
 {
 	FVector dir = GetTargetFromMe();
 	dir.Normalize();
-	this->LaunchCharacter(dir * 26000.f , true, false);
+	this->LaunchCharacter(dir * 10000.f , true, false);
+
 }
 
 void ABoss::CurtainFire()
@@ -228,7 +231,6 @@ void ABoss::SpawnPlate()
 
 		GetWorld()->SpawnActor <APlateActor>(PlateFactory,FVector(playerLocation.X, playerLocation.Y, 0.f),		FRotator::ZeroRotator);
 
-		//FVector splitPos = GetRandomPos(spawnLocation[randSpawn]);
 
 		for (int32 i = 0; i < 3; i++)
 		{	
@@ -254,14 +256,6 @@ void ABoss::SpawnPlate()
 		}
 
 	}
-
-
-
-
-	
-
-
-
 
 	
 	plateCounter++;
@@ -291,11 +285,23 @@ void ABoss::SelectCharge()
 
 void ABoss::SelectCurtainFire()
 {
+	AttTypeEnum = EAttackType::CurtainFire;
+	SetDamage(AttDamages[1]);
+	SetAttRange(AttRanges[1]);
+
+	fsm->BossAttDamage = GetDamage();
+	fsm->BossAttRange = GetAttRange();
+}
+
+void ABoss::SelectPlate()
+{
 	AttTypeEnum = EAttackType::Plate;
 	SetDamage(AttDamages[2]);
 	SetAttRange(AttRanges[2]);
 
 	fsm->BossAttDamage = GetDamage();
 	fsm->BossAttRange = GetAttRange();
+
 }
+
 

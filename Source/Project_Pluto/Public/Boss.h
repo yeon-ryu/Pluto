@@ -94,6 +94,8 @@ public:
 	void SelectCharge();
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 	void SelectCurtainFire();
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void SelectPlate();
 
 public:
 #pragma region Debug_Values

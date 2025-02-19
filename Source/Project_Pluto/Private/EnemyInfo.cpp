@@ -47,7 +47,8 @@ FVector AEnemyInfo::GetTargetFromMe()
 	APlayerController* controller = GetWorld()->GetFirstPlayerController();
 	FVector playerLocation = controller->GetPawn()->GetActorLocation();
 
-	return playerLocation - this->GetActorLocation();
+
+	return playerLocation - this->GetActorLocation ();
 
 }
 

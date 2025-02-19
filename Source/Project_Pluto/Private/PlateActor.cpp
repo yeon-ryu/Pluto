@@ -6,6 +6,8 @@
 #include "DebugMacro.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "PlayerZagreus.h"
 
 
 // Sets default values
@@ -63,6 +65,19 @@ void APlateActor::ActivateExplosion()
 	ExplosionFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ExplosionFXSystem, GetActorLocation(), FRotator(0.f), FVector(.5f), true, true);
 
 	ExplosionFXComponent->Activate();
+
+	/* 데미지 주는 부분
+	APlayerZagreus* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (!Player) return;
+
+	float Distance = FVector::Dist(Player->GetActorLocation(), GetActorLocation());
+
+	if (Distance <= DamageRadius) {
+		UGameplayStatics::ApplyDamage(Player, DamageAmount, nullptr, this, nullptr);
+	}
+	*/
+
+
 
 	SpawnFXComponent->Deactivate();
 	SpawnFXComponent->DestroyComponent();
