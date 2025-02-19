@@ -56,6 +56,8 @@ APlayerZagreus::APlayerZagreus()
 
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
+
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 }
 
 // Called when the game starts or when spawned
@@ -314,6 +316,14 @@ void APlayerZagreus::SetBuffMaxHP(int32 plusHpAbs, float plusHpPro)
 
 	MaxHP += FMath::Floor(MaxHP * plusHpPro);
 	HP += FMath::Floor(HP * plusHpPro);
+}
+
+bool APlayerZagreus::IsNormalState()
+{
+	if (NowState == EPlayerBehaviorState::Idle || NowState == EPlayerBehaviorState::Move) {
+		return true;
+	}
+	return false;
 }
 
 void APlayerZagreus::Move(const FInputActionValue& inputValue)

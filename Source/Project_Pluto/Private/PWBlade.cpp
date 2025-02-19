@@ -41,12 +41,12 @@ APWBlade::APWBlade()
 	EffectCollisionComp->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
+	CollisionComp->SetCollisionObjectType(ECC_Pawn);
 	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	EffectCollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
+	EffectCollisionComp->SetCollisionObjectType(ECC_Pawn);
 	EffectCollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	EffectCollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }

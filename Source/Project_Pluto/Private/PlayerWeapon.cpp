@@ -21,7 +21,7 @@ APlayerWeapon::APlayerWeapon()
 	CollisionComp->SetupAttachment(RootComp);
 
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
+	CollisionComp->SetCollisionObjectType(ECC_Pawn);
 	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap); // 나중에 적으로 변경 & 벽도 필요?
 }
