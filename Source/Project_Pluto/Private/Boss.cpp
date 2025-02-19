@@ -140,6 +140,8 @@ void ABoss::AttackPlayer(EAttackType type)
 
 void ABoss::Charge()
 {
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Overlap);
+
 	FVector dir = GetTargetFromMe();
 	dir.Normalize();
 	this->LaunchCharacter(dir * 10000.f , true, false);

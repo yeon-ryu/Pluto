@@ -29,16 +29,3 @@ void UBossAnimInstance::AnimNotify_AttackEnd()
 
 	Boss->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Block);
 }
-
-void UBossAnimInstance::AnimNotify_AttackStart()
-{
-	Boss = Cast<ABoss>(TryGetPawnOwner());
-
-	if (Boss == nullptr)
-	{
-		return;
-	}
-
-	Boss->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Overlap);
-
-}
