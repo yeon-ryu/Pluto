@@ -220,9 +220,17 @@ void APlayerZagreus::CheckDodgeDelay(float DeltaTime)
 void APlayerZagreus::CheckDodgeAttackInput(float DeltaTime)
 {
 	CurrentDodgeAttackWait += DeltaTime;
+	
+	if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeAttackWait >= DodgeInvincibleTime) {
+		if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
+			GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		}
+	}
 
 	if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeAttackWait >= DodgeAttackTime) {
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
+			GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		}
 		bDodgeAttackWait = false;
 		CurrentDodgeAttackWait = 0.0f;
 		return;
