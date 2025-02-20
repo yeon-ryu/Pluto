@@ -283,6 +283,7 @@ FVector ABoss::GetRandomPos(FVector pos)
 float ABoss::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	ReceiveDamage(DamageAmount);
+	UE_LOG(LogTemp, Error, TEXT("Player Hit Boss"));
 
 	return DamageAmount;
 }
