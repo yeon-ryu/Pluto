@@ -169,6 +169,8 @@ public:
 	void AttackProcess(); // 어택 로직
 
 
+	bool bDamaged = false;
+
 	// 피격
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 

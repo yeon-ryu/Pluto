@@ -98,6 +98,9 @@ void APlayerZagreus::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 피격 애니메이션 진행 중
+	if(bDamaged) return;
+
 	// 바닥에 검 박고 Q 스킬 어택 ~ 검을 빼고 설 때까지 스스로 아무 것도 하지 못한다.
 	if(bSpecialAtt) {
 		// 버그났을 경우
@@ -395,7 +398,7 @@ bool APlayerZagreus::CheckChangeStateEnabled(EPlayerBehaviorState state)
 
 void APlayerZagreus::Move(const FInputActionValue& inputValue)
 {
-	if(bSpecialAtt) return;
+	if(bDamaged || bSpecialAtt) return;
 
 	//if(NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) {
 	//	if (PlayerDir == FVector::ZeroVector) {
@@ -418,7 +421,7 @@ void APlayerZagreus::Move(const FInputActionValue& inputValue)
 // 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 {
-	if(bSpecialAtt || !CheckChangeStateEnabled(EPlayerBehaviorState::Attack)) return;
+	if(bDamaged || bSpecialAtt || !CheckChangeStateEnabled(EPlayerBehaviorState::Attack)) return;
 	bReserveAttack = true;
 	Speed = RunSpeed;
 	bForceSpecialAtt = false;
@@ -426,12 +429,8 @@ void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 {
-	if (NowState == EPlayerBehaviorState::Dodge) {
-		return;
-	}
-
-	// 연속으로 회피 못하도록
-	if(bDodgeDelayWait || bSpecialAtt || !CheckChangeStateEnabled(EPlayerBehaviorState::Dodge)) return;
+	// 피격 상태 / 회피 재사용 대기 시간 / Q 스킬 공격 중 / 대시 도중 및 대시 불가능한 상태일 경우
+	if(bDamaged || bDodgeDelayWait || bSpecialAtt || NowState == EPlayerBehaviorState::Dodge || !CheckChangeStateEnabled(EPlayerBehaviorState::Dodge)) return;
 
 	if (NowState == EPlayerBehaviorState::SpecialAtt) {
 		if (bForceSpecialAtt) {
@@ -463,6 +462,7 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 // 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::SpecialAtt(const FInputActionValue& inputValue)
 {
+	if(bDamaged) return;
 	StartSpecialAtt();
 }
 
