@@ -308,8 +308,14 @@ void APlayerZagreus::AttackProcess()
 
 float APlayerZagreus::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if(HP == 0) return 0;
+
 	HP = FMath::Clamp(HP-Damage, 0.f, 100.f);
-	NowState = EPlayerBehaviorState::Damaged;
+
+	if(NowState != EPlayerBehaviorState::Damaged && CheckChangeStateEnabled(EPlayerBehaviorState::Damaged)) {
+		NowState = EPlayerBehaviorState::Damaged;
+	}
+
 	return HP;
 }
 

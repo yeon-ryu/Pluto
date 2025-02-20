@@ -51,7 +51,7 @@ public:
 
 	// 피격 애니메이션 종료
 	UFUNCTION()
-	void AnimNotify_DamageEnd();
+	void AnimNotify_DamagedEnd();
 
 	// 라스트 콤보 공격 런치 시작
 	UFUNCTION()
