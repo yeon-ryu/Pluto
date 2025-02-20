@@ -206,10 +206,16 @@ public:
 	class UInputAction* IA_Interaction;
 
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input Cheat")
+	class UInputAction* IA_CheatInvincible;
+
+
 	void Move(const FInputActionValue& inputValue); // 이동
 	void Attack(const FInputActionValue& inputValue); // 일반 공격 & 콤보
 	void Dodge(const FInputActionValue& inputValue); // 회피 & 대시
 	void SpecialAtt(const FInputActionValue& inputValue); // 특수 공격 (Q 스킬)
 	void Spell(const FInputActionValue& inputValue); // 마법 (우클릭)
 	void Interaction(const FInputActionValue& inputValue); // 상호작용 (E 버튼)
+
+	void CheatInvincible(const FInputActionValue& inputValue);
 };

@@ -58,6 +58,7 @@ APlayerZagreus::APlayerZagreus()
 	camComp->SetupAttachment(springArmComp);
 
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
 // Called when the game starts or when spawned
@@ -179,7 +180,7 @@ void APlayerZagreus::Tick(float DeltaTime)
 	}
 
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Player State : %s"), *UEnum::GetValueAsString(NowState)));
-	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Player Collision : %s"), *UEnum::GetValueAsString(GetCapsuleComponent()->GetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn))));
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Player Collision : %s"), *UEnum::GetValueAsString(GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn))));
 }
 
 // Called to bind functionality to input
@@ -195,7 +196,8 @@ void APlayerZagreus::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		PlayerInput->BindAction(IA_SpecialAtt, ETriggerEvent::Started, this, &APlayerZagreus::SpecialAtt);
 		//PlayerInput->BindAction(IA_Spell, ETriggerEvent::Started, this, &APlayerZagreus::Spell);
 		//PlayerInput->BindAction(IA_Interaction, ETriggerEvent::Started, this, &APlayerZagreus::Interaction);
-
+		
+		PlayerInput->BindAction(IA_CheatInvincible, ETriggerEvent::Started, this, &APlayerZagreus::CheatInvincible);
 	}
 }
 
@@ -237,7 +239,7 @@ void APlayerZagreus::EndDodge()
 {
 	Speed = RunSpeed;
 	// 에너미와 충돌 Overlap 으로 원복
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	if (NowState == EPlayerBehaviorState::Dodge) {
 		NowState = EPlayerBehaviorState::Idle;
@@ -456,7 +458,7 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 
 	Speed = DodgeSpeed;
 	// 에너미와 충돌 Ignore
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	bDodgeAttackWait = false;
 	AnimWaitTime = DodgeTime;
@@ -486,4 +488,14 @@ void APlayerZagreus::Interaction(const FInputActionValue& inputValue)
 	}
 
 	// 상호작용
+}
+
+void APlayerZagreus::CheatInvincible(const FInputActionValue& inputValue)
+{
+	if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	}
+	else {
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	}
 }
