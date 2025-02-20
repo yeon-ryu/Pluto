@@ -318,6 +318,10 @@ float APlayerZagreus::TakeDamage(float Damage, struct FDamageEvent const& Damage
 {
 	if(HP == 0) return 0;
 
+	if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
+		return HP;
+	}
+
 	HP = FMath::Clamp(HP-Damage, 0.f, (float)(MaxHP));
 
 	if(NowState != EPlayerBehaviorState::Damaged && CheckChangeStateEnabled(EPlayerBehaviorState::Damaged)) {
