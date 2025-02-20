@@ -8,20 +8,21 @@
 #include "Engine/StaticMesh.h"
 #include "Components/SceneComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Boss.h"
 
 APWBlade::APWBlade()
 {
-	CollisionComp->SetBoxExtent(FVector(10.0f, 10.0f, 60.0f));
-	CollisionComp->SetRelativeLocationAndRotation(FVector(60.0f, 5.0f, 80.0f), FRotator(-32.0f, -42.0f, 24.0f));
+	// 주석 처리 : 충돌을 칼날 부분에 맞도록 했을 경우. 플레이어의 타격감을 위해 충돌 범위를 확 늘림
 
-	BoxTraceStart = CreateDefaultSubobject<USceneComponent>(TEXT("Box Trace Start"));
-	BoxTraceStart->SetupAttachment(GetRootComponent());
+	CollisionComp->SetBoxExtent(FVector(50.0f, 50.0f, 100.0f));
+	//CollisionComp->SetBoxExtent(FVector(10.0f, 10.0f, 60.0f));
+	CollisionComp->SetRelativeLocation(FVector(-6.0f, 4.0f, 90.0f));
+	//CollisionComp->SetRelativeLocation(FVector(-6.0f, 4.0f, 105.0f));
 
-	BoxTraceEnd = CreateDefaultSubobject<USceneComponent>(TEXT("Box Trace End"));
-	BoxTraceEnd->SetupAttachment(GetRootComponent());
-
-	// 검 모양 액터
+	// 검 에셋
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BladeMeshComp"));
 	MeshComp->SetupAttachment(CollisionComp);
 
@@ -30,11 +31,26 @@ APWBlade::APWBlade()
 	if (TempMesh.Succeeded()) {
 		MeshComp->SetStaticMesh(TempMesh.Object);
 		MeshComp->SetRelativeScale3D(FVector(0.08f));
-		MeshComp->SetRelativeLocationAndRotation(FVector(45.0f, 45.0f, 25.0f), FRotator(-23.0f, -23.0f, 36.0f));
-		// Collision 이 영점일 때 Player 가 잡기 위한 수치 : FVector(51.0f, -3.0f, 140.0f), FRotator(-32.0f, -39.0f, 24.0f)
+		MeshComp->SetRelativeLocationAndRotation(FVector(45.0f, 45.0f, 50.0f), FRotator(-23.0f, -23.0f, 36.0f));
+		//MeshComp->SetRelativeLocationAndRotation(FVector(45.0f, 45.0f, 25.0f), FRotator(-23.0f, -23.0f, 36.0f));
 	}
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	// 스페셜 어택 범위
+	EffectCollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("EffectCollisionComp"));
+	EffectCollisionComp->SetupAttachment(RootComp);
+	EffectCollisionComp->SetSphereRadius(500.0f);
+	EffectCollisionComp->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CollisionComp->SetCollisionObjectType(ECC_Pawn);
+	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	EffectCollisionComp->SetCollisionObjectType(ECC_Pawn);
+	EffectCollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	EffectCollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
 void APWBlade::BeginPlay()
@@ -43,17 +59,19 @@ void APWBlade::BeginPlay()
 
 	MaxCombo = 3;
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &APWBlade::OnBoxOverlap);
+	EffectCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &APWBlade::OnEffectOverlap);
 }
 
 void APWBlade::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-void APWBlade::Attack(AActor* OtherActor)
+void APWBlade::AttackProcess(AActor* OtherActor)
 {
+	// EnemyInfo 를 상속한 타입으로 확인 됨. -> EnemyInfo 입장에서 PlayerWeapon overlap 으로 바꾸는거 잊지 말기!!!
 	if (OtherActor->IsA<AEnemyInfo>()) {
+		UE_LOG(LogTemp, Warning, TEXT("Attack to Enemy!"));
 		AEnemyInfo* enemy = Cast<AEnemyInfo>(OtherActor);
 
 		// 몇번째 콤보인가에 따라 공격 실행
@@ -68,21 +86,47 @@ void APWBlade::Attack(AActor* OtherActor)
 		case 3:
 			Thrust(enemy);
 			break;
-		case -100: // 대시 공격
-			player->Combo = 3;
-			Thrust(enemy);
-			break;
 		default:
 			break;
 		}
 	}
 }
 
-void APWBlade::SpecialAtt(AActor* OtherActor)
+void APWBlade::SpecialAttProcess(AActor* OtherActor)
 {
 	if (OtherActor->IsA<AEnemyInfo>()) {
+		UE_LOG(LogTemp, Warning, TEXT("Special Attack to Enemy!"));
 		AEnemyInfo* enemy = Cast<AEnemyInfo>(OtherActor);
 		NovaSmash(enemy);
+	}
+}
+
+void APWBlade::StartAttack()
+{
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void APWBlade::EndAttack()
+{
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void APWBlade::StartSpecialAtt()
+{
+	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void APWBlade::EndSpecialAtt()
+{
+	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void APWBlade::LastCombo()
+{
+	if (player->Combo == 3) {
+		FVector playerDirection = FVector(player->AttackDirection.X, player->AttackDirection.Y, 0.0f);
+		UE_LOG(LogTemp, Error, TEXT("Launch!"));
+		player->LaunchCharacter(playerDirection.GetSafeNormal() * 3000, false, false);
 	}
 }
 
@@ -91,58 +135,79 @@ void APWBlade::SpecialAtt(AActor* OtherActor)
 void APWBlade::Strike(AEnemyInfo* Enemy)
 {
 	// 20 대미지
+	int32 damage = 20;
+
+	UGameplayStatics::ApplyDamage(Enemy, damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 }
 
 void APWBlade::Chop(AEnemyInfo* Enemy)
 {
 	// 25 대미지
+	int32 damage = 25;
+
+	UGameplayStatics::ApplyDamage(Enemy, damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 }
 
 void APWBlade::Thrust(AEnemyInfo* Enemy)
 {
 	// 30 대미지
+	int32 damage = 30;
 
-	Knockback(Enemy);
+	UGameplayStatics::ApplyDamage(Enemy, damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
+
+	FVector direction = Enemy->GetActorLocation() - this->GetActorLocation();
+	direction = FVector(direction.X, direction.Y, 0.0f);
+	Knockback(Enemy, direction);
 }
 
 void APWBlade::NovaSmash(AEnemyInfo* Enemy)
 {
 	// 50 대미지
+	int32 damage = 50;
 
+	UGameplayStatics::ApplyDamage(Enemy, damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
+
+	FVector direction = Enemy->GetActorLocation() - this->GetActorLocation();
+	direction = FVector(direction.X, direction.Y, 0.0f);
 	BackstabBan(Enemy);
-	Knockback(Enemy);
+	Knockback(Enemy, direction);
 }
 
-void APWBlade::Knockback(AEnemyInfo* Enemy)
+void APWBlade::Knockback(AEnemyInfo* Enemy, FVector dir)
 {
-	// 넉백
+	int32 knockbackDistance = 3000;
+	if (Enemy->IsA<ABoss>()) {
+		// 보스일 경우 넉백 수치 작음
+		knockbackDistance = 1000;
+	}
+	Enemy->LaunchCharacter(dir.GetSafeNormal() * knockbackDistance, false, false);
 }
 
 void APWBlade::BackstabBan(AEnemyInfo* Enemy)
 {
-	// 백스텝 불가
+	// 백스탭 불가 -> 배후 공격 대미지 적용 X
 }
 
 void APWBlade::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	const FVector Start = BoxTraceStart->GetComponentLocation();
-	const FVector End = BoxTraceEnd->GetComponentLocation();
+	switch (player->NowState)
+	{
+	case EPlayerBehaviorState::Attack:
+		AttackProcess(OtherActor);
+		break;
+	default:
+		break;
+	}
+}
 
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(this);
-	FHitResult BoxHit;
-
-	UKismetSystemLibrary::BoxTraceSingle(
-		this,
-		Start,
-		End,
-		FVector(5.f, 5.f, 5.f),
-		BoxTraceStart->GetComponentRotation(),
-		ETraceTypeQuery::TraceTypeQuery1,
-		false,
-		ActorsToIgnore,		//무시할거
-		EDrawDebugTrace::ForDuration,
-		BoxHit,
-		true		//자신무시
-	);
+void APWBlade::OnEffectOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	switch (player->NowState)
+	{
+	case EPlayerBehaviorState::SpecialAtt:
+		if(player->bSpecialAtt) SpecialAttProcess(OtherActor);
+		break;
+	default:
+		break;
+	}
 }

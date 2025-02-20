@@ -28,21 +28,12 @@ APlayerZagreus::APlayerZagreus()
 	else {
 		UE_LOG(LogTemp, Error, TEXT("PlayerZagreus SkeletalMesh loding fail."));
 	}
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// 플레이어가 이동 방향으로 회전하도록
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
-
-	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
-	if (MovementComponent)
-	{
-		MovementComponent->bOrientRotationToMovement = true;
-		MovementComponent->bUseControllerDesiredRotation = false;
-	}
-
-	GetCharacterMovement()->MaxWalkSpeed = Speed;
-	GetCharacterMovement()->MaxWalkSpeedCrouched = Speed;
 
 
 	// 애니메이션 클래스 할당
@@ -65,6 +56,8 @@ APlayerZagreus::APlayerZagreus()
 
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
+
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 }
 
 // Called when the game starts or when spawned
@@ -82,8 +75,8 @@ void APlayerZagreus::BeginPlay()
 		}
 	}
 
+	// 무기 소환 세팅
 	{
-		// 무기 소환 세팅
 		FName WeaponSocket(TEXT("muzzle_01")); // FX_weapon
 		FTransform weaponPosition = GetMesh()->GetSocketTransform(TEXT("muzzle_01"));
 		auto CurrentWeapon = GetWorld()->SpawnActor<APWBlade>(FVector::ZeroVector, FRotator::ZeroRotator);
@@ -96,8 +89,8 @@ void APlayerZagreus::BeginPlay()
 	// 애니메이션 Instance 가져오기
 	AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
-	// 캐릭터 초기 이동 스피드
-	GetCharacterMovement()->MaxWalkSpeed = Speed;
+	// 캐릭터 초기 이동 스피드 세팅
+	Speed = RunSpeed;
 }
 
 // Called every frame
@@ -105,20 +98,55 @@ void APlayerZagreus::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 바닥에 검 박고 Q 스킬 어택 ~ 검을 빼고 설 때까지 스스로 아무 것도 하지 못한다.
+	if(bSpecialAtt) {
+		// 버그났을 경우
+		if (NowState != EPlayerBehaviorState::SpecialAtt) {
+			// Q 스킬 효과 제거
+			weapon->EndSpecialAtt();
+			bSpecialAtt = false;
+			bForceSpecialAtt = false;
+			if (Speed == SpecialAttRunSpeed) {
+				Speed = RunSpeed;
+			}
+		}
+		return;
+	}
+
+	// 회피 도중 공격 (사람 인식으로)씹힘이 잦아 공격 인풋 더 기다려 줌
+	if (bDodgeAttackWait) {
+		CheckDodgeAttackInput(DeltaTime);
+	}
+
+	// 회피 후 연속 회피 안되도록 Delay 타임 체크
+	if (bDodgeDelayWait) {
+		CheckDodgeDelay(DeltaTime);
+	}
+
 	// 플레이어가 Move 상태인데 움직임이 없을 경우 Idle 상태로 변경
 	if (PlayerDir == FVector::ZeroVector && NowState == EPlayerBehaviorState::Move) {
 		NowState = EPlayerBehaviorState::Idle;
 	}
 
+	// 플레이어 이동
 	{
-		// 플레이어 이동
-		if(NowState == EPlayerBehaviorState::Move || NowState == EPlayerBehaviorState::Dodge) {
+		if(NowState == EPlayerBehaviorState::Move || NowState == EPlayerBehaviorState::Dodge || NowState == EPlayerBehaviorState::SpecialAtt) {
 			if (PlayerDir == FVector::ZeroVector) {
 				if (pController != nullptr) {
 					PlayerDir = pController->GetPawn()->GetActorForwardVector();
 				}
 			}
-			AddMovementInput(PlayerDir.GetSafeNormal());
+
+			if (NowState != EPlayerBehaviorState::SpecialAtt && Speed == SpecialAttRunSpeed) {
+				if(NowState == EPlayerBehaviorState::Dodge) Speed = DodgeSpeed;
+				else Speed = RunSpeed;
+			}
+
+			SetActorRotation(FRotator(0.0f, UKismetMathLibrary::ClampAxis(PlayerDir.Rotation().Yaw), 0.0f));
+
+			SetActorLocation(GetActorLocation() + PlayerDir.GetSafeNormal() * Speed * DeltaTime, true);
+
+			PlayerDir = FVector::ZeroVector;
 		}
 	}
 
@@ -131,9 +159,8 @@ void APlayerZagreus::Tick(float DeltaTime)
 			}
 		}
 		else {
-			PlayerDir = FVector::ZeroVector;
 			if (bAttackProcess) { // 공격 중이면 공격 애니메이션 대기
-				GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, FString::Printf(TEXT("Combo : %d"), Combo));
+				// GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, FString::Printf(TEXT("Combo : %d"), Combo));
 
 				CurrentAnimTime += DeltaTime;
 				if (CurrentAnimTime >= AnimWaitTime) {
@@ -142,6 +169,7 @@ void APlayerZagreus::Tick(float DeltaTime)
 				}
 			}
 			else if (bReserveAttack) { // 공격 중이 아니고 공격 예약이 결려있으면 공격 프로세스 진행
+				weapon->StartAttack();
 				AttackProcess();
 			}
 		}
@@ -173,6 +201,61 @@ void APlayerZagreus::NotifyActorBeginOverlap(AActor* OtherActor)
 
 }
 
+void APlayerZagreus::CheckDodgeDelay(float DeltaTime)
+{
+	CurrentDodgeDelayWait += DeltaTime;
+
+	if (CurrentDodgeDelayWait >= DodgeDelayTime) {
+		bDodgeDelayWait = false;
+		CurrentDodgeDelayWait = 0.0f;
+	}
+}
+
+void APlayerZagreus::CheckDodgeAttackInput(float DeltaTime)
+{
+	CurrentDodgeDelayWait += DeltaTime;
+
+	if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeDelayWait >= DodgeAttackTime) {
+		bDodgeAttackWait = false;
+		CurrentDodgeDelayWait = 0.0f;
+	}
+
+	if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
+		Combo = weapon->MaxCombo - 1;
+		bDodgeAttackWait = false;
+		CurrentDodgeDelayWait = 0.0f;
+	}
+}
+
+void APlayerZagreus::EndDodge()
+{
+	Speed = RunSpeed;
+	// 에너미와 충돌 Overlap 으로 원복
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	if (NowState == EPlayerBehaviorState::Dodge) {
+		NowState = EPlayerBehaviorState::Idle;
+	}
+
+	AnimWaitTime = DefaultAnimWaitTime;
+
+	bDodgeAttackWait = true;
+	CurrentDodgeDelayWait = 0.0f;
+
+	bDodgeDelayWait = true;
+	CurrentDodgeAttackWait = 0.0f;
+
+	if (bForceSpecialAtt) {
+		StartSpecialAtt();
+		return;
+	}
+
+	if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
+		Combo = weapon->MaxCombo - 1;
+		AttackProcess();
+	}
+}
+
 void APlayerZagreus::SetAttackDir()
 {
 	auto PlayerController = GetWorld()->GetFirstPlayerController();
@@ -183,13 +266,15 @@ void APlayerZagreus::SetAttackDir()
 		MouseLocation = hit.Location;
 
 		AttackDirection = MouseLocation - GetActorLocation();
+		AttackDirection = FVector(AttackDirection.X, AttackDirection.Y, 0.0f); // Z 축 값이 혹여나 안 들어오게 처리
 		SetActorRotation(FRotator(0.0f, UKismetMathLibrary::ClampAxis(AttackDirection.Rotation().Yaw), 0.0f));
 	}
 }
 
 void APlayerZagreus::AttackProcess()
 {
-	// 애니메이션 Montrage_Play 로 애니메이션 플레이 시간 세팅
+	if(bSpecialAtt || !CheckChangeStateEnabled(EPlayerBehaviorState::Attack)) return;
+	Speed = RunSpeed;
 
 	if(!bAttackProcess) { // 어택 시작
 	
@@ -204,43 +289,38 @@ void APlayerZagreus::AttackProcess()
 			Combo = 1;
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("Attack Start. Combo : %d"), Combo);
-
 		if (NowState != EPlayerBehaviorState::Attack) {
 			NowState = EPlayerBehaviorState::Attack;
 		}
 	}
 	else { // 어택 애니메이션 종료 후 로직
-		UE_LOG(LogTemp, Warning, TEXT("Attack End"));
 		if (!bReserveAttack) {
 			Combo = 0;
 			if (NowState == EPlayerBehaviorState::Attack) {
 				NowState = EPlayerBehaviorState::Idle;
 			}
+			weapon->EndAttack();
 		}
 		
 		bAttackProcess = false;
 	}
 }
 
-void APlayerZagreus::EndDodge()
+float APlayerZagreus::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	GetCharacterMovement()->MaxWalkSpeed = Speed;
-	// 에너미와 충돌 Overlap 으로 원복
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-
-	if (NowState == EPlayerBehaviorState::Dodge) {
-		NowState = EPlayerBehaviorState::Idle;
-	}
-
-	AnimWaitTime = DefaultAnimWaitTime;
+	HP = FMath::Clamp(HP-Damage, 0.f, 100.f);
+	NowState = EPlayerBehaviorState::Damaged;
+	return HP;
 }
 
-void APlayerZagreus::OnDamage(int32 damage)
+void APlayerZagreus::StartSpecialAtt()
 {
-	HP -= damage;
-
-	// 피격 애니메이션
+	if (NowState != EPlayerBehaviorState::SpecialAtt && CheckChangeStateEnabled(EPlayerBehaviorState::SpecialAtt)) {
+		NowState = EPlayerBehaviorState::SpecialAtt;
+		Speed = SpecialAttRunSpeed;
+		bForceSpecialAtt = false;
+		bSpecialAtt = false;
+	}
 }
 
 void APlayerZagreus::SetPermanetBuff()
@@ -259,18 +339,66 @@ void APlayerZagreus::SetBuffMaxHP(int32 plusHpAbs, float plusHpPro)
 	HP += FMath::Floor(HP * plusHpPro);
 }
 
+bool APlayerZagreus::CheckChangeStateEnabled(EPlayerBehaviorState state)
+{
+	if(NowState == state) return true;
+
+	switch (NowState)
+	{
+	case EPlayerBehaviorState::Idle:
+		if(state != EPlayerBehaviorState::Spawn && state != EPlayerBehaviorState::Die)
+			return true;
+		break;
+	case EPlayerBehaviorState::Move:
+		if (state != EPlayerBehaviorState::Spawn && state != EPlayerBehaviorState::Die)
+			return true;
+		break;
+	case EPlayerBehaviorState::Attack:
+		if(state == EPlayerBehaviorState::Idle || state == EPlayerBehaviorState::Dodge || state == EPlayerBehaviorState::Damaged)
+			return true;
+		break;
+	case EPlayerBehaviorState::Dodge:
+		if(state == EPlayerBehaviorState::Idle || state == EPlayerBehaviorState::Attack || state == EPlayerBehaviorState::SpecialAtt)
+			return true;
+		break;
+	case EPlayerBehaviorState::SpecialAtt:
+		if(state == EPlayerBehaviorState::Idle || state == EPlayerBehaviorState::Attack || state == EPlayerBehaviorState::Dodge || state == EPlayerBehaviorState::Damaged)
+			return true;
+		break;
+	case EPlayerBehaviorState::Spell:
+		break;
+	case EPlayerBehaviorState::Interaction:
+		break;
+	case EPlayerBehaviorState::Damaged:
+		if(state == EPlayerBehaviorState::Idle || state == EPlayerBehaviorState::Die)
+			return true;
+		break;
+	case EPlayerBehaviorState::Die:
+		break;
+	case EPlayerBehaviorState::Spawn:
+		if(state == EPlayerBehaviorState::Idle)
+			return true;
+		break;
+	default:
+		break;
+	}
+	return false;
+}
+
 void APlayerZagreus::Move(const FInputActionValue& inputValue)
 {
-	if(NowState == EPlayerBehaviorState::Dodge || NowState == EPlayerBehaviorState::Attack) {
-		if (PlayerDir == FVector::ZeroVector) {
-			FVector2D value = inputValue.Get<FVector2D>();
-			PlayerDir.X = value.X;
-			PlayerDir.Y = value.Y;
-		}
-		return;
-	}
+	if(bSpecialAtt) return;
 
-	if (NowState != EPlayerBehaviorState::Move) {
+	//if(NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) {
+	//	if (PlayerDir == FVector::ZeroVector) {
+	//		FVector2D value = inputValue.Get<FVector2D>();
+	//		PlayerDir.X = value.X;
+	//		PlayerDir.Y = value.Y;
+	//	}
+	//	return;
+	//}
+
+	if (NowState != EPlayerBehaviorState::Move && CheckChangeStateEnabled(EPlayerBehaviorState::Move)) {
 		NowState = EPlayerBehaviorState::Move;
 	}
 
@@ -282,14 +410,26 @@ void APlayerZagreus::Move(const FInputActionValue& inputValue)
 // 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 {
-	if (NowState == EPlayerBehaviorState::Dodge) {
-		Combo = -100;
-	}
+	if(bSpecialAtt || !CheckChangeStateEnabled(EPlayerBehaviorState::Attack)) return;
 	bReserveAttack = true;
+	Speed = RunSpeed;
+	bForceSpecialAtt = false;
 }
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 {
+	// 연속으로 회피 못하도록
+	if(bDodgeDelayWait || bSpecialAtt || !CheckChangeStateEnabled(EPlayerBehaviorState::Dodge)) return;
+
+	if (NowState == EPlayerBehaviorState::SpecialAtt) {
+		if (bForceSpecialAtt) {
+			return;
+		}
+		else {
+			bForceSpecialAtt = true;
+		}
+	}
+
 	if (NowState != EPlayerBehaviorState::Dodge) {
 		NowState = EPlayerBehaviorState::Dodge;
 	}
@@ -299,24 +439,21 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 		bReserveAttack = false;
 		Combo = 0;
 		CurrentAnimTime = 0.0f;
+		weapon->EndAttack();
 	}
 
-	GetCharacterMovement()->MaxWalkSpeed = DodgeSpeed;
+	Speed = DodgeSpeed;
 	// 에너미와 충돌 Ignore
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
+	bDodgeAttackWait = false;
 	AnimWaitTime = DodgeTime;
 }
 
 // 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::SpecialAtt(const FInputActionValue& inputValue)
 {
-	if (NowState != EPlayerBehaviorState::SpecialAtt) {
-		NowState = EPlayerBehaviorState::SpecialAtt;
-	}
-	SetAttackDir();
-
-	// 특수공격 애니메이션 -> 끝나면 NowState 변경
+	StartSpecialAtt();
 }
 
 void APlayerZagreus::Spell(const FInputActionValue& inputValue)
