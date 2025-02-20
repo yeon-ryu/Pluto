@@ -41,7 +41,7 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// ...
 
 	FString logMsg = UEnum::GetValueAsString(state);
-	//Debug::Print(logMsg);
+	Debug::Print(logMsg);
 	
 
 	switch (state)
@@ -130,43 +130,67 @@ void UBossFSM::State_Attack_End()
 void UBossFSM::State_Hit()
 {
 
-	float percent = float(me->GetNowHp()) / me->GetMaxHp();
+	float percent = me->GetNowHp() / me->GetMaxHp();
 
-	if (percent <= 0.75f && percent > 0.5f)
+	if (!bPhaseChange && percent <= 0.75f && percent > 0.5f)
 	{
 		state = EBossState::PhaseChange;
+		anim->animState = state;
 		me->AddAttPatterns();
+		bPhaseChange = true;
+		return;
 	}
 
-	if (percent <= 0.5f && percent > 0.25f)
+	else if ( bPhaseChange && percent <= 0.5f && percent > 0.25f)
 	{
 		state = EBossState::PhaseChange;
+		anim->animState = state;
+		bPhaseChange = false;
+		return;
 	}
 
-	if (percent <= 0.25f && percent > 0.f)
+	else if ( !bPhaseChange && percent <= 0.25f && percent > 0.f)
 	{
 		state = EBossState::PhaseChange;
+		anim->animState = state;
 		me->AddAttPatterns();
+		bPhaseChange = true;
+		return;
 	}
 
-	if (percent <= 0)
+	else if (percent <= 0)
 	{
 		state = EBossState::Die;
+		return;
 	}
 
-	anim->animState = state;
+	else
+	{
+		nowTime += GetDeltaTime();
+
+		if (nowTime > 1.f)
+		{
+			state = EBossState::Idle;
+			anim->animState = state;
+			nowTime = 0.0f;
+
+		}
+	}
+	
 
 }
 
 void UBossFSM::State_PhaseChange()
 {
-	me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	me->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Ignore);
+	FString SectionName = TEXT("PhaseChange");
+	//me->PlayAnimMontage(anim->BossMontage, 1.f, FName(*SectionName));
 
 	nowTime += GetDeltaTime();
 
 	if (nowTime > PhaseChangeTime)
 	{
-		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		me->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Block);
 		nowTime = 0.f;
 		state = EBossState::Idle;
 		anim->animState = state;

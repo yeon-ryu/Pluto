@@ -61,9 +61,9 @@ void AEnemyInfo::AttackPlayer(EAttackType type)
 /// TakeDamage에서 실행되는 체력 처리 함수
 /// </summary>
 /// <param name="damageValue"> 받은 피해량 </param>
-void AEnemyInfo::ReceiveDamage(float damageValue)
+void AEnemyInfo::DamageToSelf(float damageValue)
 {
-	SetNowHp(FMath::Clamp(NowHp - damageValue, 0.f, MaxHp));
+	SetNowHp(FMath::Clamp(GetNowHp () - damageValue, 0.f, GetMaxHp ()));
 
 }
 

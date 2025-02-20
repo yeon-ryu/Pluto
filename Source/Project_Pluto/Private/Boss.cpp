@@ -47,7 +47,8 @@ ABoss::ABoss()
 	ArrowComp->SetRelativeLocation(FVector(40.f, 0.f, 30.f));
 
 #pragma region initStatSetting
-	SetMaxHp(4400);
+	SetMaxHp(250);
+	SetNowHp(250);
 
 	SetDetectRange(10000.0f); //원래는 10000.f - 디버깅용 
 
@@ -73,6 +74,7 @@ void ABoss::BeginPlay()
 void ABoss::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	Debug::Print(FString::SanitizeFloat(GetNowHp() / GetMaxHp()));
 
 }
 
@@ -144,7 +146,7 @@ void ABoss::Charge()
 
 	FVector dir = GetTargetFromMe();
 	dir.Normalize();
-	this->LaunchCharacter(dir * 10000.f , true, false);
+	this->LaunchCharacter(dir * 50000.f , true, false);
 
 }
 
@@ -282,8 +284,10 @@ FVector ABoss::GetRandomPos(FVector pos)
 
 float ABoss::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	ReceiveDamage(DamageAmount);
+	DamageToSelf(DamageAmount);
 	UE_LOG(LogTemp, Error, TEXT("Player Hit Boss"));
+
+	fsm->OnTakeDamage();
 
 	return DamageAmount;
 }

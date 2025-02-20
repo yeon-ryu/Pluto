@@ -66,11 +66,11 @@ protected:
 
 #pragma region Getter
 public:
-	FORCEINLINE int32 GetDamage() { return this->Damage; }
+	FORCEINLINE float GetDamage() { return this->Damage; }
 
-	FORCEINLINE int32 GetNowHp() { return this->NowHp; }
+	FORCEINLINE float GetNowHp() { return this->NowHp; }
 
-	FORCEINLINE int32 GetMaxHp() { return this->MaxHp; }
+	FORCEINLINE float GetMaxHp() { return this->MaxHp; }
 
 	FORCEINLINE float GetAttRange() { return this->AttRange; }
 
@@ -107,7 +107,7 @@ public:
 
 	virtual void AttackPlayer(EAttackType type);
 
-	void ReceiveDamage(float damageValue);
+	void DamageToSelf(float damageValue);
 
 
 

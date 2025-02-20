@@ -82,15 +82,13 @@ void APlateActor::ActivateExplosion()
 	if (player != nullptr && boss != nullptr)
 	{
 		FVector vc = player->GetActorLocation() - this->GetActorLocation();
-		
 		float dist = player->GetDistanceTo(this);
-		Debug::Print(FString::SanitizeFloat(dist));
 		if (dist <= 400.f)
 		{
 			UGameplayStatics::ApplyRadialDamage(GetWorld (), boss->GetDamage(), this->GetActorLocation(),
 				400.f, UDamageType::StaticClass(), IgnoreActors, boss, boss->GetInstigatorController(), true);
 			
-			UE_LOG(LogTemp, Error, TEXT("Plate hit %s! Applied %d Damage!"), *player->GetName(), boss->GetDamage());
+			UE_LOG(LogTemp, Error, TEXT("Plate hit %s! Applied %.2f Damage!"), *player->GetName(), boss->GetDamage());
 
 		}
 

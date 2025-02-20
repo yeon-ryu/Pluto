@@ -69,7 +69,7 @@ public:
 	float nowTime = 0.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
-	float PhaseChangeTime = 2.0f;
+	float PhaseChangeTime = 3.5f;
 	float AttackDelayTime = 1.f;
 	float AttaclEndDelayTime = 0.25f;
 
@@ -78,7 +78,9 @@ public:
 
 	float BossAttRange;
 	float BossAttDamage;
-	
+
+	bool bPhaseChange = false;
+
 
 #pragma endregion Values for State Change
 
