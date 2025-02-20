@@ -178,7 +178,8 @@ void APlayerZagreus::Tick(float DeltaTime)
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, UEnum::GetValueAsString(NowState));
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Player State : %s"), *UEnum::GetValueAsString(NowState)));
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Player Collision : %s"), *UEnum::GetValueAsString(GetCapsuleComponent()->GetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn))));
 }
 
 // Called to bind functionality to input
@@ -315,11 +316,13 @@ float APlayerZagreus::TakeDamage(float Damage, struct FDamageEvent const& Damage
 {
 	if(HP == 0) return 0;
 
-	HP = FMath::Clamp(HP-Damage, 0.f, 100.f);
+	HP = FMath::Clamp(HP-Damage, 0.f, (float)(MaxHP));
 
 	if(NowState != EPlayerBehaviorState::Damaged && CheckChangeStateEnabled(EPlayerBehaviorState::Damaged)) {
 		NowState = EPlayerBehaviorState::Damaged;
 	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("Player HP : %d"), HP));
 
 	return HP;
 }
