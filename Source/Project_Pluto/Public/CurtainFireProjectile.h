@@ -43,4 +43,17 @@ public:
 
 	void SetVelocity(FVector dir_Value);
 
+	UFUNCTION()
+    void OnProjectileOverlap(
+        UPrimitiveComponent* OverlappedComponent,
+        AActor* OtherActor,
+        UPrimitiveComponent* OtherComp,
+        int32 OtherBodyIndex,
+        bool bFromSweep,
+        const FHitResult& SweepResult
+    );
+
+	class APlayerZagreus* player;
+	class AEnemyInfo* enemy;
+
 };

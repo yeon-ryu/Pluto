@@ -47,6 +47,12 @@ public:
 
 	float nowTime = 0.f;
 
+	class ABoss* boss;
+	
+	class APlayerZagreus* player;
+
+
+
 
 private:
 	float DamageRadius = 400.f;

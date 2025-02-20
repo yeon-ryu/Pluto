@@ -99,7 +99,6 @@ protected:
 #pragma endregion Setter
 
 
-
 public:
 	virtual void Charge();
 	virtual void CurtainFire();
@@ -109,6 +108,7 @@ public:
 	virtual void AttackPlayer(EAttackType type);
 
 	void ReceiveDamage(float damageValue);
-	
+
+
 
 };

@@ -68,7 +68,7 @@ public:
 	//타이머 핸들러
 	FTimerHandle TimerHandle;
 
-	//virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	//디버그용 함수
 	UFUNCTION(BlueprintCallable, Category = "Debug")

@@ -8,6 +8,9 @@
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerZagreus.h"
+#include "Boss.h"
+#include "EnemyInfo.h"
+#include "EngineUtils.h"
 
 
 // Sets default values
@@ -38,6 +41,9 @@ void APlateActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	player = Cast<APlayerZagreus>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	boss = Cast<ABoss>(GetOwner());
+
 	SpawnFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), SpawnFXSystem, GetActorLocation(), FRotator::ZeroRotator, FVector(5.f, 5.f, 1.f), true, true);
 	
 	SpawnFXComponent->Activate();
@@ -66,16 +72,29 @@ void APlateActor::ActivateExplosion()
 
 	ExplosionFXComponent->Activate();
 
-	/* 데미지 주는 부분
-	APlayerZagreus* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	if (!Player) return;
-
-	float Distance = FVector::Dist(Player->GetActorLocation(), GetActorLocation());
-
-	if (Distance <= DamageRadius) {
-		UGameplayStatics::ApplyDamage(Player, DamageAmount, nullptr, this, nullptr);
+	TArray<AActor*> IgnoreActors;
+	for (TActorIterator<AEnemyInfo> It(GetWorld()); It; ++It)
+	{
+		IgnoreActors.Add(*It);
 	}
-	*/
+	
+
+	if (player != nullptr && boss != nullptr)
+	{
+		FVector vc = player->GetActorLocation() - this->GetActorLocation();
+		
+		float dist = player->GetDistanceTo(this);
+		Debug::Print(FString::SanitizeFloat(dist));
+		if (dist <= 400.f)
+		{
+			UGameplayStatics::ApplyRadialDamage(GetWorld (), boss->GetDamage(), this->GetActorLocation(),
+				400.f, UDamageType::StaticClass(), IgnoreActors, boss, boss->GetInstigatorController(), true);
+			
+			UE_LOG(LogTemp, Error, TEXT("Plate hit %s! Applied %d Damage!"), *player->GetName(), boss->GetDamage());
+
+		}
+
+	}
 
 
 

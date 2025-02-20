@@ -213,6 +213,11 @@ void ABoss::SpawnPlate()
 		return;
 	}
 
+	FActorSpawnParameters spawnParams;
+	spawnParams.bNoFail = true;
+	spawnParams.Owner = this;
+
+
 	APawn* pawn = GetWorld()->GetFirstPlayerController()->GetPawn ();
 	FVector playerLocation = pawn->GetActorLocation();
 
@@ -231,13 +236,13 @@ void ABoss::SpawnPlate()
 		
 		int32 randSpawn = FMath::RandRange(0, 3);
 
-		GetWorld()->SpawnActor <APlateActor>(PlateFactory,FVector(playerLocation.X, playerLocation.Y, 0.f),		FRotator::ZeroRotator);
+		GetWorld()->SpawnActor <APlateActor>(PlateFactory,FVector(playerLocation.X, playerLocation.Y, 0.f),		FRotator::ZeroRotator,spawnParams);
 
 
 		for (int32 i = 0; i < 3; i++)
 		{	
 			FVector twistedLocation = GetRandomPos (spawnLocation[index[randSpawn][i]]);
-			GetWorld()->SpawnActor <APlateActor>(PlateFactory,twistedLocation, FRotator(0.f));
+			GetWorld()->SpawnActor <APlateActor>(PlateFactory,twistedLocation, FRotator(0.f),spawnParams);
 
 		}
 
@@ -254,7 +259,7 @@ void ABoss::SpawnPlate()
 
 		for (auto point : spawnLocation)
 		{
-			GetWorld()->SpawnActor<APlateActor>(PlateFactory, point, FRotator(0.f));
+			GetWorld()->SpawnActor<APlateActor>(PlateFactory, point, FRotator(0.f), spawnParams);
 		}
 
 	}
@@ -273,6 +278,13 @@ FVector ABoss::GetRandomPos(FVector pos)
 	float new_y = pos.Y + FMath::Sin(randAngle) * randRadius;
 
 	return FVector(new_x, new_y, pos.Z);
+}
+
+float ABoss::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	ReceiveDamage(DamageAmount);
+
+	return DamageAmount;
 }
 
 void ABoss::SelectCharge()
