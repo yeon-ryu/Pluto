@@ -42,6 +42,8 @@ void UPlayerAnimInstance::AnimNotify_AttackEffect()
 {
 	// 플레이어가 가지고 있는 무기의 공격 범위 ovelap 체크 시작
 	player->weapon->StartSpecialAtt();
+	auto controller = GetWorld()->GetFirstPlayerController();
+	controller->PlayerCameraManager->StartCameraShake(player->CameraShakeShockWave);
 }
 
 void UPlayerAnimInstance::AnimNotify_AttackEnd()

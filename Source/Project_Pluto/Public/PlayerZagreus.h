@@ -116,6 +116,9 @@ public:
 	UPROPERTY()
 	class UPlayerAnimInstance* AnimInstance;
 
+	UPROPERTY(EditDefaultsOnly, Category=CameraMotion)
+	TSubclassOf<class UCameraShakeBase> CameraShakeShockWave;
+
 
 // 플레이어 로직
 public:
