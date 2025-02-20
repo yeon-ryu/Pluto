@@ -189,8 +189,8 @@ void APlayerZagreus::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		PlayerInput->BindAction(IA_Attack, ETriggerEvent::Started, this, &APlayerZagreus::Attack);
 		PlayerInput->BindAction(IA_Dodge, ETriggerEvent::Started, this, &APlayerZagreus::Dodge);
 		PlayerInput->BindAction(IA_SpecialAtt, ETriggerEvent::Started, this, &APlayerZagreus::SpecialAtt);
-		PlayerInput->BindAction(IA_Spell, ETriggerEvent::Started, this, &APlayerZagreus::Spell);
-		PlayerInput->BindAction(IA_Interaction, ETriggerEvent::Started, this, &APlayerZagreus::Interaction);
+		//PlayerInput->BindAction(IA_Spell, ETriggerEvent::Started, this, &APlayerZagreus::Spell);
+		//PlayerInput->BindAction(IA_Interaction, ETriggerEvent::Started, this, &APlayerZagreus::Interaction);
 
 	}
 }
@@ -213,17 +213,19 @@ void APlayerZagreus::CheckDodgeDelay(float DeltaTime)
 
 void APlayerZagreus::CheckDodgeAttackInput(float DeltaTime)
 {
-	CurrentDodgeDelayWait += DeltaTime;
+	CurrentDodgeAttackWait += DeltaTime;
 
-	if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeDelayWait >= DodgeAttackTime) {
+	if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeAttackWait >= DodgeAttackTime) {
 		bDodgeAttackWait = false;
-		CurrentDodgeDelayWait = 0.0f;
+		CurrentDodgeAttackWait = 0.0f;
+		return;
 	}
 
 	if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
 		Combo = weapon->MaxCombo - 1;
 		bDodgeAttackWait = false;
-		CurrentDodgeDelayWait = 0.0f;
+		CurrentDodgeAttackWait = 0.0f;
+		AttackProcess();
 	}
 }
 
@@ -240,10 +242,10 @@ void APlayerZagreus::EndDodge()
 	AnimWaitTime = DefaultAnimWaitTime;
 
 	bDodgeAttackWait = true;
-	CurrentDodgeDelayWait = 0.0f;
+	CurrentDodgeAttackWait = 0.0f;
 
 	bDodgeDelayWait = true;
-	CurrentDodgeAttackWait = 0.0f;
+	CurrentDodgeDelayWait = 0.0f;
 
 	if (bForceSpecialAtt) {
 		StartSpecialAtt();
@@ -424,6 +426,10 @@ void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 {
+	if (NowState == EPlayerBehaviorState::Dodge) {
+		return;
+	}
+
 	// 연속으로 회피 못하도록
 	if(bDodgeDelayWait || bSpecialAtt || !CheckChangeStateEnabled(EPlayerBehaviorState::Dodge)) return;
 
@@ -436,9 +442,7 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 		}
 	}
 
-	if (NowState != EPlayerBehaviorState::Dodge) {
-		NowState = EPlayerBehaviorState::Dodge;
-	}
+	NowState = EPlayerBehaviorState::Dodge;
 
 	if (bAttackProcess) {
 		bAttackProcess = false;
