@@ -125,7 +125,6 @@ void APWBlade::LastCombo()
 {
 	if (player->Combo == 3) {
 		FVector playerDirection = FVector(player->AttackDirection.X, player->AttackDirection.Y, 0.0f);
-		UE_LOG(LogTemp, Error, TEXT("Launch!"));
 		player->LaunchCharacter(playerDirection.GetSafeNormal() * 3000, false, false);
 	}
 }

@@ -84,7 +84,7 @@ public:
 	bool bDodgeDelayWait = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
-	float DodgeAttackTime = 0.1f; // 회피 공격 추가 입력 시간
+	float DodgeAttackTime = 0.2f; // 회피 공격 추가 입력 시간
 
 	bool bDodgeAttackWait = false;
 

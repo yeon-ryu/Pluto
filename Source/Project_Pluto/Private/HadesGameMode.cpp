@@ -19,6 +19,6 @@ void AHadesGameMode::StartPlay()
 	controller->CurrentMouseCursor = EMouseCursor::Default;
 
 	// 기본적으로 input focus 게임으로 적용
-	FInputModeGameOnly inputModeGameOnly;
-	controller->SetInputMode(inputModeGameOnly);
+	//FInputModeGameOnly inputModeGameOnly;
+	//controller->SetInputMode(inputModeGameOnly);
 }
