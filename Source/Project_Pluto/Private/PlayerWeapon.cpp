@@ -24,6 +24,8 @@ APlayerWeapon::APlayerWeapon()
 	CollisionComp->SetCollisionObjectType(ECC_Pawn);
 	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap); // 나중에 적으로 변경 & 벽도 필요?
+
+	SetCanBeDamaged(false);
 }
 
 // Called when the game starts or when spawned
