@@ -70,7 +70,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float PhaseChangeTime = 3.5f;
-	float AttackDelayTime = 1.f;
+	float AttackDelayTime = 1.5f;
 	float AttaclEndDelayTime = 0.25f;
 
 	FVector destination;
@@ -96,6 +96,8 @@ public:
 	void OnTakeDamage();
 
 	void CallSelectPattern();
+
+	FORCEINLINE void ResetNowTime() { nowTime = 0.f; }
 
 
 		

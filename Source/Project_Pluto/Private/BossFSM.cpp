@@ -110,7 +110,7 @@ void UBossFSM::State_Attack_Start()
 	{
 		me->AttackPlayer(me->GetAttackType());
 		anim->bAttackPlay = true;
-		nowTime = 0.f;
+		ResetNowTime();
 	}
 
 }
@@ -123,6 +123,7 @@ void UBossFSM::State_Attack_End()
 	{
 		state = EBossState::Idle;
 		anim->animState = state;
+		ResetNowTime();
 	}
 
 }
