@@ -220,14 +220,24 @@ void APlayerZagreus::CheckDodgeDelay(float DeltaTime)
 void APlayerZagreus::CheckDodgeAttackInput(float DeltaTime)
 {
 	CurrentDodgeAttackWait += DeltaTime;
+	
+	if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeAttackWait >= DodgeInvincibleTime) {
+		if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
+			GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		}
+	}
 
 	if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeAttackWait >= DodgeAttackTime) {
+		if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
+			GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		}
 		bDodgeAttackWait = false;
 		CurrentDodgeAttackWait = 0.0f;
 		return;
 	}
 
 	if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 		Combo = weapon->MaxCombo - 1;
 		bDodgeAttackWait = false;
 		CurrentDodgeAttackWait = 0.0f;
@@ -238,8 +248,8 @@ void APlayerZagreus::CheckDodgeAttackInput(float DeltaTime)
 void APlayerZagreus::EndDodge()
 {
 	Speed = RunSpeed;
-	// 에너미와 충돌 Overlap 으로 원복
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	// 에너미와 충돌 Overlap 으로 원복 -> 사람이 느끼기엔 너무 짧아서 입력 시간 만큼 같이 기다려준다.
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	if (NowState == EPlayerBehaviorState::Dodge) {
 		NowState = EPlayerBehaviorState::Idle;
