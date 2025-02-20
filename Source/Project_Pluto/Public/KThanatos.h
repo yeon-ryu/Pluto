@@ -24,14 +24,21 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	/*
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	*/
 
 public:
 	UPROPERTY(VisibleAnywhere , BlueprintReadOnly, Category = FSMComponent)
 	class UKThanatosFSM* fsm;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf <class AKDestroyBox> BoxFactory;
 
+	class AKDestroyBox* destroyBox;
 
+public:
+	void SetDestroyBox();
 };

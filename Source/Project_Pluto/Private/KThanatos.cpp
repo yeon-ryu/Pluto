@@ -3,6 +3,8 @@
 
 #include "KThanatos.h"
 #include "KThanatosFSM.h"
+#include "Engine/SkeletalMesh.h"
+#include "KDestroyBox.h"
 
 // Sets default values
 AKThanatos::AKThanatos()
@@ -10,16 +12,17 @@ AKThanatos::AKThanatos()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	/*
-	ConstructorHelpers::FObjectFinder<UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Engine///BasicShapes/Cube.Cube'"));
+	
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/KJY/RSS/ParagonSevarog/Characters/Heroes/Sevarog/Meshes/Sevarog.Sevarog'"));
+
 
 	if (TempMesh.Succeeded())
 	{
-		//GetMesh()->SetMesh(TempMesh.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f), FRotator(0.0f, / -90.0f, / 0.0f));
-
+		GetMesh()->SetSkeletalMesh(TempMesh.Object);
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -70.0f), FRotator(0.0f, -90.0f, 0.0f));
+		GetMesh()->SetRelativeScale3D(FVector(1.0f));
 	}
-	*/
+	
 	fsm = CreateDefaultSubobject<UKThanatosFSM>(TEXT("FSM"));
 	
 }
@@ -28,7 +31,10 @@ AKThanatos::AKThanatos()
 void AKThanatos::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	destroyBox = GetWorld()->SpawnActor<AKDestroyBox>(BoxFactory, FTransform(FRotator(0, 0, 0), FVector(2000), FVector(1.0f, 1.0f, 1.0f)));
+
+
 }
 
 // Called every frame
@@ -38,6 +44,15 @@ void AKThanatos::Tick(float DeltaTime)
 
 }
 
+
+void AKThanatos::SetDestroyBox()
+{
+	destroyBox->SetActorLocation(fsm->ReturnDest());
+	destroyBox->SetbOnSpawn();
+
+}
+
+/*
 // Called to bind functionality to input
 void AKThanatos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -45,3 +60,4 @@ void AKThanatos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 }
 
+*/
