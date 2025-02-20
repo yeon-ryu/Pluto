@@ -62,6 +62,7 @@ void UPlayerAnimInstance::AnimNotify_SpecialAttEnd()
 void UPlayerAnimInstance::AnimNotify_DamagedEnd()
 {
 	if (player->HP > 0) {
+		player->Speed = player->RunSpeed;
 		player->NowState = EPlayerBehaviorState::Idle;
 	}
 	else {
