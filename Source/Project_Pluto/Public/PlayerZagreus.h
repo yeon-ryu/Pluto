@@ -76,7 +76,7 @@ public:
 	float DodgeSpeed = 4000.0f; // 회피 속도
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
-	float DodgeTime = 0.2f; // 회피 동작 시간
+	float DodgeTime = 0.1f; // 회피 동작 시간
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
 	float DodgeDelayTime = 0.2f; // 회피 재사용 딜레이 시간
