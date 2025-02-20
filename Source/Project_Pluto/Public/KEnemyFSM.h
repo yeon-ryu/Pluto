@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 //플레이어 클래스 명, 에너미(타나토스) 클래스명이 없다!
+//2025.02.16 타나토스 FSM 분리함
 
 
 #pragma once
@@ -13,15 +14,18 @@
 UENUM(BlueprintType)
 enum class EKEnemyState : uint8
 {
-	Idle	UMETA(DisplayName = "대기"),
-	Move	UMETA(DisplayName = "이동"),
-	MoveFar UMETA(DisplayName = "이동2"),
-	Attack	UMETA(DisplayName = "공격"),
-	Attack2	UMETA(DisplayName = "공격2"),
-	Damaged	UMETA(DisplayName = "데미지"),
-	Dead	UMETA(DisplayName = "사망"),
+	Start	UMETA(DisplayName = "Start"),
+	Idle	UMETA(DisplayName = "Idle"),
+	Move	UMETA(DisplayName = "Move"),
+	MoveFar UMETA(DisplayName = "MoveFar"),
+	Attack	UMETA(DisplayName = "Attack_1"),
+	Attack2	UMETA(DisplayName = "Attack_2"),
+	Damaged	UMETA(DisplayName = "Damage"),
+	Dead	UMETA(DisplayName = "Dead"),
 	EndState,
 };
+
+
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -60,20 +64,6 @@ public:
 	//공격 관련 함수
 	virtual void OnAttackProcess();
 
-public:
-
-	struct Status
-	{
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
-	int32 hp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
-	float attackRange;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
-	float attackDelayTime;
-	};
 
 	
 	//상속받아야 할 수치가 정해진 변수만 물려받는게 낫나?

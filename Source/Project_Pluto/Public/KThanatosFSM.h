@@ -3,14 +3,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "KEnemyFSM.h"
+#include "Components/ActorComponent.h"
 #include "KThanatos.h"
 #include "KThanatosFSM.generated.h"
 
+UENUM(BlueprintType)
+enum class EThanatosState : uint8
+{
+	Start	UMETA(DisplayName = "Start"),
+	Idle	UMETA(DisplayName = "Idle"),
+	Move	UMETA(DisplayName = "Move"),
+	MoveFar UMETA(DisplayName = "MoveFar"),
+	Attack1	UMETA(DisplayName = "Attack_1"),
+	Attack2	UMETA(DisplayName = "Attack_2"),
+	Damaged	UMETA(DisplayName = "Damage"),
+	Dead	UMETA(DisplayName = "Dead"),
+	EndState,
+};
 
 
-UCLASS()
-class PROJECT_PLUTO_API UKThanatosFSM : public UKEnemyFSM
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class PROJECT_PLUTO_API UKThanatosFSM : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -27,55 +40,85 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
+	struct Status
+	{
 
-	//기본 State
-	void State_Idle()override;
-	void State_Move()override;
-	void State_Attack()override;
-	void State_Attack2();
-	void State_MoveFar()override;
+	//타나토스는 HP개념이 없다 (무적)
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
+	//int32 hp;
 
-	//데미지 관련 함수
-	void OnDamagedProcess()override;
-	//공격 관련 함수
-	void OnAttackProcess()override;
-	bool GetIsAttack();
+	//Idle (대기모션) 행하는 시간
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
+	float idleDelayTime = 0.5f;
+
+	//걷는 시간
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
+	float walkingTime = 1.0f;
+
+	//공격 사거리
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
+	float attackRange = 1000.0f;
+
+	//공격 딜레이 타임
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
+	float attackDelayTime = 0.9f;
+	};
 
 
 public:
-	//대기 시간
-	UPROPERTY(EditAnywhere, Category = FSM)
-	float IdleDelayTime = 2.0f;
+	//State 관련 처리
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = FSM)
+	EThanatosState mState = EThanatosState::Start;
 
-	//대기 시간
-	UPROPERTY(EditAnywhere, Category = FSM)
-	float WalkingTime = 1.0f;
+public:
 
+	//기본 State
+	void State_Start();
+	void State_Idle();
+	void State_Move();
+	void State_MoveFar();
+	void State_Attack1();
+	void State_Attack2();
+
+
+	//데미지 관련 함수
+	void OnDamagedProcess();
+	//공격 관련 함수
+	void OnAttackProcess();
+	void EndAttackProcess();
+	//bool GetIsAttack();
+
+	//수업자료 OnAttackEnd
+	void OnAttackEnd();
+
+
+
+public:
 
 	//경과시간
 	UPROPERTY(EditAnywhere, Category = FSM)
 	float currentTime = 0.0f;
 
-	//공격 범위
-	UPROPERTY(EditAnywhere, Category = FSM)
-	float attackRange = 1000.0f;
-	
 	UPROPERTY(VisibleAnywhere, Category = FSM)
 	class AKEnemy* target_Enemy;
 
-	int count = 0;
 
-	UPROPERTY(EditDefaultsOnly, BluePrintReadWrite, Category = FSM)
-	bool IsAttack;
+	//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//	TSubclassOf <class AKDestroyBox> boxPos;
 
+	class AKDestroyBox* destroyBox;
+
+	int skillCount = 0;
+	int maxSkillCount = 4;
+
+	Status status;
 
 	//소유 액터
 	UPROPERTY()
 	class AKThanatos* me;
 
-	 Status status;
+	UPROPERTY()
+	class UKThanatosAnim* Anim;
 
-
-public:
-
+	FVector ReturnDest();
 };
