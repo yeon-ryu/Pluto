@@ -31,7 +31,11 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
 	EAttackType type;
 
+	UPROPERTY(EditDefaultsOnly)
+	ABoss* Boss;
+
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
+
 
 };

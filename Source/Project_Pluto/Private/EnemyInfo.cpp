@@ -42,23 +42,19 @@ void AEnemyInfo::CurtainFire()
 
 }
 
-void AEnemyInfo::Plate()
-{
-
-}
-
 FVector AEnemyInfo::GetTargetFromMe()
 {
 	APlayerController* controller = GetWorld()->GetFirstPlayerController();
 	FVector playerLocation = controller->GetPawn()->GetActorLocation();
 
-	return playerLocation - this->GetActorLocation();
+
+	return playerLocation - this->GetActorLocation ();
 
 }
 
 void AEnemyInfo::AttackPlayer(EAttackType type)
 {
-	
+
 }
 
 /// <summary>
@@ -67,7 +63,7 @@ void AEnemyInfo::AttackPlayer(EAttackType type)
 /// <param name="damageValue"> 받은 피해량 </param>
 void AEnemyInfo::ReceiveDamage(float damageValue)
 {
-	NowHp = FMath::Clamp(NowHp - damageValue, 0.f, MaxHp);
+	SetNowHp(FMath::Clamp(NowHp - damageValue, 0.f, MaxHp));
 
 }
 

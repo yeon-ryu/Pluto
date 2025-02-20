@@ -5,12 +5,13 @@
 #include "BossFSM.h"
 #include "Boss.h"
 #include "DebugMacro.h"
+#include "Components/CapsuleComponent.h"
 
 void UBossAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	ABoss* Boss = Cast<ABoss>(TryGetPawnOwner());
+	Boss = Cast<ABoss>(TryGetPawnOwner());
 
 	if (Boss == nullptr)
 	{
@@ -25,4 +26,6 @@ void UBossAnimInstance::AnimNotify_AttackEnd()
 {
 	bAttackPlay = false;
 	bossfsm->state = EBossState::Attack_End;
+
+	Boss->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Block);
 }

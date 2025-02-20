@@ -29,6 +29,10 @@ protected:
 	UPROPERTY()
 	class APlayerZagreus* player;
 
+	// 순수 가상함수로 만들려니 헷갈려서 그냥 가상함수로
+	virtual void AttackProcess(AActor* OtherActor); // 일반 공격 & 콤보
+	virtual void SpecialAttProcess(AActor* OtherActor); // 특수 공격 (Q 스킬)
+
 public:
 	UPROPERTY(EditAnywhere)
 	class USceneComponent* RootComp;
@@ -40,14 +44,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combo")
 	int32 MaxCombo = 1; // 각 무기별 최대 Attack 콤보
 
+	virtual void StartAttack();
+	virtual void EndAttack();
+	virtual void StartSpecialAtt();
+	virtual void EndSpecialAtt();
 
-	// 순수 가상함수로 만들려니 헷갈려서 그냥 가상함수로
-	virtual void Attack(AActor* OtherActor); // 일반 공격 & 콤보
-	virtual void SpecialAtt(AActor* OtherActor); // 특수 공격 (Q 스킬)
-
+	virtual void LastCombo();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buff")
 	float attackBuff = 0.0f; // 일반 공격 강화 (일시적 강화)
-
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 };

@@ -15,7 +15,10 @@ enum class EPlayerBehaviorState : uint8 {
 	Dodge UMETA(DisplayName="Dodge(Space)"),
 	SpecialAtt UMETA(DisplayName="SpecialAtt(Q)"),
 	Spell UMETA(DisplayName="Spell(Right Click)"),
-	Interaction UMETA(DisplayName="Interaction(E)")
+	Interaction UMETA(DisplayName="Interaction(E)"),
+	Damaged UMETA(DisplayName="Damaged"),
+	Die UMETA(DisplayName="Die"),
+	Spawn UMETA(DisplayName="Spawn")
 };
 
 UENUM(BlueprintType)
@@ -67,10 +70,24 @@ public:
 	float RunSpeed = 1000.0f; // 달리기 속도
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetting")
+	float SpecialAttRunSpeed = 300.0f; // 스페셜 어택할 때 속도
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PlayerSetting")
 	float DodgeSpeed = 4000.0f; // 회피 속도
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
-	float DodgeTime = 0.2f; // 회피 동작 시간
+	float DodgeTime = 0.1f; // 회피 동작 시간
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
+	float DodgeDelayTime = 0.2f; // 회피 재사용 딜레이 시간
+
+	bool bDodgeDelayWait = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
+	float DodgeAttackTime = 0.2f; // 회피 공격 추가 입력 시간
+
+	bool bDodgeAttackWait = false;
+
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Weapon)
@@ -105,11 +122,30 @@ public:
 	class APlayerController* pController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
-	float AnimWaitTime = 0.6f; // 애니메이션 대기 시간. Montage_Play 로 애니메이션 시간 세팅
+	float AnimWaitTime = 0.6f; // 애니메이션 대기 시간
 
 	float CurrentAnimTime = 0.0f;
 
 	float DefaultAnimWaitTime = 0.6f;
+
+
+	float CurrentDodgeDelayWait = 0.0f;
+
+	float CurrentDodgeAttackWait = 0.0f;
+
+	void CheckDodgeDelay(float DeltaTime);
+
+	void CheckDodgeAttackInput(float DeltaTime);
+
+	void EndDodge();
+
+	// false 인 동안은 회피->스페셜 공격 가능
+	bool bForceSpecialAtt = false;
+
+	// 스페셜 어택만 가능
+	bool bSpecialAtt = false;
+
+	void StartSpecialAtt();
 
 
 	FVector PlayerDir;
@@ -133,17 +169,16 @@ public:
 	void AttackProcess(); // 어택 로직
 
 
-	void EndDodge();
-
-
 	// 피격
-	void OnDamage(int32 damage);
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	void SetPermanetBuff();
 
 	// hp 최대치 변경 아이템 먹었을 경우 / 인자값 : 절대값 플러스, 퍼센트 플러스
 	void SetBuffMaxHP(int32 plusHpAbs, float plusHpPro);
 
+	// 현재 상태에서 state 로 변할 수 있는지 값 반환 (같은 상태는 true)
+	bool CheckChangeStateEnabled(EPlayerBehaviorState state);
 
 // Input
 public:

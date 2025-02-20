@@ -21,7 +21,7 @@ APlayerWeapon::APlayerWeapon()
 	CollisionComp->SetupAttachment(RootComp);
 
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1);
+	CollisionComp->SetCollisionObjectType(ECC_Pawn);
 	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap); // 나중에 적으로 변경 & 벽도 필요?
 }
@@ -33,6 +33,9 @@ void APlayerWeapon::BeginPlay()
 	
 	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerZagreus::StaticClass());
 	player = Cast<APlayerZagreus>(actor);
+
+	SetOwner(player);
+	SetInstigator(player);
 }
 
 // Called every frame
@@ -42,26 +45,32 @@ void APlayerWeapon::Tick(float DeltaTime)
 
 }
 
-void APlayerWeapon::Attack(AActor* OtherActor)
+void APlayerWeapon::AttackProcess(AActor* OtherActor)
 {
 }
 
-void APlayerWeapon::SpecialAtt(AActor* OtherActor)
+void APlayerWeapon::SpecialAttProcess(AActor* OtherActor)
 {
 }
 
-void APlayerWeapon::NotifyActorBeginOverlap(AActor* OtherActor)
+void APlayerWeapon::StartAttack()
 {
-	//switch (player->NowState)
-	//{
-	//case EPlayerBehaviorState::Attack:
-	//	Attack(OtherActor);
-	//	break;
-	//case EPlayerBehaviorState::SpecialAtt:
-	//	SpecialAtt(OtherActor);
-	//	break;
-	//default:
-	//	break;
-	//}
+}
+
+void APlayerWeapon::EndAttack()
+{
+}
+
+void APlayerWeapon::StartSpecialAtt()
+{
+}
+
+void APlayerWeapon::EndSpecialAtt()
+{
+}
+
+void APlayerWeapon::LastCombo()
+{
+
 }
 

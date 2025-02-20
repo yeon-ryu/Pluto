@@ -53,9 +53,6 @@ protected:
 	float AttRange;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DefaultStat")
-	float AttCoolDown;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DefaultStat")
 	float DetectRange;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DefaultStat")
@@ -64,22 +61,54 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DefaultStat")
 	EAttackType AttTypeEnum;
 
-	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DefaultStat")
-	
-
-
 #pragma endregion DefaultStat
+
+
+#pragma region Getter
+public:
+	FORCEINLINE int32 GetDamage() { return this->Damage; }
+
+	FORCEINLINE int32 GetNowHp() { return this->NowHp; }
+
+	FORCEINLINE int32 GetMaxHp() { return this->MaxHp; }
+
+	FORCEINLINE float GetAttRange() { return this->AttRange; }
+
+	FORCEINLINE float GetDetectRange() { return this->DetectRange; }
+
+	FORCEINLINE float GetSpeed() { return this->Speed; }
+
+
+#pragma endregion Getter
+
+#pragma region Setter
+
+protected:
+	FORCEINLINE void SetDamage(int32 damage_value) { this->Damage = damage_value; }
+
+	FORCEINLINE void SetNowHp(int32 nowhp_value) { this->NowHp = nowhp_value; }
+
+	FORCEINLINE void SetMaxHp(int32 maxhp_value) { this->MaxHp = maxhp_value; }
+
+	FORCEINLINE void SetAttRange(float attrange_value) { this->AttRange = attrange_value; }
+
+	FORCEINLINE void SetDetectRange(float detect_value) { this->DetectRange = detect_value; }
+
+	FORCEINLINE void SetSpeed(float speed_value) {	this->Speed = speed_value;	}
+
+#pragma endregion Setter
+
 
 public:
 	virtual void Charge();
 	virtual void CurtainFire();
-	virtual void Plate();
 
 	FVector GetTargetFromMe();
 
 	virtual void AttackPlayer(EAttackType type);
 
 	void ReceiveDamage(float damageValue);
-	
+
+
 
 };

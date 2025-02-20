@@ -9,7 +9,10 @@
 #include "Components/ArrowComponent.h"
 #include "DebugMacro.h"
 #include "Kismet/KismetMathLibrary.h"
-
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -35,7 +38,7 @@ ABoss::ABoss()
 	{
 		GetMesh()->SetAnimInstanceClass(tempClass.Class);
 	}
-
+	
 	// Boss Component 추가
 	fsm = CreateDefaultSubobject<UBossFSM>(TEXT("BossFSM"));
 
@@ -137,9 +140,12 @@ void ABoss::AttackPlayer(EAttackType type)
 
 void ABoss::Charge()
 {
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Overlap);
+
 	FVector dir = GetTargetFromMe();
 	dir.Normalize();
-	this->LaunchCharacter(dir * 12000.f , true, false);
+	this->LaunchCharacter(dir * 10000.f , true, false);
+
 }
 
 void ABoss::CurtainFire()
@@ -167,6 +173,7 @@ void ABoss::SpawnProjectile()
 	APlayerController* controller = GetWorld()->GetFirstPlayerController();
 	FVector playerLocation = controller->GetPawn()->GetActorLocation();
 	FRotator BaseRotation = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation (), playerLocation);
+	SetActorRotation(BaseRotation);
 
 	// 중앙 기준 각도
 	float BaseAngle = BaseRotation.Yaw; 
@@ -185,6 +192,100 @@ void ABoss::SpawnProjectile()
 	}
 	fireCounter++;
 
+}
+
+
+
+void ABoss::Plate()
+{
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ABoss::SpawnPlate, 2.f, true);
+}
+
+
+
+
+void ABoss::SpawnPlate()
+{
+	if (plateCounter >= 5)
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle);
+		plateCounter = 0;
+		return;
+	}
+
+	FActorSpawnParameters spawnParams;
+	spawnParams.bNoFail = true;
+	spawnParams.Owner = this;
+
+
+	APawn* pawn = GetWorld()->GetFirstPlayerController()->GetPawn ();
+	FVector playerLocation = pawn->GetActorLocation();
+
+	int32 randomPattern = FMath::RandRange(0, 1);
+
+	// 안전구역을 찾아서
+	if (randomPattern == 0)
+	{
+		FVector expectPos = playerLocation + pawn->GetVelocity() * 0.5f;
+		TArray<FVector> spawnLocation;
+		spawnLocation.Add(FVector(expectPos.X - dxdyRange, expectPos.Y, 0.f));
+		spawnLocation.Add(FVector(expectPos.X + dxdyRange, expectPos.Y, 0.f));
+		spawnLocation.Add(FVector(expectPos.X, expectPos.Y - dxdyRange, 0.f));
+		spawnLocation.Add(FVector(expectPos.X, expectPos.Y + dxdyRange, 0.f));
+
+		
+		int32 randSpawn = FMath::RandRange(0, 3);
+
+		GetWorld()->SpawnActor <APlateActor>(PlateFactory,FVector(playerLocation.X, playerLocation.Y, 0.f),		FRotator::ZeroRotator,spawnParams);
+
+
+		for (int32 i = 0; i < 3; i++)
+		{	
+			FVector twistedLocation = GetRandomPos (spawnLocation[index[randSpawn][i]]);
+			GetWorld()->SpawnActor <APlateActor>(PlateFactory,twistedLocation, FRotator(0.f),spawnParams);
+
+		}
+
+	}
+
+	// 가만히 서있는게 안전구역
+	else
+	{
+		TArray<FVector> spawnLocation;
+		spawnLocation.Add(FVector(playerLocation.X - dxdyRange, playerLocation.Y, 0.f));
+		spawnLocation.Add(FVector(playerLocation.X + dxdyRange, playerLocation.Y, 0.f));
+		spawnLocation.Add(FVector(playerLocation.X, playerLocation.Y - dxdyRange, 0.f));
+		spawnLocation.Add(FVector(playerLocation.X, playerLocation.Y + dxdyRange, 0.f));
+
+		for (auto point : spawnLocation)
+		{
+			GetWorld()->SpawnActor<APlateActor>(PlateFactory, point, FRotator(0.f), spawnParams);
+		}
+
+	}
+
+	
+	plateCounter++;
+
+}
+
+FVector ABoss::GetRandomPos(FVector pos)
+{
+	float randAngle = FMath::RandRange(0.f, 2.f * PI);
+	float randRadius = FMath::RandRange(minRange, maxRange);
+
+	float new_x = pos.X + FMath::Cos(randAngle) * randRadius;
+	float new_y = pos.Y + FMath::Sin(randAngle) * randRadius;
+
+	return FVector(new_x, new_y, pos.Z);
+}
+
+float ABoss::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	ReceiveDamage(DamageAmount);
+	UE_LOG(LogTemp, Error, TEXT("Player Hit Boss"));
+
+	return DamageAmount;
 }
 
 void ABoss::SelectCharge()
@@ -206,4 +307,16 @@ void ABoss::SelectCurtainFire()
 	fsm->BossAttDamage = GetDamage();
 	fsm->BossAttRange = GetAttRange();
 }
+
+void ABoss::SelectPlate()
+{
+	AttTypeEnum = EAttackType::Plate;
+	SetDamage(AttDamages[2]);
+	SetAttRange(AttRanges[2]);
+
+	fsm->BossAttDamage = GetDamage();
+	fsm->BossAttRange = GetAttRange();
+
+}
+
 

@@ -20,6 +20,7 @@ public:
 	// 매 프레임 갱신되는 함수
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+
 	// 플레이어 이동 속도
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = TPSPlayerAnim)
 	float Speed = 0.0f;
@@ -30,4 +31,29 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	class APlayerZagreus* player;
+
+
+	// Q Skill Attack Effect Start
+	UFUNCTION()
+	void AnimNotify_SpecialAttStart();
+
+	// Q Skill Attack Effect Start
+	UFUNCTION()
+	void AnimNotify_AttackEffect();
+
+	// Q Skill Attack Effect End
+	UFUNCTION()
+	void AnimNotify_AttackEnd();
+
+	// Q Skill Attack Anim End
+	UFUNCTION()
+	void AnimNotify_SpecialAttEnd();
+
+	// 피격 애니메이션 종료
+	UFUNCTION()
+	void AnimNotify_DamagedEnd();
+
+	// 라스트 콤보 공격 런치 시작
+	UFUNCTION()
+	void AnimNotify_LastCombo();
 };
