@@ -40,7 +40,7 @@ APWBlade::APWBlade()
 	// 스페셜 어택 범위
 	EffectCollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("EffectCollisionComp"));
 	EffectCollisionComp->SetupAttachment(RootComp);
-	EffectCollisionComp->SetSphereRadius(500.0f);
+	EffectCollisionComp->SetSphereRadius(400.0f);
 	EffectCollisionComp->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
