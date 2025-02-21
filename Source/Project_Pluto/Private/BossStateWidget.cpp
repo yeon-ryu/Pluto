@@ -5,13 +5,14 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 
+void UBossStateWidget::NativeConstruct()
+{
+	SetName(TEXT("Megaera"));
+	SetHP(0, 0);
+}
+
 void UBossStateWidget::SetName(FString name)
 {
-	if (name.IsEmpty())
-	{
-		FString txt = TEXT("Megaera");
-		NameText->SetText(FText::FromString(txt));
-	}
 	NameText->SetText(FText::FromString(name));
 }
 

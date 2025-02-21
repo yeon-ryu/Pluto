@@ -4,25 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "BossStateWidget.generated.h"
+#include "GameClearWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECT_PLUTO_API UBossStateWidget : public UUserWidget
+class PROJECT_PLUTO_API UGameClearWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
-public:
+	public:
 	virtual void NativeConstruct() override;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	class UTextBlock* NameText;
+	class UButton* Button_Restart;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	class UProgressBar* HPBar;
-	
-	void SetName(FString name);
-	void SetHP(int32 Cur, int32 Max);
+	class UButton* Button_Quit;
+
+	UFUNCTION()
+	void Restart();
+
+	UFUNCTION()
+	void Quit();
 };

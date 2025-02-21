@@ -33,10 +33,18 @@ public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UBossStateWidget* BossStateWidget;
 
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UGameOverWidget* GameOverWidget;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UGameClearWidget* GameClearWidget;
+
 	void SetNowHP( int32 NowHP );
 	void SetMaxHP( int32 MaxHP );
 
 	void SetHP( int32 Cur, int32 Max );
 
 	void ShowBossState( bool bShow );
+	void ShowGameOver( bool bShow );
+	void ShowGameClear( bool bShow );
 };

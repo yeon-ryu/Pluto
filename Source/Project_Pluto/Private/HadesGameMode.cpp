@@ -5,6 +5,8 @@
 #include "MainWidget.h"
 #include "BossStateWidget.h"
 #include "GameOverWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameClearWidget.h"
 
 void AHadesGameMode::BeginPlay()
 {
@@ -31,12 +33,25 @@ void AHadesGameMode::BeginPlay()
 
 			// 기본적으로 input focus 게임으로 적용 -> 공격 씹힘
 			//controller->SetInputMode(FInputModeGameOnly());
+
+			if (mainUI->BossStateWidget != nullptr) {
+				mainUI->BossStateWidget->SetVisibility(ESlateVisibility::Hidden);
+			}
 		}
 	}
 
 	if (gameOverWidget != nullptr) {
 		// gameOverWidget 블루프린트 파일을 메모리에 로드
 		gameOverUI = CreateWidget<UGameOverWidget>(GetWorld(), gameOverWidget);
+		//gameOverUI->AddToViewport();
+		//gameOverUI->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (gameClearWidget != nullptr) {
+		// gameClearWidget 블루프린트 파일을 메모리에 로드
+		gameClearUI = CreateWidget<UGameClearWidget>(GetWorld(), gameClearWidget);
+		//gameClearUI->AddToViewport();
+		//gameClearUI->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
@@ -64,22 +79,16 @@ void AHadesGameMode::ShowBossState(bool bShow)
 
 void AHadesGameMode::ShowGameOver(bool bShow)
 {
-	//if (mainUI == nullptr) return;
+	if (mainUI == nullptr) return;
 
-	////auto controller = GetWorld()->GetFirstPlayerController();
-	////if(controller == nullptr) return;
-	////controller->PlayerCameraManager->StartCameraFade(1.f, 0.f, 1.f, FLinearColor::Black, true, true);
+	UGameplayStatics::SetGamePaused(GetWorld(), bShow);
+	mainUI->ShowGameOver(bShow);
+}
 
-	//if (bShow) {
-	//	if (gameOverUI != nullptr) {
-	//		gameOverUI->AddToViewport();
-	//		//controller->SetInputMode(FInputModeUIOnly());
-	//	}
-	//}
-	//else {
-	//	if (gameOverUI != nullptr) {
-	//		gameOverUI->RemoveFromParent();
-	//		//controller->SetInputMode(FInputModeGameOnly());
-	//	}
-	//}
+void AHadesGameMode::ShowGameClear(bool bShow)
+{
+	if (mainUI == nullptr) return;
+
+	UGameplayStatics::SetGamePaused(GetWorld(), bShow);
+	mainUI->ShowGameClear(bShow);
 }
