@@ -188,6 +188,8 @@ public:
 	// 현재 상태에서 state 로 변할 수 있는지 값 반환 (같은 상태는 true)
 	bool CheckChangeStateEnabled(EPlayerBehaviorState state);
 
+	bool bCheatInvincible = false;
+
 // Input
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")

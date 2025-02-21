@@ -181,6 +181,7 @@ void APlayerZagreus::Tick(float DeltaTime)
 
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Player State : %s"), *UEnum::GetValueAsString(NowState)));
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Player Collision : %s"), *UEnum::GetValueAsString(GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn))));
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, FString::Printf(TEXT("Player Invincible : %s"), bCheatInvincible ? "true" : "false"));
 }
 
 // Called to bind functionality to input
@@ -328,7 +329,7 @@ float APlayerZagreus::TakeDamage(float Damage, struct FDamageEvent const& Damage
 {
 	if(HP == 0) return 0;
 
-	if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
+	if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore || bCheatInvincible) {
 		return HP;
 	}
 
@@ -506,10 +507,5 @@ void APlayerZagreus::Interaction(const FInputActionValue& inputValue)
 
 void APlayerZagreus::CheatInvincible(const FInputActionValue& inputValue)
 {
-	if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	}
-	else {
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	}
+	bCheatInvincible = !bCheatInvincible;
 }
