@@ -181,7 +181,8 @@ void APlayerZagreus::Tick(float DeltaTime)
 
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Player State : %s"), *UEnum::GetValueAsString(NowState)));
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Player Collision : %s"), *UEnum::GetValueAsString(GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn))));
-	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, FString::Printf(TEXT("Player Invincible : %s"), bCheatInvincible ? "true" : "false"));
+	char IState = bCheatInvincible ? 'T' : 'F';
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, FString::Printf(TEXT("Player Invincible : %c"), IState));
 }
 
 // Called to bind functionality to input
