@@ -57,6 +57,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Camera)
 	class UCameraComponent* camComp;
 
+	
+	UPROPERTY(EditAnywhere, Category = Light)
+	class USpotLightComponent* lightComp;
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerState)
 	EPlayerBehaviorState NowState = EPlayerBehaviorState::Idle;

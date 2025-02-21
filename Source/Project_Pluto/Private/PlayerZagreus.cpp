@@ -11,6 +11,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "PWBlade.h"
 #include "PlayerAnimInstance.h"
+#include "Components/SpotLightComponent.h"
 
 // Sets default values
 APlayerZagreus::APlayerZagreus()
@@ -56,6 +57,12 @@ APlayerZagreus::APlayerZagreus()
 
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
+
+	lightComp = CreateDefaultSubobject<USpotLightComponent>(TEXT("LightComp"));
+	lightComp->SetupAttachment(RootComponent);
+	lightComp->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 800.0f), FRotator(-90.0f, 0.0f, 0.0f));
+	lightComp->SetOuterConeAngle(10.0f);
+	lightComp->SetIntensity(50000.0f);
 
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
