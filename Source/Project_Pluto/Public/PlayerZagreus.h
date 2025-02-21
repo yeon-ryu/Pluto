@@ -129,7 +129,6 @@ public:
 
 // 플레이어 로직
 public:
-	/* 보스 로직에도 보스 버전으로 추가되어야 한다 */
 	UPROPERTY()
 	class AHadesGameMode* GM;
 

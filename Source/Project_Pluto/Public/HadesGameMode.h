@@ -25,6 +25,7 @@ public:
 
 	void SetPlayerHP(int32 Cur, int32 Max);
 	void SetBossHP(int32 Cur, int32 Max);
+	void SetBossName(FString name);
 	void ShowBossState(bool bShow);
 	void ShowGameOver(bool bShow);
 	void ShowGameClear(bool bShow);

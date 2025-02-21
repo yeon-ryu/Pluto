@@ -47,4 +47,6 @@ public:
 	void ShowBossState( bool bShow );
 	void ShowGameOver( bool bShow );
 	void ShowGameClear( bool bShow );
+
+	void SetBossName( FString name );
 };

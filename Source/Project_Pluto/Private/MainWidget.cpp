@@ -58,3 +58,8 @@ void UMainWidget::ShowGameClear(bool bShow)
 
 	GameClearWidget->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 }
+
+void UMainWidget::SetBossName(FString name)
+{
+	BossStateWidget->SetName(name);
+}

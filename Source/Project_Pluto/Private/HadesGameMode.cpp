@@ -70,6 +70,12 @@ void AHadesGameMode::SetBossHP(int32 Cur, int32 Max)
 	mainUI->BossStateWidget->SetHP(Cur, Max);
 }
 
+void AHadesGameMode::SetBossName(FString name)
+{
+	if (mainUI == nullptr || mainUI->BossStateWidget == nullptr) return;
+	mainUI->BossStateWidget->SetName(name);
+}
+
 void AHadesGameMode::ShowBossState(bool bShow)
 {
 	if(mainUI == nullptr) return;
