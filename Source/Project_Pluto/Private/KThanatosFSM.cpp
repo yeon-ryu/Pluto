@@ -14,21 +14,28 @@ UKThanatosFSM::UKThanatosFSM()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
+
 }
 
 void UKThanatosFSM::BeginPlay()
 {
 	Super::BeginPlay();
 
-	status.attackDelayTime = 2.0f;
 	// ...
 	//월드에서 Enemy를 찾아오기
-	auto actor_Enemy = UGameplayStatics::GetActorOfClass(GetWorld(), AKEnemy::StaticClass());
+	auto actor_Enemy = UGameplayStatics::GetActorOfClass(GetWorld(), ENEMYCLASS::StaticClass());
 
 	//스킬 1번 체크가 안 되어 있을때도 조건으로.
 	if (actor_Enemy != nullptr)
 	{
-		target_Enemy = Cast<AKEnemy>(actor_Enemy);
+		target_Enemy = Cast<ENEMYCLASS>(actor_Enemy);
+	}
+
+
+	auto auto_DestroyBox = UGameplayStatics::GetActorOfClass(GetWorld(), AKDestroyBox::StaticClass());
+	if (auto_DestroyBox != nullptr)
+	{
+		destroyBox = Cast<AKDestroyBox>(auto_DestroyBox);
 	}
 
 
@@ -41,6 +48,8 @@ void UKThanatosFSM::BeginPlay()
 		Anim = Cast<UKThanatosAnim>(me->GetMesh()->GetAnimInstance());
 		Anim->AnimState = mState;
 	}
+
+
 
 }
 
@@ -62,7 +71,6 @@ void UKThanatosFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	case EThanatosState::Attack1: { State_Attack1(); } break;
 	case EThanatosState::Attack2: { State_Attack2(); } break;
 	}
-
 }
 
 
@@ -79,21 +87,27 @@ void UKThanatosFSM::State_Start()
 		//전환 후 시간 초기화
 		currentTime = 0.0f;
 	}
-
 }
 
 
 void UKThanatosFSM::State_Idle()
-{
+{	
+	SearchEnemy();
+
 	//시간이 흐르다가
 	currentTime += GetWorld()->DeltaTimeSeconds;
 
 	//만약 경과 시간이 대기 시간을 초과했다면
 	if (currentTime > status.idleDelayTime)
 	{
-		//이동 상태로 전환
-		mState = EThanatosState::Move;
-		Anim->AnimState = mState;
+		//에너미가 없으면 전진 or 계속 Idle
+		if (target_Enemy != nullptr)
+		{
+			//이동 상태로 전환
+			mState = EThanatosState::Move;
+			Anim->AnimState = mState;
+
+		}
 
 		//전환 후 시간 초기화
 		currentTime = 0.0f;
@@ -103,8 +117,6 @@ void UKThanatosFSM::State_Idle()
 
 void UKThanatosFSM::State_Move()
 {
-	if (target_Enemy != nullptr)
-	{
 		FVector destination = target_Enemy->GetActorLocation();
 		FVector dir = destination - me->GetActorLocation();
 
@@ -121,6 +133,7 @@ void UKThanatosFSM::State_Move()
 				mState = EThanatosState::Idle;
 				Anim->AnimState = mState;
 				currentTime = 0.0f;
+
 				//거리체크
 			}
 		}
@@ -133,13 +146,6 @@ void UKThanatosFSM::State_Move()
 
 			currentTime = 0.0f;
 		}
-	}
-	
-	else
-	{
-		mState = EThanatosState::Idle;
-		Anim->AnimState = mState;
-	}
 
 }
  
@@ -172,8 +178,12 @@ void UKThanatosFSM::State_Attack1()
 	//시간이 흐르다가
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	//공격 시간이되면 공격을 실행
-	if (currentTime > status.attackDelayTime)
+	if (currentTime > status.attackDelayTime_1)
 	{
+		//공격 파트
+		target_Enemy->SetbSoonDead();
+
+
 		++skillCount;
 
 		if (skillCount == maxSkillCount)
@@ -194,25 +204,21 @@ void UKThanatosFSM::State_Attack2()
 	
 
 	//공격 시간이되면 공격을 실행
-	if (currentTime > status.attackDelayTime)
+	if (currentTime > status.attackDelayTime_2)
 	{
-
-		//GetWorld()->SpawnActor<AKDestroyBox>(boxPos, target_Enemy->GetTransform());
-		//GetWorld()->SpawnActor<AKDestroyBox>(boxPos, FTransform(FRotator(0, 0, 0), FVector(2000, 2000, 2000), FVector(1.0f, 1.0f, 1.0f)));
-
 
 		skillCount = 0;
 
 		status.attackRange = 1000.0f;
 
 		currentTime = 0.0f;
-
 		me->SetDestroyBox();
 
 		EndAttackProcess();
 
 	}
 }
+
 
 void UKThanatosFSM::OnDamagedProcess()
 {
@@ -221,7 +227,7 @@ void UKThanatosFSM::OnDamagedProcess()
 
 void UKThanatosFSM::OnAttackProcess()
 {
-
+		
 		//IsAttack = true;
 		Anim->bAttackPlay = true;
 
@@ -235,7 +241,6 @@ void UKThanatosFSM::OnAttackProcess()
 		{
 			mState = EThanatosState::Attack1;
 			Anim->AnimState = mState;
-
 		}
 
 }
@@ -247,16 +252,19 @@ void UKThanatosFSM::EndAttackProcess()
 	mState = EThanatosState::Idle;
 	Anim->AnimState = mState;
 
+	before_Target = target_Enemy;
+	target_Enemy = nullptr;
+
 	OnAttackEnd();
 
-	/*
-	if (스킬 걸리지 않은 에너미가 있을 시)
-	{
-		그 쪽으로 향함.
-	}
-
-	else (랜덤 패트롤)
-	*/
+	
+//	if (스킬 걸리지 않은 에너미가 있을 시)
+//	{
+//		그 쪽으로 향함.
+//	}
+//
+//	else (랜덤 패트롤)
+	
 }
 
 
@@ -266,10 +274,54 @@ void UKThanatosFSM::OnAttackEnd()
 	Anim->bAttackPlay = false;
 }
 
+
+void UKThanatosFSM::SearchEnemy()
+{
+	auto auto_Enemy = UGameplayStatics::GetActorOfClass(GetWorld(), ENEMYCLASS::StaticClass());
+
+	if (auto_Enemy != nullptr)
+	{
+		target_Enemy = Cast<ENEMYCLASS>(auto_Enemy);
+		
+		//while (target_Enemy == before_Target)
+		//{
+		//	target_Enemy = Cast<ENEMYCLASS>(auto_Enemy);
+		//}
+		
+	}
+}
+
+
+//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ENEMYCLASS::StaticClass(), target_Enemy_Array);
+
+/*
+
+void UKThanatosFSM::SearchEnemy()
+{
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ENEMYCLASS::StaticClass(), target_Enemy_Array);
+	//TArray
+	if (target_Enemy_Array.Num() == 0)
+	{
+		target_Enemy = Cast<ENEMYCLASS>(target_Enemy_Array);
+
+		//while (target_Enemy == before_Target)
+		//{
+		//	target_Enemy = Cast<ENEMYCLASS>(auto_Enemy);
+		//}
+
+	}
+}
+
+*/
+
+
 FVector UKThanatosFSM::ReturnDest()
 {
 	FVector destination = target_Enemy->GetActorLocation();
 
 	return destination;
 }
+
+
 

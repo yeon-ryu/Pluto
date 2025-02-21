@@ -61,7 +61,7 @@ void AKDestroyBox::Tick(float DeltaTime)
 		{
 			curretTime = 0.f;
 
-			this->SetActorLocation(FVector(2500));
+			this->SetActorLocation(FVector(2000));
 			bOnSpawn = false;
 		}
 	}
@@ -82,5 +82,6 @@ void AKDestroyBox::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 void AKDestroyBox::SetbOnSpawn()
 {
 	bOnSpawn = true;
+
 }
 
