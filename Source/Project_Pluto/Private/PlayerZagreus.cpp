@@ -11,6 +11,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "PWBlade.h"
 #include "PlayerAnimInstance.h"
+#include "Components/SpotLightComponent.h"
+#include "HadesGameMode.h"
 
 // Sets default values
 APlayerZagreus::APlayerZagreus()
@@ -57,13 +59,29 @@ APlayerZagreus::APlayerZagreus()
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
 
+	lightComp = CreateDefaultSubobject<USpotLightComponent>(TEXT("LightComp"));
+	lightComp->SetupAttachment(RootComponent);
+	lightComp->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 800.0f), FRotator(-90.0f, 0.0f, 0.0f));
+	lightComp->SetOuterConeAngle(10.0f);
+	lightComp->SetIntensity(50000.0f);
+
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
 // Called when the game starts or when spawned
 void APlayerZagreus::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/* 보스 로직에도 보스 버전으로 추가되어야 한다 -> HadesGameMode.h 참고 */
+	// MainUI 플레이어 관련 세팅
+	GM = Cast<AHadesGameMode>(GetWorld()->GetAuthGameMode());
+
+	HP = MaxHP;
+	GM->SetPlayerHP(HP, MaxHP);
+	GM->ShowGameOver(false); // 이 부분은 플레이어만
+	GM->ShowBossState(false); // 이 부분은 플레이어만
 
 	// Input 용 컨트롤러 세팅
 	pController = Cast<APlayerController>(Controller);
@@ -97,6 +115,9 @@ void APlayerZagreus::BeginPlay()
 void APlayerZagreus::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// 피격 애니메이션 진행 중
+	if(bDamaged) return;
 
 	// 바닥에 검 박고 Q 스킬 어택 ~ 검을 빼고 설 때까지 스스로 아무 것도 하지 못한다.
 	if(bSpecialAtt) {
@@ -175,7 +196,10 @@ void APlayerZagreus::Tick(float DeltaTime)
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, UEnum::GetValueAsString(NowState));
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Player State : %s"), *UEnum::GetValueAsString(NowState)));
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Player Collision : %s"), *UEnum::GetValueAsString(GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn))));
+	char IState = bCheatInvincible ? 'T' : 'F';
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, FString::Printf(TEXT("Player Invincible : %c"), IState));
 }
 
 // Called to bind functionality to input
@@ -191,7 +215,8 @@ void APlayerZagreus::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		PlayerInput->BindAction(IA_SpecialAtt, ETriggerEvent::Started, this, &APlayerZagreus::SpecialAtt);
 		//PlayerInput->BindAction(IA_Spell, ETriggerEvent::Started, this, &APlayerZagreus::Spell);
 		//PlayerInput->BindAction(IA_Interaction, ETriggerEvent::Started, this, &APlayerZagreus::Interaction);
-
+		
+		PlayerInput->BindAction(IA_CheatInvincible, ETriggerEvent::Started, this, &APlayerZagreus::CheatInvincible);
 	}
 }
 
@@ -214,14 +239,24 @@ void APlayerZagreus::CheckDodgeDelay(float DeltaTime)
 void APlayerZagreus::CheckDodgeAttackInput(float DeltaTime)
 {
 	CurrentDodgeAttackWait += DeltaTime;
+	
+	if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeAttackWait >= DodgeInvincibleTime) {
+		if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
+			GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		}
+	}
 
 	if ((NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) || CurrentDodgeAttackWait >= DodgeAttackTime) {
+		if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
+			GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		}
 		bDodgeAttackWait = false;
 		CurrentDodgeAttackWait = 0.0f;
 		return;
 	}
 
 	if (bReserveAttack) { // 이 부분 언젠가 확장 가능하게 대시 스트라이크 전용코드로 변경
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 		Combo = weapon->MaxCombo - 1;
 		bDodgeAttackWait = false;
 		CurrentDodgeAttackWait = 0.0f;
@@ -232,8 +267,8 @@ void APlayerZagreus::CheckDodgeAttackInput(float DeltaTime)
 void APlayerZagreus::EndDodge()
 {
 	Speed = RunSpeed;
-	// 에너미와 충돌 Overlap 으로 원복
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	// 에너미와 충돌 Overlap 으로 원복 -> 사람이 느끼기엔 너무 짧아서 입력 시간 만큼 같이 기다려준다.
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	if (NowState == EPlayerBehaviorState::Dodge) {
 		NowState = EPlayerBehaviorState::Idle;
@@ -312,12 +347,19 @@ float APlayerZagreus::TakeDamage(float Damage, struct FDamageEvent const& Damage
 {
 	if(HP == 0) return 0;
 
-	HP = FMath::Clamp(HP-Damage, 0.f, 100.f);
+	if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore || bCheatInvincible) {
+		return HP;
+	}
+
+	HP = FMath::Clamp(HP-Damage, 0.f, (float)(MaxHP));
 
 	if(NowState != EPlayerBehaviorState::Damaged && CheckChangeStateEnabled(EPlayerBehaviorState::Damaged)) {
 		NowState = EPlayerBehaviorState::Damaged;
 	}
 
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("Player HP : %d"), HP));
+
+	GM->SetPlayerHP(HP, MaxHP);
 	return HP;
 }
 
@@ -395,7 +437,7 @@ bool APlayerZagreus::CheckChangeStateEnabled(EPlayerBehaviorState state)
 
 void APlayerZagreus::Move(const FInputActionValue& inputValue)
 {
-	if(bSpecialAtt) return;
+	if(bDamaged || bSpecialAtt) return;
 
 	//if(NowState != EPlayerBehaviorState::Idle && NowState != EPlayerBehaviorState::Move) {
 	//	if (PlayerDir == FVector::ZeroVector) {
@@ -418,7 +460,7 @@ void APlayerZagreus::Move(const FInputActionValue& inputValue)
 // 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 {
-	if(bSpecialAtt || !CheckChangeStateEnabled(EPlayerBehaviorState::Attack)) return;
+	if(bDamaged || bSpecialAtt || !CheckChangeStateEnabled(EPlayerBehaviorState::Attack)) return;
 	bReserveAttack = true;
 	Speed = RunSpeed;
 	bForceSpecialAtt = false;
@@ -426,12 +468,8 @@ void APlayerZagreus::Attack(const FInputActionValue& inputValue)
 
 void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 {
-	if (NowState == EPlayerBehaviorState::Dodge) {
-		return;
-	}
-
-	// 연속으로 회피 못하도록
-	if(bDodgeDelayWait || bSpecialAtt || !CheckChangeStateEnabled(EPlayerBehaviorState::Dodge)) return;
+	// 피격 상태 / 회피 재사용 대기 시간 / Q 스킬 공격 중 / 대시 도중 및 대시 불가능한 상태일 경우
+	if(bDamaged || bDodgeDelayWait || bSpecialAtt || NowState == EPlayerBehaviorState::Dodge || !CheckChangeStateEnabled(EPlayerBehaviorState::Dodge)) return;
 
 	if (NowState == EPlayerBehaviorState::SpecialAtt) {
 		if (bForceSpecialAtt) {
@@ -454,7 +492,7 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 
 	Speed = DodgeSpeed;
 	// 에너미와 충돌 Ignore
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	bDodgeAttackWait = false;
 	AnimWaitTime = DodgeTime;
@@ -463,6 +501,7 @@ void APlayerZagreus::Dodge(const FInputActionValue& inputValue)
 // 에너미 오버랩 시 공격은 무기에서
 void APlayerZagreus::SpecialAtt(const FInputActionValue& inputValue)
 {
+	if(bDamaged) return;
 	StartSpecialAtt();
 }
 
@@ -483,4 +522,9 @@ void APlayerZagreus::Interaction(const FInputActionValue& inputValue)
 	}
 
 	// 상호작용
+}
+
+void APlayerZagreus::CheatInvincible(const FInputActionValue& inputValue)
+{
+	bCheatInvincible = !bCheatInvincible;
 }

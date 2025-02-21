@@ -57,6 +57,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Camera)
 	class UCameraComponent* camComp;
 
+	
+	UPROPERTY(EditAnywhere, Category = Light)
+	class USpotLightComponent* lightComp;
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerState)
 	EPlayerBehaviorState NowState = EPlayerBehaviorState::Idle;
@@ -85,6 +89,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
 	float DodgeAttackTime = 0.2f; // 회피 공격 추가 입력 시간
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerSetting")
+	float DodgeInvincibleTime = 0.1f; // 회피 무적 추가 시간
 
 	bool bDodgeAttackWait = false;
 
@@ -116,9 +123,16 @@ public:
 	UPROPERTY()
 	class UPlayerAnimInstance* AnimInstance;
 
+	UPROPERTY(EditDefaultsOnly, Category=CameraMotion)
+	TSubclassOf<class UCameraShakeBase> CameraShakeShockWave;
+
 
 // 플레이어 로직
 public:
+	/* 보스 로직에도 보스 버전으로 추가되어야 한다 */
+	UPROPERTY()
+	class AHadesGameMode* GM;
+
 	class APlayerController* pController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
@@ -169,6 +183,8 @@ public:
 	void AttackProcess(); // 어택 로직
 
 
+	bool bDamaged = false;
+
 	// 피격
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -179,6 +195,8 @@ public:
 
 	// 현재 상태에서 state 로 변할 수 있는지 값 반환 (같은 상태는 true)
 	bool CheckChangeStateEnabled(EPlayerBehaviorState state);
+
+	bool bCheatInvincible = false;
 
 // Input
 public:
@@ -204,10 +222,16 @@ public:
 	class UInputAction* IA_Interaction;
 
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input Cheat")
+	class UInputAction* IA_CheatInvincible;
+
+
 	void Move(const FInputActionValue& inputValue); // 이동
 	void Attack(const FInputActionValue& inputValue); // 일반 공격 & 콤보
 	void Dodge(const FInputActionValue& inputValue); // 회피 & 대시
 	void SpecialAtt(const FInputActionValue& inputValue); // 특수 공격 (Q 스킬)
 	void Spell(const FInputActionValue& inputValue); // 마법 (우클릭)
 	void Interaction(const FInputActionValue& inputValue); // 상호작용 (E 버튼)
+
+	void CheatInvincible(const FInputActionValue& inputValue);
 };

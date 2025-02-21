@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerZagreus.h"
 #include "PlayerWeapon.h"
+#include "HadesGameMode.h"
 
 UPlayerAnimInstance::UPlayerAnimInstance()
 {
@@ -35,13 +36,15 @@ void UPlayerAnimInstance::AnimNotify_SpecialAttStart()
 	// 이 순간 부터 우선 순위 최상 -> 이동, 공격 등 이 애니메이션이 끝나기 전까지 아무것도 적용할 수 없다.
 	player->bSpecialAtt = true;
 	//player->bForceSpecialAtt = true;
+	player->SetAttackDir();
 }
 
 void UPlayerAnimInstance::AnimNotify_AttackEffect()
 {
 	// 플레이어가 가지고 있는 무기의 공격 범위 ovelap 체크 시작
-	player->SetAttackDir();
 	player->weapon->StartSpecialAtt();
+	auto controller = GetWorld()->GetFirstPlayerController();
+	controller->PlayerCameraManager->StartCameraShake(player->CameraShakeShockWave);
 }
 
 void UPlayerAnimInstance::AnimNotify_AttackEnd()
@@ -62,11 +65,18 @@ void UPlayerAnimInstance::AnimNotify_SpecialAttEnd()
 void UPlayerAnimInstance::AnimNotify_DamagedEnd()
 {
 	if (player->HP > 0) {
+		player->Speed = player->RunSpeed;
 		player->NowState = EPlayerBehaviorState::Idle;
 	}
 	else {
 		player->NowState = EPlayerBehaviorState::Die;
 	}
+}
+
+void UPlayerAnimInstance::AnimNotify_DieEnd()
+{
+	if(player == nullptr || player->GM == nullptr) return;
+	player->GM->ShowGameOver(true);
 }
 
 void UPlayerAnimInstance::AnimNotify_LastCombo()
