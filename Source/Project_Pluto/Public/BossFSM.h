@@ -69,8 +69,10 @@ public:
 	float nowTime = 0.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
-	float PhaseChangeTime = 3.5f;
+	float PhaseChangeTime = 4.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float AttackDelayTime = 1.5f;
+	UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float AttaclEndDelayTime = 0.25f;
 
 	FVector destination;
@@ -80,6 +82,7 @@ public:
 	float BossAttDamage;
 
 	bool bPhaseChange = false;
+	bool bDieDone= false;
 
 
 #pragma endregion Values for State Change
@@ -99,6 +102,9 @@ public:
 
 	FORCEINLINE void ResetNowTime() { nowTime = 0.f; }
 
+	void SetForPhaseChange();
+
+	FORCEINLINE void OnDieEnd() { bDieDone = true; }
 
 		
 };
