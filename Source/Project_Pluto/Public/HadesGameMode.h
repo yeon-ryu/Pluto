@@ -15,5 +15,21 @@ class PROJECT_PLUTO_API AHadesGameMode : public AGameModeBase
 	GENERATED_BODY()
 	
 public:
-	virtual void StartPlay();
+	virtual void BeginPlay() override;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UMainWidget> mainWidget;
+
+	void SetPlayerHP(int32 Cur, int32 Max);
+	void SetBossHP(int32 Cur, int32 Max);
+	void ShowBossState(bool bShow);
+	void ShowGameOver(bool bShow);
+
+	class UMainWidget* mainUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UGameOverWidget> gameOverWidget;
+
+	class UGameOverWidget* gameOverUI;
 };

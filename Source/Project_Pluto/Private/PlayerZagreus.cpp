@@ -12,6 +12,7 @@
 #include "PWBlade.h"
 #include "PlayerAnimInstance.h"
 #include "Components/SpotLightComponent.h"
+#include "HadesGameMode.h"
 
 // Sets default values
 APlayerZagreus::APlayerZagreus()
@@ -72,6 +73,15 @@ APlayerZagreus::APlayerZagreus()
 void APlayerZagreus::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/* 보스 로직에도 보스 버전으로 추가되어야 한다 -> HadesGameMode.h 참고 */
+	// MainUI 플레이어 관련 세팅
+	GM = Cast<AHadesGameMode>(GetWorld()->GetAuthGameMode());
+
+	HP = MaxHP;
+	GM->SetPlayerHP(HP, MaxHP);
+	GM->ShowGameOver(false); // 이 부분은 플레이어만
+	GM->ShowBossState(false); // 이 부분은 플레이어만
 
 	// Input 용 컨트롤러 세팅
 	pController = Cast<APlayerController>(Controller);
@@ -349,6 +359,7 @@ float APlayerZagreus::TakeDamage(float Damage, struct FDamageEvent const& Damage
 
 	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("Player HP : %d"), HP));
 
+	GM->SetPlayerHP(HP, MaxHP);
 	return HP;
 }
 

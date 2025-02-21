@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerZagreus.h"
 #include "PlayerWeapon.h"
+#include "HadesGameMode.h"
 
 UPlayerAnimInstance::UPlayerAnimInstance()
 {
@@ -70,6 +71,12 @@ void UPlayerAnimInstance::AnimNotify_DamagedEnd()
 	else {
 		player->NowState = EPlayerBehaviorState::Die;
 	}
+}
+
+void UPlayerAnimInstance::AnimNotify_DieEnd()
+{
+	if(player == nullptr || player->GM == nullptr) return;
+	player->GM->ShowGameOver(true);
 }
 
 void UPlayerAnimInstance::AnimNotify_LastCombo()
