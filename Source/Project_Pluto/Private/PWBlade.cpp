@@ -12,6 +12,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Boss.h"
+#include "CurtainFireProjectile.h"
 
 APWBlade::APWBlade()
 {
@@ -46,11 +47,13 @@ APWBlade::APWBlade()
 	CollisionComp->SetCollisionObjectType(ECC_Pawn);
 	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	CollisionComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 
 	EffectCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	EffectCollisionComp->SetCollisionObjectType(ECC_Pawn);
 	EffectCollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	EffectCollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	EffectCollisionComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 }
 
 void APWBlade::BeginPlay()
@@ -71,7 +74,6 @@ void APWBlade::AttackProcess(AActor* OtherActor)
 {
 	// EnemyInfo 를 상속한 타입으로 확인 됨. -> EnemyInfo 입장에서 PlayerWeapon overlap 으로 바꾸는거 잊지 말기!!!
 	if (OtherActor->IsA<AEnemyInfo>()) {
-		UE_LOG(LogTemp, Warning, TEXT("Attack to Enemy!"));
 		AEnemyInfo* enemy = Cast<AEnemyInfo>(OtherActor);
 
 		// 몇번째 콤보인가에 따라 공격 실행
@@ -90,14 +92,21 @@ void APWBlade::AttackProcess(AActor* OtherActor)
 			break;
 		}
 	}
+
+	if (OtherActor->IsA<ACurtainFireProjectile>()) {
+		OtherActor->Destroy();
+	}
 }
 
 void APWBlade::SpecialAttProcess(AActor* OtherActor)
 {
 	if (OtherActor->IsA<AEnemyInfo>()) {
-		UE_LOG(LogTemp, Warning, TEXT("Special Attack to Enemy!"));
 		AEnemyInfo* enemy = Cast<AEnemyInfo>(OtherActor);
 		NovaSmash(enemy);
+	}
+
+	if (OtherActor->IsA<ACurtainFireProjectile>()) {
+		OtherActor->Destroy();
 	}
 }
 
