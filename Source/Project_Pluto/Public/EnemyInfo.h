@@ -78,6 +78,8 @@ public:
 
 	FORCEINLINE float GetSpeed() { return this->Speed; }
 
+	FORCEINLINE EAttackType GetAttType() { return this->AttTypeEnum;  }
+
 
 #pragma endregion Getter
 
@@ -95,6 +97,8 @@ protected:
 	FORCEINLINE void SetDetectRange(float detect_value) { this->DetectRange = detect_value; }
 
 	FORCEINLINE void SetSpeed(float speed_value) {	this->Speed = speed_value;	}
+
+	FORCEINLINE void SetAttType(EAttackType type_value) { this->AttTypeEnum = type_value; }
 
 #pragma endregion Setter
 

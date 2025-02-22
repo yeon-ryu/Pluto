@@ -78,7 +78,6 @@ void UBossFSM::State_Move()
 		return;
 
 	}
-	//me->PlayAnimMontage(anim->BossMontage, 1.f, TEXT("Death"));
 	
 
 	CallSelectPattern();
