@@ -8,6 +8,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "CurtainFireProjectile.h"
 #include "Components/ArrowComponent.h"
+#include "SpawnManager.h"
+#include "Kismet/GameplayStatics.h"
 
 AMonster::AMonster()
 {
@@ -44,6 +46,8 @@ AMonster::AMonster()
 	SetAttRange(800.f);
 	SetDamage(3.f);
 	SetAttType(EAttackType::CurtainFire);
+
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 
 }
@@ -128,5 +132,18 @@ void AMonster::ShootSingle()
 	projectile->SetVelocity(fireAngle.Vector());
 	fireCounter++;
 
+
+}
+
+void AMonster::Destroyed()
+{
+	Super::Destroyed();
+
+	ASpawnManager* manager = Cast<ASpawnManager> (UGameplayStatics::GetActorOfClass(GetWorld(), ASpawnManager::StaticClass()));
+
+	if (manager)
+	{
+		manager->WhenMonsterDestroyed ();
+	}
 
 }

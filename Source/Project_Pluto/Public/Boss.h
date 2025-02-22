@@ -93,6 +93,10 @@ public:
 
 #pragma endregion Debug_Values
 
+public:
+   UPROPERTY()
+   class AHadesGameMode* GM;
+
 private:
 	float HpPercent;
 

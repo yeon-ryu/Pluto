@@ -13,6 +13,7 @@
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "HadesGameMode.h"
 
 
 // Sets default values
@@ -67,6 +68,13 @@ ABoss::ABoss()
 void ABoss::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// MainUI 플레이어 관련 세팅
+	GM = Cast<AHadesGameMode>(GetWorld()->GetAuthGameMode());
+
+	GM->SetBossHP (this->GetNowHp (), this->GetMaxHp ());
+	GM->SetBossName(TEXT("Megaera")); // 한글 들어가면 오류남 (디코 talk 방 내용 참고)
+	GM->ShowBossState(true);
 	
 }
 
@@ -288,6 +296,7 @@ float ABoss::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
 	UE_LOG(LogTemp, Error, TEXT("Player Hit Boss"));
 
 	fsm->OnTakeDamage();
+	GM->SetBossHP(this->GetNowHp(), this->GetMaxHp());
 
 	return DamageAmount;
 }

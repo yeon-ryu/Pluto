@@ -6,6 +6,9 @@
 #include "Boss.h"
 #include "BossAnimInstance.h"
 #include "Components/CapsuleComponent.h"
+#include "HadesGameMode.h"
+#include "SpawnManager.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values for this component's properties
@@ -30,6 +33,10 @@ void UBossFSM::BeginPlay()
 
 	anim = Cast <UBossAnimInstance>(me->GetMesh()->GetAnimInstance());
 	anim->bossfsm = this;
+	manager = Cast<ASpawnManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ASpawnManager::StaticClass()));
+	if(manager)
+		manager->bSpawnable = false;
+
 }
 
 
@@ -152,6 +159,8 @@ void UBossFSM::State_Hit()
 	{
 		state = EBossState::PhaseChange;
 		anim->animState = state;
+		manager->bSpawnable = true;
+		manager->SpawnerCaller ();
 		bPhaseChange = false;
 		return;
 	}
@@ -205,6 +214,9 @@ void UBossFSM::State_Die()
 		return;
 	}
 
+	if (me == nullptr || me->GM == nullptr) return;
+	me->GM->ShowGameClear(true);
+	
 	me->Destroy();
 
 }

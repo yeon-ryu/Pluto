@@ -42,6 +42,8 @@ public:
 	void SpawnProjectile();
 	void ShootSingle( );
 
+	void Destroyed() override;
+
 	FRotator BaseRotation;
 	int32 fireCounter = 1;
 
