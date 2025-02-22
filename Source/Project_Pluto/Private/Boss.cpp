@@ -47,7 +47,8 @@ ABoss::ABoss()
 	ArrowComp->SetRelativeLocation(FVector(40.f, 0.f, 30.f));
 
 #pragma region initStatSetting
-	SetMaxHp(4400);
+	SetMaxHp(250);
+	SetNowHp(250);
 
 	SetDetectRange(10000.0f); //¿ø·¡´Â 10000.f - µð¹ö±ë¿ë 
 
@@ -73,6 +74,7 @@ void ABoss::BeginPlay()
 void ABoss::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	Debug::Print(FString::SanitizeFloat(GetNowHp() / GetMaxHp()));
 
 }
 
@@ -144,7 +146,7 @@ void ABoss::Charge()
 
 	FVector dir = GetTargetFromMe();
 	dir.Normalize();
-	this->LaunchCharacter(dir * 10000.f , true, false);
+	this->LaunchCharacter(dir * 26000.f , true, false);
 
 }
 
@@ -157,7 +159,7 @@ void ABoss::CurtainFire()
 
 void ABoss::SpawnProjectile()
 {
-	if (fireCounter >= 10)
+	if (fireCounter >= 10 || fsm->state == EBossState::PhaseChange || fsm->state == EBossState::Die)
 	{
 		//10¹ø ½î¸é Å¸ÀÌ¸Ó ²ô±â
 		GetWorldTimerManager().ClearTimer(TimerHandle);
@@ -206,7 +208,7 @@ void ABoss::Plate()
 
 void ABoss::SpawnPlate()
 {
-	if (plateCounter >= 5)
+	if (plateCounter >= 5 || fsm->state == EBossState::PhaseChange || fsm->state == EBossState::Die)
 	{
 		GetWorldTimerManager().ClearTimer(TimerHandle);
 		plateCounter = 0;
@@ -228,15 +230,15 @@ void ABoss::SpawnPlate()
 	{
 		FVector expectPos = playerLocation + pawn->GetVelocity() * 0.5f;
 		TArray<FVector> spawnLocation;
-		spawnLocation.Add(FVector(expectPos.X - dxdyRange, expectPos.Y, 0.f));
-		spawnLocation.Add(FVector(expectPos.X + dxdyRange, expectPos.Y, 0.f));
-		spawnLocation.Add(FVector(expectPos.X, expectPos.Y - dxdyRange, 0.f));
-		spawnLocation.Add(FVector(expectPos.X, expectPos.Y + dxdyRange, 0.f));
+		spawnLocation.Add(FVector(expectPos.X - dxdyRange, expectPos.Y, 80.f));
+		spawnLocation.Add(FVector(expectPos.X + dxdyRange, expectPos.Y, 80.f));
+		spawnLocation.Add(FVector(expectPos.X, expectPos.Y - dxdyRange, 80.f));
+		spawnLocation.Add(FVector(expectPos.X, expectPos.Y + dxdyRange, 80.f));
 
 		
 		int32 randSpawn = FMath::RandRange(0, 3);
 
-		GetWorld()->SpawnActor <APlateActor>(PlateFactory,FVector(playerLocation.X, playerLocation.Y, 0.f),		FRotator::ZeroRotator,spawnParams);
+		GetWorld()->SpawnActor <APlateActor>(PlateFactory,FVector(playerLocation.X, playerLocation.Y, 80.f),		FRotator::ZeroRotator,spawnParams);
 
 
 		for (int32 i = 0; i < 3; i++)
@@ -252,10 +254,10 @@ void ABoss::SpawnPlate()
 	else
 	{
 		TArray<FVector> spawnLocation;
-		spawnLocation.Add(FVector(playerLocation.X - dxdyRange, playerLocation.Y, 0.f));
-		spawnLocation.Add(FVector(playerLocation.X + dxdyRange, playerLocation.Y, 0.f));
-		spawnLocation.Add(FVector(playerLocation.X, playerLocation.Y - dxdyRange, 0.f));
-		spawnLocation.Add(FVector(playerLocation.X, playerLocation.Y + dxdyRange, 0.f));
+		spawnLocation.Add(FVector(playerLocation.X - dxdyRange, playerLocation.Y, 80.f));
+		spawnLocation.Add(FVector(playerLocation.X + dxdyRange, playerLocation.Y, 80.f));
+		spawnLocation.Add(FVector(playerLocation.X, playerLocation.Y - dxdyRange, 80.f));
+		spawnLocation.Add(FVector(playerLocation.X, playerLocation.Y + dxdyRange, 80.f));
 
 		for (auto point : spawnLocation)
 		{
@@ -282,8 +284,10 @@ FVector ABoss::GetRandomPos(FVector pos)
 
 float ABoss::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	ReceiveDamage(DamageAmount);
+	DamageToSelf(DamageAmount);
 	UE_LOG(LogTemp, Error, TEXT("Player Hit Boss"));
+
+	fsm->OnTakeDamage();
 
 	return DamageAmount;
 }

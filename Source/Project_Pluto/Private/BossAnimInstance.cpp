@@ -29,3 +29,12 @@ void UBossAnimInstance::AnimNotify_AttackEnd()
 
 	Boss->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Block);
 }
+
+void UBossAnimInstance::AnimNotify_DieEnd()
+{
+	ABoss* enemy = Cast<ABoss>(TryGetPawnOwner());
+	if (enemy != nullptr)
+	{
+		enemy->fsm->OnDieEnd();
+	}
+}

@@ -65,7 +65,7 @@ void ACurtainFireProjectile::OnProjectileOverlap(UPrimitiveComponent* Overlapped
 	{
 		UGameplayStatics::ApplyDamage(player, enemy->GetDamage(), enemy->GetInstigatorController(), enemy, UDamageType::StaticClass());
 
-		UE_LOG(LogTemp, Warning, TEXT("Projectile hit %s! Applied %d Damage!"), *player->GetName(), enemy->GetDamage());
+		UE_LOG(LogTemp, Warning, TEXT("Projectile hit %s! Applied %.2f Damage!"), *player->GetName(), enemy->GetDamage());
 		
 		this->Destroy();
 	}

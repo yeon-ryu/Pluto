@@ -34,8 +34,13 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	ABoss* Boss;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Montage")
+	class UAnimMontage* BossMontage;
+
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
 
+	UFUNCTION()
+	void AnimNotify_DieEnd();
 
 };

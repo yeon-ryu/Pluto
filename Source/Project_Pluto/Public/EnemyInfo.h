@@ -66,17 +66,19 @@ protected:
 
 #pragma region Getter
 public:
-	FORCEINLINE int32 GetDamage() { return this->Damage; }
+	FORCEINLINE float GetDamage() { return this->Damage; }
 
-	FORCEINLINE int32 GetNowHp() { return this->NowHp; }
+	FORCEINLINE float GetNowHp() { return this->NowHp; }
 
-	FORCEINLINE int32 GetMaxHp() { return this->MaxHp; }
+	FORCEINLINE float GetMaxHp() { return this->MaxHp; }
 
 	FORCEINLINE float GetAttRange() { return this->AttRange; }
 
 	FORCEINLINE float GetDetectRange() { return this->DetectRange; }
 
 	FORCEINLINE float GetSpeed() { return this->Speed; }
+
+	FORCEINLINE EAttackType GetAttType() { return this->AttTypeEnum;  }
 
 
 #pragma endregion Getter
@@ -96,6 +98,8 @@ protected:
 
 	FORCEINLINE void SetSpeed(float speed_value) {	this->Speed = speed_value;	}
 
+	FORCEINLINE void SetAttType(EAttackType type_value) { this->AttTypeEnum = type_value; }
+
 #pragma endregion Setter
 
 
@@ -107,7 +111,7 @@ public:
 
 	virtual void AttackPlayer(EAttackType type);
 
-	void ReceiveDamage(float damageValue);
+	void DamageToSelf(float damageValue);
 
 
 
