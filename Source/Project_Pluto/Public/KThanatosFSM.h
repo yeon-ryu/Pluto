@@ -8,7 +8,7 @@
 // 2. 게임모드에서 데이터 관리하기
 
 
-#define ENEMYCLASS AKEnemy
+#define ENEMYCLASS AMonster
 
 #pragma once
 
@@ -22,6 +22,7 @@ enum class EThanatosState : uint8
 {
 	Start	UMETA(DisplayName = "Start"),
 	Idle	UMETA(DisplayName = "Idle"),
+	Idle2	UMETA(DisplayName = "Idle2"),
 	Move	UMETA(DisplayName = "Move"),
 	MoveFar UMETA(DisplayName = "MoveFar"),
 	Attack1	UMETA(DisplayName = "Attack_1"),
@@ -61,6 +62,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
 	float idleDelayTime = 0.5f;
 
+	//Idle (대기모션) 행하는 시간
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
+	float idleDelayTime2 = 3.0f;
+
+
 	//걷는 시간
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
 	float walkingTime = 1.0f;
@@ -90,6 +96,7 @@ public:
 	//기본 State
 	void State_Start();
 	void State_Idle();
+	void State_Idle2();
 	void State_Move();
 	void State_MoveFar();
 	void State_Attack1();
@@ -117,10 +124,12 @@ public:
 	float currentTime = 0.0f;
 
 	UPROPERTY(VisibleAnywhere, Category = FSM)
-	class AKEnemy* target_Enemy;
-	class AKEnemy* before_Target;
+	class AMonster* target_Enemy;
+	//class AMonster* before_Target;
 
-	TArray<AActor*> target_Enemy_Array;
+
+
+	//TArray<AActor*> target_Enemy_Array;
 
 	//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//	TSubclassOf <class AKDestroyBox> boxPos;

@@ -3,9 +3,10 @@
 
 #include "KThanatosFSM.h"
 #include "Kismet/GameplayStatics.h"
-#include "KEnemy.h"
+//#include "KEnemy.h"
 #include "KThanatosAnim.h"
 #include "KDestroyBox.h"
+#include "Monster.h"
 
 
 UKThanatosFSM::UKThanatosFSM()
@@ -66,6 +67,7 @@ void UKThanatosFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	{	
 	case EThanatosState::Start: { State_Start(); } break;
 	case EThanatosState::Idle: { State_Idle(); } break;
+	case EThanatosState::Idle2: { State_Idle2(); } break;
 	case EThanatosState::Move: { State_Move(); } break;
 	case EThanatosState::MoveFar: { State_MoveFar(); } break;
 	case EThanatosState::Attack1: { State_Attack1(); } break;
@@ -115,6 +117,27 @@ void UKThanatosFSM::State_Idle()
 
 }
 
+
+void UKThanatosFSM::State_Idle2()
+{
+	SearchEnemy();
+
+	//시간이 흐르다가
+	currentTime += GetWorld()->DeltaTimeSeconds;
+
+	//만약 경과 시간이 대기 시간을 초과했다면
+	if (currentTime > status.idleDelayTime2)
+	{
+		mState = EThanatosState::Idle;
+		Anim->AnimState = mState;
+
+		//전환 후 시간 초기화
+		currentTime = 0.0f;
+	}
+
+}
+
+
 void UKThanatosFSM::State_Move()
 {
 		FVector destination = target_Enemy->GetActorLocation();
@@ -137,6 +160,15 @@ void UKThanatosFSM::State_Move()
 				//거리체크
 			}
 		}
+		/*
+		else if (skillCount< maxSkillCount && dir.Size() < status.attackRange - 200.f)
+		{
+			mState = EThanatosState::MoveFar;
+			Anim->AnimState = mState;
+			currentTime = 0.0f;
+
+		}
+		*/
 
 		//(dir.Size() < status.attackRange)
 		else
@@ -181,9 +213,11 @@ void UKThanatosFSM::State_Attack1()
 	if (currentTime > status.attackDelayTime_1)
 	{
 		//공격 파트
-		target_Enemy->SetbSoonDead();
+		//target_Enemy->SetbSoonDead();
+		//target_Enemy->DamageToSelf(9999);
 
 
+		target_Enemy->Destroy();
 		++skillCount;
 
 		if (skillCount == maxSkillCount)
@@ -200,6 +234,7 @@ void UKThanatosFSM::State_Attack1()
 
 void UKThanatosFSM::State_Attack2()
 {
+
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	
 
@@ -227,7 +262,17 @@ void UKThanatosFSM::OnDamagedProcess()
 
 void UKThanatosFSM::OnAttackProcess()
 {
-		
+	FVector destination = target_Enemy->GetActorLocation();
+	FVector dir = me->GetActorLocation() - destination;
+
+	FRotator TargetRotation = dir.Rotation();
+
+	FRotator NewRotation = me->GetActorRotation();
+	NewRotation.Yaw = TargetRotation.Yaw + 180.f ;
+
+	me->SetActorRotation(NewRotation);
+
+
 		//IsAttack = true;
 		Anim->bAttackPlay = true;
 
@@ -249,10 +294,10 @@ void UKThanatosFSM::OnAttackProcess()
 void UKThanatosFSM::EndAttackProcess()
 {
 	//테스트용 패트롤.
-	mState = EThanatosState::Idle;
+	mState = EThanatosState::Idle2;
 	Anim->AnimState = mState;
 
-	before_Target = target_Enemy;
+	//before_Target = target_Enemy;
 	target_Enemy = nullptr;
 
 	OnAttackEnd();

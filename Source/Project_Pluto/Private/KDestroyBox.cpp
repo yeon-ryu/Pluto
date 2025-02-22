@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
+#include "Monster.h"
 
 
 // Sets default values
@@ -25,6 +26,7 @@ AKDestroyBox::AKDestroyBox()
 
 	
 	//범위 확인용 메쉬컴포넌트
+	/*
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetupAttachment(RootComponent);
 
@@ -36,6 +38,7 @@ AKDestroyBox::AKDestroyBox()
 		MeshComp->SetStaticMesh(tmpMesh.Object);
 
 	}
+	*/
 
 	BoxComp->OnComponentBeginOverlap.AddDynamic(this, &AKDestroyBox::OnBoxOverlap);
 }
@@ -53,11 +56,12 @@ void AKDestroyBox::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	curretTime += DeltaTime;
-
 	if (bOnSpawn == true)
 	{
-		if (curretTime > 0.1f)
+
+		curretTime += DeltaTime;
+
+		if (curretTime > 3.0f)
 		{
 			curretTime = 0.f;
 
@@ -70,8 +74,10 @@ void AKDestroyBox::Tick(float DeltaTime)
 
 void AKDestroyBox::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
-	AKEnemy* enemy = Cast<AKEnemy>(OtherActor);
+	//AKEnemy* enemy = Cast<AKEnemy>(OtherActor);
+	AMonster* enemy = Cast<AMonster>(OtherActor);
+
+
 	if (enemy != nullptr)
 	{
 		enemy->Destroy();
