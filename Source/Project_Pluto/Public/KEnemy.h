@@ -26,6 +26,22 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-class UKEnemyFSM* fsm;
+public:
+	class UKEnemyFSM* fsm;
 
+public:
+	//타나토스 1번 스킬이 걸릴 경우 true 체크
+	bool bSoonDead = false;
+
+	
+	float currentTime = 0.f;
+	float deadDelayTime = 2.f;
+
+	
+	//bSoonDead가 True일 경우 deadDelayTime 체크해서 디스트로이
+	void OnDeadProcess(float DeltaTime);
+
+	//bSoonDead를 true로 설정해주는 함수
+	void SetbSoonDead();
+	
 };

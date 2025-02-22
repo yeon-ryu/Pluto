@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
+#include "Monster.h"
 
 
 // Sets default values
@@ -23,19 +24,6 @@ AKDestroyBox::AKDestroyBox()
 	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
 
-	
-	//범위 확인용 메쉬컴포넌트
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	MeshComp->SetupAttachment(RootComponent);
-
-
-
-	ConstructorHelpers::FObjectFinder<UStaticMesh>tmpMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
-	if (tmpMesh.Succeeded())
-	{
-		MeshComp->SetStaticMesh(tmpMesh.Object);
-
-	}
 
 	BoxComp->OnComponentBeginOverlap.AddDynamic(this, &AKDestroyBox::OnBoxOverlap);
 }
@@ -53,15 +41,15 @@ void AKDestroyBox::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	curretTime += DeltaTime;
-
 	if (bOnSpawn == true)
 	{
-		if (curretTime > 0.1f)
+		curretTime += DeltaTime;
+
+		if (curretTime > 3.0f)
 		{
 			curretTime = 0.f;
 
-			this->SetActorLocation(FVector(2500));
+			this->SetActorLocation(FVector(2000));
 			bOnSpawn = false;
 		}
 	}
@@ -70,8 +58,10 @@ void AKDestroyBox::Tick(float DeltaTime)
 
 void AKDestroyBox::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
-	AKEnemy* enemy = Cast<AKEnemy>(OtherActor);
+	//AKEnemy* enemy = Cast<AKEnemy>(OtherActor);
+	AMonster* enemy = Cast<AMonster>(OtherActor);
+
+
 	if (enemy != nullptr)
 	{
 		enemy->Destroy();
@@ -82,5 +72,6 @@ void AKDestroyBox::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 void AKDestroyBox::SetbOnSpawn()
 {
 	bOnSpawn = true;
+
 }
 
