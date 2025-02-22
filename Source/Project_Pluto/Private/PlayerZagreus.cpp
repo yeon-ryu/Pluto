@@ -13,6 +13,7 @@
 #include "PlayerAnimInstance.h"
 #include "Components/SpotLightComponent.h"
 #include "HadesGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 APlayerZagreus::APlayerZagreus()
@@ -217,6 +218,8 @@ void APlayerZagreus::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		//PlayerInput->BindAction(IA_Interaction, ETriggerEvent::Started, this, &APlayerZagreus::Interaction);
 		
 		PlayerInput->BindAction(IA_CheatInvincible, ETriggerEvent::Started, this, &APlayerZagreus::CheatInvincible);
+		PlayerInput->BindAction(IA_CheatLevelLoad1, ETriggerEvent::Started, this, &APlayerZagreus::CheatLevelLoad1);
+		PlayerInput->BindAction(IA_CheatLevelLoad2, ETriggerEvent::Started, this, &APlayerZagreus::CheatLevelLoad2);
 	}
 }
 
@@ -527,4 +530,14 @@ void APlayerZagreus::Interaction(const FInputActionValue& inputValue)
 void APlayerZagreus::CheatInvincible(const FInputActionValue& inputValue)
 {
 	bCheatInvincible = !bCheatInvincible;
+}
+
+void APlayerZagreus::CheatLevelLoad1(const FInputActionValue& inputValue)
+{
+	UGameplayStatics::OpenLevel(GetWorld(), FName("HadesMap1"));
+}
+
+void APlayerZagreus::CheatLevelLoad2(const FInputActionValue& inputValue)
+{
+	UGameplayStatics::OpenLevel(GetWorld(), FName("HadesMap2"));
 }

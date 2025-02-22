@@ -224,6 +224,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input Cheat")
 	class UInputAction* IA_CheatInvincible;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input Cheat")
+	class UInputAction* IA_CheatLevelLoad1;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Cheat")
+	class UInputAction* IA_CheatLevelLoad2;
+
 
 	void Move(const FInputActionValue& inputValue); // 이동
 	void Attack(const FInputActionValue& inputValue); // 일반 공격 & 콤보
@@ -232,5 +238,7 @@ public:
 	void Spell(const FInputActionValue& inputValue); // 마법 (우클릭)
 	void Interaction(const FInputActionValue& inputValue); // 상호작용 (E 버튼)
 
-	void CheatInvincible(const FInputActionValue& inputValue);
+	void CheatInvincible(const FInputActionValue& inputValue); // 무적 치트 (0 버튼)
+	void CheatLevelLoad1(const FInputActionValue& inputValue); // 레벨 로드 치트 (위 버튼 : 맵1)
+	void CheatLevelLoad2(const FInputActionValue& inputValue); // 레벨 로드 치트 (아래 버튼 : 맵2)
 };
