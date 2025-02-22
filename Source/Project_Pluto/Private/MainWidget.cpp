@@ -6,6 +6,8 @@
 #include "Components/TextBlock.h"
 #include "BossStateWidget.h"
 #include "Components/ProgressBar.h"
+#include "GameOverWidget.h"
+#include "GameClearWidget.h"
 
 void UMainWidget::NativeConstruct()
 {
@@ -41,4 +43,23 @@ void UMainWidget::ShowBossState(bool bShow)
 	if (BossStateWidget == nullptr) return;
 
 	BossStateWidget->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+}
+
+void UMainWidget::ShowGameOver(bool bShow)
+{
+	if(GameOverWidget == nullptr) return;
+
+	GameOverWidget->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+}
+
+void UMainWidget::ShowGameClear(bool bShow)
+{
+	if(GameClearWidget == nullptr) return;
+
+	GameClearWidget->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+}
+
+void UMainWidget::SetBossName(FString name)
+{
+	BossStateWidget->SetName(name);
 }

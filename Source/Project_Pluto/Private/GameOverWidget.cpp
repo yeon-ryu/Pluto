@@ -19,8 +19,9 @@ void UGameOverWidget::NativeConstruct()
 
 void UGameOverWidget::Restart()
 {
-	// 레벨을 다시 로드
-	UGameplayStatics::OpenLevel(GetWorld(), FName("HadesMap2"));
+	// 게임 오버 시 플레이하던 레벨을 다시 로드
+	FString mapName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+	UGameplayStatics::OpenLevel(GetWorld(), FName(*mapName));
 }
 
 void UGameOverWidget::Quit()

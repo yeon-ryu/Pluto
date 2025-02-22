@@ -47,7 +47,7 @@ void UHitCheckNotifyState::OnPlayerOverlap(UPrimitiveComponent* OverlappedCompon
 	{
 		UGameplayStatics::ApplyDamage(player, OwnCharacter->GetDamage(), OwnCharacter->GetController(), OwnCharacter, UDamageType::StaticClass());
 
-		UE_LOG(LogTemp, Warning, TEXT("%s hit %s! Applied %d Damage!"), *OwnCharacter->GetName(), *player->GetName(), OwnCharacter->GetDamage ());
+		UE_LOG(LogTemp, Warning, TEXT("%s hit %s! Applied %.2f Damage!"), *OwnCharacter->GetName(), *player->GetName(), OwnCharacter->GetDamage ());
 
 		OwnCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Ignore);
 	}

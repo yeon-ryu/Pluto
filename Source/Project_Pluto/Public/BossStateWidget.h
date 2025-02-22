@@ -15,6 +15,8 @@ class PROJECT_PLUTO_API UBossStateWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
+
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UTextBlock* NameText;
 

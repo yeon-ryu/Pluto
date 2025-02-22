@@ -75,7 +75,7 @@ void UPlayerAnimInstance::AnimNotify_DamagedEnd()
 
 void UPlayerAnimInstance::AnimNotify_DieEnd()
 {
-	if(player == nullptr || player->GM == nullptr) return;
+	if(player == nullptr || player->GM == nullptr || player->HP > 0) return;
 	player->GM->ShowGameOver(true);
 }
 
