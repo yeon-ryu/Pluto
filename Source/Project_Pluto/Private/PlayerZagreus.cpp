@@ -11,6 +11,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "PWBlade.h"
 #include "PlayerAnimInstance.h"
+#include "Components/SpotLightComponent.h"
+#include "HadesGameMode.h"
 
 // Sets default values
 APlayerZagreus::APlayerZagreus()
@@ -57,6 +59,12 @@ APlayerZagreus::APlayerZagreus()
 	camComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	camComp->SetupAttachment(springArmComp);
 
+	lightComp = CreateDefaultSubobject<USpotLightComponent>(TEXT("LightComp"));
+	lightComp->SetupAttachment(RootComponent);
+	lightComp->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 800.0f), FRotator(-90.0f, 0.0f, 0.0f));
+	lightComp->SetOuterConeAngle(10.0f);
+	lightComp->SetIntensity(50000.0f);
+
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
@@ -65,6 +73,15 @@ APlayerZagreus::APlayerZagreus()
 void APlayerZagreus::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// MainUI 플레이어 관련 세팅
+	GM = Cast<AHadesGameMode>(GetWorld()->GetAuthGameMode());
+
+	HP = MaxHP;
+	GM->SetPlayerHP(HP, MaxHP);
+	GM->ShowGameOver(false);
+	GM->ShowGameClear(false);
+	GM->ShowBossState(false);
 
 	// Input 용 컨트롤러 세팅
 	pController = Cast<APlayerController>(Controller);
@@ -181,6 +198,8 @@ void APlayerZagreus::Tick(float DeltaTime)
 
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Player State : %s"), *UEnum::GetValueAsString(NowState)));
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Player Collision : %s"), *UEnum::GetValueAsString(GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn))));
+	char IState = bCheatInvincible ? 'T' : 'F';
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, FString::Printf(TEXT("Player Invincible : %c"), IState));
 }
 
 // Called to bind functionality to input
@@ -328,7 +347,7 @@ float APlayerZagreus::TakeDamage(float Damage, struct FDamageEvent const& Damage
 {
 	if(HP == 0) return 0;
 
-	if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
+	if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore || bCheatInvincible) {
 		return HP;
 	}
 
@@ -338,8 +357,9 @@ float APlayerZagreus::TakeDamage(float Damage, struct FDamageEvent const& Damage
 		NowState = EPlayerBehaviorState::Damaged;
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("Player HP : %d"), HP));
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("Player HP : %d"), HP));
 
+	GM->SetPlayerHP(HP, MaxHP);
 	return HP;
 }
 
@@ -506,10 +526,5 @@ void APlayerZagreus::Interaction(const FInputActionValue& inputValue)
 
 void APlayerZagreus::CheatInvincible(const FInputActionValue& inputValue)
 {
-	if (GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn) == ECR_Ignore) {
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	}
-	else {
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	}
+	bCheatInvincible = !bCheatInvincible;
 }

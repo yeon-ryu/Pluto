@@ -57,6 +57,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Camera)
 	class UCameraComponent* camComp;
 
+	
+	UPROPERTY(EditAnywhere, Category = Light)
+	class USpotLightComponent* lightComp;
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerState)
 	EPlayerBehaviorState NowState = EPlayerBehaviorState::Idle;
@@ -125,6 +129,9 @@ public:
 
 // 플레이어 로직
 public:
+	UPROPERTY()
+	class AHadesGameMode* GM;
+
 	class APlayerController* pController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
@@ -187,6 +194,8 @@ public:
 
 	// 현재 상태에서 state 로 변할 수 있는지 값 반환 (같은 상태는 true)
 	bool CheckChangeStateEnabled(EPlayerBehaviorState state);
+
+	bool bCheatInvincible = false;
 
 // Input
 public:

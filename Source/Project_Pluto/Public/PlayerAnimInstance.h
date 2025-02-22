@@ -53,6 +53,10 @@ public:
 	UFUNCTION()
 	void AnimNotify_DamagedEnd();
 
+	// 사망 애니메이션 종료 -> GameOverUI 활성화
+	UFUNCTION()
+	void AnimNotify_DieEnd();
+
 	// 라스트 콤보 공격 런치 시작
 	UFUNCTION()
 	void AnimNotify_LastCombo();
