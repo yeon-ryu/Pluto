@@ -93,6 +93,9 @@ public:
 	UPROPERTY()
 	class UBossAnimInstance* anim;
 
+	UPROPERTY()
+	class ASpawnManager* manager;
+
 	//목적지와 그 방향 벡터를 구하는 함수
 	void SetDesDir();
 

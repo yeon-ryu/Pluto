@@ -82,7 +82,7 @@ void APlayerZagreus::BeginPlay()
 	GM->SetPlayerHP(HP, MaxHP);
 	GM->ShowGameOver(false);
 	GM->ShowGameClear(false);
-	GM->ShowBossState(false);
+	//GM->ShowBossState(false);
 
 	// Input 용 컨트롤러 세팅
 	pController = Cast<APlayerController>(Controller);
