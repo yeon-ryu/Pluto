@@ -5,6 +5,7 @@
 #include "KThanatosFSM.h"
 #include "Engine/SkeletalMesh.h"
 #include "KDestroyBox.h"
+#include "KSkillBox.h"
 
 // Sets default values
 AKThanatos::AKThanatos()
@@ -33,7 +34,7 @@ void AKThanatos::BeginPlay()
 	Super::BeginPlay();
 
 	destroyBox = GetWorld()->SpawnActor<AKDestroyBox>(BoxFactory, FTransform(FRotator(0, 0, 0), FVector(2000), FVector(1.0f, 1.0f, 1.0f)));
-
+	skillBox = GetWorld()->SpawnActor<AKSkillBox>(SkillFactory, FTransform(FRotator(0, 0, 0), FVector(4000), FVector(1.0f, 1.0f, 1.0f)));
 
 }
 
@@ -50,6 +51,12 @@ void AKThanatos::SetDestroyBox()
 	destroyBox->SetActorLocation(fsm->ReturnDest());
 	destroyBox->SetbOnSpawn();
 
+}
+
+void AKThanatos::SetSkillBox()
+{
+	skillBox->SetActorLocation(fsm->ReturnDest());
+	skillBox->SetbOnSpawn();
 }
 
 /*

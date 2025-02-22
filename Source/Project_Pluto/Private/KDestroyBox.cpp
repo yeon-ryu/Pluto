@@ -24,21 +24,6 @@ AKDestroyBox::AKDestroyBox()
 	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
 
-	
-	//범위 확인용 메쉬컴포넌트
-	/*
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	MeshComp->SetupAttachment(RootComponent);
-
-
-
-	ConstructorHelpers::FObjectFinder<UStaticMesh>tmpMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
-	if (tmpMesh.Succeeded())
-	{
-		MeshComp->SetStaticMesh(tmpMesh.Object);
-
-	}
-	*/
 
 	BoxComp->OnComponentBeginOverlap.AddDynamic(this, &AKDestroyBox::OnBoxOverlap);
 }
@@ -58,7 +43,6 @@ void AKDestroyBox::Tick(float DeltaTime)
 
 	if (bOnSpawn == true)
 	{
-
 		curretTime += DeltaTime;
 
 		if (curretTime > 3.0f)

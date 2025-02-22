@@ -42,6 +42,10 @@ class PROJECT_PLUTO_API UKThanatosFSM : public UActorComponent
 public:
 	UKThanatosFSM();
 
+public:
+	UPROPERTY()
+	class AHadesGameMode* GM;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -135,6 +139,8 @@ public:
 	//	TSubclassOf <class AKDestroyBox> boxPos;
 
 	class AKDestroyBox* destroyBox;
+
+	class AKSkillBox* skillBox;
 
 	int skillCount = 0;
 	int maxSkillCount = 4;

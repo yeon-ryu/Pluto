@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "KCHeart.generated.h"
+#include "KSkillBox.generated.h"
 
 UCLASS()
-class PROJECT_PLUTO_API AKCHeart : public AActor
+class PROJECT_PLUTO_API AKSkillBox : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AKCHeart();
+	AKSkillBox();
 
 protected:
 	// Called when the game starts or when spawned
@@ -27,8 +27,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component)
 	class UBoxComponent* BoxComp;
 
-	class APlayerZagreus* player;
 
-UFUNCTION()
-	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float curretTime = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DestroyDelay = 5.0f;
+
+	bool bOnSpawn= false;
+
+	void SetbOnSpawn();
+
 };

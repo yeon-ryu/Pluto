@@ -7,6 +7,7 @@
 #include "KThanatosAnim.h"
 #include "KDestroyBox.h"
 #include "Monster.h"
+#include "KSkillBox.h"
 
 
 UKThanatosFSM::UKThanatosFSM()
@@ -21,6 +22,9 @@ UKThanatosFSM::UKThanatosFSM()
 void UKThanatosFSM::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GM = Cast<AHadesGameMode>(GetWorld()->GetAuthGameMode());
+
 
 	// ...
 	//월드에서 Enemy를 찾아오기
@@ -38,6 +42,15 @@ void UKThanatosFSM::BeginPlay()
 	{
 		destroyBox = Cast<AKDestroyBox>(auto_DestroyBox);
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	auto auto_SkillBox = UGameplayStatics::GetActorOfClass(GetWorld(), AKSkillBox::StaticClass());
+	if (auto_SkillBox != nullptr)
+	{
+		skillBox = Cast<AKSkillBox>(auto_SkillBox);
+	}
+
 
 
 	//소유 객체 가져오기
@@ -209,9 +222,14 @@ void UKThanatosFSM::State_Attack1()
 
 	//시간이 흐르다가
 	currentTime += GetWorld()->DeltaTimeSeconds;
+
+	
+
 	//공격 시간이되면 공격을 실행
 	if (currentTime > status.attackDelayTime_1)
 	{
+		me->SetSkillBox();
+
 		//공격 파트
 		//target_Enemy->SetbSoonDead();
 		//target_Enemy->DamageToSelf(9999);
@@ -226,6 +244,7 @@ void UKThanatosFSM::State_Attack1()
 		}
 		
 		currentTime = 0.0f;
+
 
 		EndAttackProcess();
 	}

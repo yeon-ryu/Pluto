@@ -31,8 +31,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component)
 	class UBoxComponent* BoxComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component)
-	class UStaticMeshComponent* MeshComp;
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component)
+//	class UStaticMeshComponent* MeshComp;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

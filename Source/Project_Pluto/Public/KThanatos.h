@@ -37,8 +37,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf <class AKDestroyBox> BoxFactory;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf <class AKSkillBox> SkillFactory;
+
 	class AKDestroyBox* destroyBox;
+	class AKSkillBox* skillBox;
+
 
 public:
 	void SetDestroyBox();
+	void SetSkillBox();
+	
 };
