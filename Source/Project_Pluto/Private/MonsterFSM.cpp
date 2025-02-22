@@ -239,7 +239,9 @@ void UMonsterFSM::OnDamageProcess()
 	{
 		mState = EMonsterState::Die;
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		Anim->Montage_Play (Anim->MonsterMontage);
+		//Anim->Montage_Play (Anim->MonsterMontage);
+		me->PlayAnimMontage (Anim->MonsterMontage);
+		
 	}
 
 	Anim->AnimState = mState;
