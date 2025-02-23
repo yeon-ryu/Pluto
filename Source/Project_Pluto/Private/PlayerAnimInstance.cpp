@@ -77,7 +77,6 @@ void UPlayerAnimInstance::AnimNotify_DieEnd()
 {
 	if(player == nullptr || player->GM == nullptr || player->HP > 0) return;
 	player->GM->ShowGameOver(true);
-	player->GM->SaveGameData(0);
 }
 
 void UPlayerAnimInstance::AnimNotify_LastCombo()

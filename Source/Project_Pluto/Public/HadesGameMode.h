@@ -42,18 +42,20 @@ public:
 
 	int32 HPBuff = 0;
 
+	int32 NowHP = 0;
+
 public:
 	// 저장하기 / 불러오기
-	// HPBuff 갱신될 때 저장
-	// 다음 맵 갈 때만 HPBuff 불러오기
+	// HPSave 갱신될 때 저장
+	// 다음 맵 갈 때만 HPSave 불러오기
 
 	// SlotName, UserIndex
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString SaveSlotName = TEXT("HPBuff");
+	FString SaveSlotName = TEXT("HPSave");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 UserIndex = 0;
 
-	void SaveGameData(int32 buff);
+	void SaveGameData();
 	void LoadGameData();
 };

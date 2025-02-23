@@ -216,7 +216,6 @@ void UBossFSM::State_Die()
 
 	if (me == nullptr || me->GM == nullptr) return;
 	me->GM->ShowGameClear(true);
-	me->GM->SaveGameData(0);
 	
 	me->Destroy();
 

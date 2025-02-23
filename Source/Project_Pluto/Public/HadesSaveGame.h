@@ -17,4 +17,7 @@ class PROJECT_PLUTO_API UHadesSaveGame : public ULocalPlayerSaveGame
 public:
 	UPROPERTY(BlueprintReadWrite)
 	int32 HPBuffSave;
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 nowHPSave;
 };

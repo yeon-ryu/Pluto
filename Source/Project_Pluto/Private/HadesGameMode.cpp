@@ -92,6 +92,12 @@ void AHadesGameMode::ShowGameOver(bool bShow)
 
 	UGameplayStatics::SetGamePaused(GetWorld(), bShow);
 	mainUI->ShowGameOver(bShow);
+
+	if(bShow) {
+		HPBuff = 0;
+		NowHP = 0;
+		SaveGameData();
+	}
 }
 
 void AHadesGameMode::ShowGameClear(bool bShow)
@@ -100,18 +106,28 @@ void AHadesGameMode::ShowGameClear(bool bShow)
 
 	UGameplayStatics::SetGamePaused(GetWorld(), bShow);
 	mainUI->ShowGameClear(bShow);
+
+	if (bShow) {
+		HPBuff = 0;
+		NowHP = 0;
+		SaveGameData();
+	}
 }
 
-void AHadesGameMode::SaveGameData(int32 buff)
+void AHadesGameMode::SaveGameData()
 {
-	// ShootingSaveGame 객체를 생성
+	// SaveGame 객체를 생성
 	UHadesSaveGame* sg = Cast<UHadesSaveGame>(UGameplayStatics::CreateSaveGameObject(UHadesSaveGame::StaticClass()));
 
-	// 객체에 HighScoreSave 값을 HighScore 로 갱신
-	sg->HPBuffSave = buff;
+	// 객체에 갱신
+	sg->HPBuffSave = HPBuff;
+	sg->nowHPSave = NowHP;
 
 	// 파일로 저장
 	UGameplayStatics::SaveGameToSlot(sg, SaveSlotName, UserIndex);
+
+
+	UE_LOG(LogTemp, Error, TEXT("Save Game : Buff : %d, NowHP : %d"), HPBuff, NowHP);
 }
 
 void AHadesGameMode::LoadGameData()
@@ -126,5 +142,6 @@ void AHadesGameMode::LoadGameData()
 	// 값을 읽어와서 HighScore 갱신
 	if (sg != nullptr) {
 		HPBuff = sg->HPBuffSave;
+		NowHP = sg->nowHPSave;
 	}
 }
