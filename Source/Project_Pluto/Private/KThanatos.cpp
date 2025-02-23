@@ -6,6 +6,7 @@
 #include "Engine/SkeletalMesh.h"
 #include "KDestroyBox.h"
 #include "KSkillBox.h"
+#include "KCHeart.h"
 
 // Sets default values
 AKThanatos::AKThanatos()
@@ -36,6 +37,10 @@ void AKThanatos::BeginPlay()
 	destroyBox = GetWorld()->SpawnActor<AKDestroyBox>(BoxFactory, FTransform(FRotator(0, 0, 0), FVector(2000), FVector(1.0f, 1.0f, 1.0f)));
 	skillBox = GetWorld()->SpawnActor<AKSkillBox>(SkillFactory, FTransform(FRotator(0, 0, 0), FVector(4000), FVector(1.0f, 1.0f, 1.0f)));
 
+	heartBox = GetWorld()->SpawnActor<AKCHeart>(HeartFactory, FTransform(FRotator(0, 0, 0), FVector(6000), FVector(1.0f, 1.0f, 1.0f)));
+
+	destroyCount = 0;
+	currentTime = 0.f;
 }
 
 // Called every frame
@@ -59,6 +64,27 @@ void AKThanatos::SetSkillBox()
 	skillBox->SetbOnSpawn();
 }
 
+void AKThanatos::SetHeartBox()
+{
+	heartBox->SetActorLocation(FVector(3225,-240,140));
+
+}
+
+//뭔가 해보려고 했더니 터지네요 지금은 오후 9시반... 드랍...
+/*
+void AKThanatos::OnDestroyProcess()
+{
+	currentTime += GetWorld()->GetDeltaSeconds();
+	FVector dir = this->GetActorForwardVector();
+
+	this->AddMovementInput(dir.GetSafeNormal());
+
+	if (currentTime > 1.f)
+	{
+		this->Destroy();
+	}
+}
+*/
 /*
 // Called to bind functionality to input
 void AKThanatos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

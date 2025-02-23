@@ -40,12 +40,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf <class AKSkillBox> SkillFactory;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AKCHeart> HeartFactory;
+
 	class AKDestroyBox* destroyBox;
 	class AKSkillBox* skillBox;
+	class AKCHeart* heartBox;
 
+	int32 destroyCount = 0;
+	float currentTime = 0.f;
 
 public:
 	void SetDestroyBox();
 	void SetSkillBox();
+	void SetHeartBox();
+	//void OnDestroyProcess();
 	
 };

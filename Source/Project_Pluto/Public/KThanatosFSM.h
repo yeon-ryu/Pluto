@@ -29,6 +29,7 @@ enum class EThanatosState : uint8
 	Attack2	UMETA(DisplayName = "Attack_2"),
 	Damaged	UMETA(DisplayName = "Damage"),
 	Dead	UMETA(DisplayName = "Dead"),
+	EndGame	UMETA(DisplayName = "EndGame"),
 	EndState,
 };
 
@@ -42,9 +43,11 @@ class PROJECT_PLUTO_API UKThanatosFSM : public UActorComponent
 public:
 	UKThanatosFSM();
 
+	/*
 public:
 	UPROPERTY()
 	class AHadesGameMode* GM;
+	*/
 
 protected:
 	// Called when the game starts
@@ -85,7 +88,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
 	float attackDelayTime_2 = 2.0f;
-
+	
 
 	};
 
@@ -120,16 +123,24 @@ public:
 
 	void SearchEnemy();
 
+	void State_EndGame();
+
 
 public:
+
+
+	
+	bool bEndGame = false;
+	bool bCanDestroySelf = false;
 
 	//경과시간
 	UPROPERTY(EditAnywhere, Category = FSM)
 	float currentTime = 0.0f;
+	float attackCurrent = 0.0f;
 
 	UPROPERTY(VisibleAnywhere, Category = FSM)
 	class AMonster* target_Enemy;
-	//class AMonster* before_Target;
+	class AMonster* before_Target;
 
 
 
@@ -143,7 +154,11 @@ public:
 	class AKSkillBox* skillBox;
 
 	int skillCount = 0;
-	int maxSkillCount = 4;
+	int maxSkillCount = 1;
+
+	int endGameCount = 0;
+
+	
 
 	Status status;
 
@@ -154,5 +169,12 @@ public:
 	UPROPERTY()
 	class UKThanatosAnim* Anim;
 
+//	FVector firstPos = FVector(3695, -240, 170);
+//	FVector seconfPos = FVector(3600, -240, 170);
+	FVector lastPos = FVector(3600, -240, 170);
+	FVector Location_Zero;
+
+
+	int32 checkPoint = 0;
 	FVector ReturnDest();
 };

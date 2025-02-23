@@ -34,7 +34,7 @@ void AKSkillBox::Tick(float DeltaTime)
 
 		curretTime += DeltaTime;
 
-		if (curretTime > 3.0f)
+		if (curretTime > 2.0f)
 		{
 			curretTime = 0.f;
 
