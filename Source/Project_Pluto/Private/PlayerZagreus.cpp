@@ -78,7 +78,12 @@ void APlayerZagreus::BeginPlay()
 	// MainUI 플레이어 관련 세팅
 	GM = Cast<AHadesGameMode>(GetWorld()->GetAuthGameMode());
 
-	HP = MaxHP;
+	MaxHP = InitHP + GM->HPBuff;
+	if (GM->NowHP > 0) {
+		HP = GM->NowHP;
+	} else{
+		HP = MaxHP;
+	}
 	GM->SetPlayerHP(HP, MaxHP);
 	GM->ShowGameOver(false);
 	GM->ShowGameClear(false);
@@ -378,18 +383,21 @@ void APlayerZagreus::StartSpecialAtt()
 
 void APlayerZagreus::SetPermanetBuff()
 {
-	MaxHP = InitHP + FMath::Floor(InitHP * PlusHP);
+	//MaxHP = InitHP + FMath::Floor(InitHP * PlusHP);
 }
 
 void APlayerZagreus::SetBuffMaxHP(int32 plusHpAbs, float plusHpPro)
 {
 	// 현재 HP 도 최대 HP 변경에 따라 변함. 실제로 어떤지 게임 확인 필요
 
+	// 인자값 명을 Abs 말고 다른 걸로 변경해야 할듯. 절대값이 아니니
 	MaxHP += plusHpAbs;
 	HP += plusHpAbs;
 
 	MaxHP += FMath::Floor(MaxHP * plusHpPro);
 	HP += FMath::Floor(HP * plusHpPro);
+
+	GM->SetPlayerHP(HP, MaxHP);
 }
 
 bool APlayerZagreus::CheckChangeStateEnabled(EPlayerBehaviorState state)
@@ -534,10 +542,19 @@ void APlayerZagreus::CheatInvincible(const FInputActionValue& inputValue)
 
 void APlayerZagreus::CheatLevelLoad1(const FInputActionValue& inputValue)
 {
+	GM->HPBuff = 0;
+	GM->NowHP = 0;
+	GM->SaveGameData();
 	UGameplayStatics::OpenLevel(GetWorld(), FName("HadesMap1"));
 }
 
 void APlayerZagreus::CheatLevelLoad2(const FInputActionValue& inputValue)
 {
+	FString mapName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+	if (mapName.Equals("HadesMap1")) {
+		GM->NowHP = HP;
+		GM->HPBuff = MaxHP - InitHP;
+		GM->SaveGameData();
+	}
 	UGameplayStatics::OpenLevel(GetWorld(), FName("HadesMap2"));
 }

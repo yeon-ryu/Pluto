@@ -18,7 +18,7 @@ void UGameClearWidget::NativeConstruct()
 void UGameClearWidget::Restart()
 {
 	// 게임 클리어시 최초 레벨을 로드
-	UGameplayStatics::OpenLevel(GetWorld(), FName("HadesMap2"));
+	UGameplayStatics::OpenLevel(GetWorld(), FName("HadesMap1"));
 }
 
 void UGameClearWidget::Quit()

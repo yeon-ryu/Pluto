@@ -20,8 +20,11 @@ void UGameOverWidget::NativeConstruct()
 void UGameOverWidget::Restart()
 {
 	// 게임 오버 시 플레이하던 레벨을 다시 로드
-	FString mapName = UGameplayStatics::GetCurrentLevelName(GetWorld());
-	UGameplayStatics::OpenLevel(GetWorld(), FName(*mapName));
+	//FString mapName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+	//UGameplayStatics::OpenLevel(GetWorld(), FName(*mapName));
+
+	// 로그라이트 취지에 맞게 죽으면 리셋
+	UGameplayStatics::OpenLevel(GetWorld(), FName("HadesMap1"));
 }
 
 void UGameOverWidget::Quit()

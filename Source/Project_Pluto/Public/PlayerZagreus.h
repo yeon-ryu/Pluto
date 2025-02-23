@@ -113,11 +113,11 @@ public:
 	int32 HP = 50; // 플레이어 현재 체력
 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerSetting")
-	float PlusHP = 0; // 영구 강화 : 추가 HP 퍼센트
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerSetting")
+	//float PlusHP = 0; // 영구 강화 : 추가 HP 퍼센트
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerSetting")
-	float PlusAtk = 0; // 영구 강화 : 추가 공격력 퍼센트
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerSetting")
+	//float PlusAtk = 0; // 영구 강화 : 추가 공격력 퍼센트
 
 
 	UPROPERTY()
