@@ -7,6 +7,7 @@
 #include "GameOverWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameClearWidget.h"
+#include "HadesSaveGame.h"
 
 void AHadesGameMode::BeginPlay()
 {
@@ -22,6 +23,8 @@ void AHadesGameMode::BeginPlay()
 	// 마우스 디자인 Project Settings 에서 Default 에 설정한거 적용
 	controller->DefaultMouseCursor = EMouseCursor::Default;
 	controller->CurrentMouseCursor = EMouseCursor::Default;
+
+	LoadGameData();
 
 	if (mainWidget != nullptr) {
 		// mainWidget 블루프린트 파일을 메모리에 로드
@@ -97,4 +100,31 @@ void AHadesGameMode::ShowGameClear(bool bShow)
 
 	UGameplayStatics::SetGamePaused(GetWorld(), bShow);
 	mainUI->ShowGameClear(bShow);
+}
+
+void AHadesGameMode::SaveGameData(int32 buff)
+{
+	// ShootingSaveGame 객체를 생성
+	UHadesSaveGame* sg = Cast<UHadesSaveGame>(UGameplayStatics::CreateSaveGameObject(UHadesSaveGame::StaticClass()));
+
+	// 객체에 HighScoreSave 값을 HighScore 로 갱신
+	sg->HPBuffSave = buff;
+
+	// 파일로 저장
+	UGameplayStatics::SaveGameToSlot(sg, SaveSlotName, UserIndex);
+}
+
+void AHadesGameMode::LoadGameData()
+{
+	// 파일이 존재하는지 확인
+	bool isExist = UGameplayStatics::DoesSaveGameExist(SaveSlotName, UserIndex);
+	if (isExist == false) return;
+
+	// 파일이 있으면 읽어서 ShootingSaveGame 객체를 생성
+	UHadesSaveGame* sg = Cast<UHadesSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, UserIndex));
+
+	// 값을 읽어와서 HighScore 갱신
+	if (sg != nullptr) {
+		HPBuff = sg->HPBuffSave;
+	}
 }
