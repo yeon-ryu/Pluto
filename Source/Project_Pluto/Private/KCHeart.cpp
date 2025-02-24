@@ -6,6 +6,8 @@
 #include "PlayerZagreus.h"
 #include "Engine/SkeletalMesh.h"
 #include "UObject/ConstructorHelpers.h"
+#include "KThanatos.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AKCHeart::AKCHeart()
@@ -48,6 +50,8 @@ void AKCHeart::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+	thanatos = Cast<AKThanatos>(UGameplayStatics::GetActorOfClass(GetWorld(), AKThanatos::StaticClass()));
 }
 
 // Called every frame
@@ -67,7 +71,10 @@ void AKCHeart::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	auto_player->SetBuffMaxHP(25, 0.0f);
 
 	//UE_LOG(LogTemp, Warning, TEXT("Destroy"));
-
+	// 
+	//thanatos->OnDestroyProcess();
+	
+	//thanatos->Destroy();
 	this->Destroy();
 
 }

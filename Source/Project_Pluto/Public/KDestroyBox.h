@@ -31,6 +31,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component)
 	class UBoxComponent* BoxComp;
 
+	class AKThanatos* thanatos;
+
 //	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component)
 //	class UStaticMeshComponent* MeshComp;
 
@@ -42,6 +44,7 @@ public:
 	float DestroyDelay = 3.0f;
 
 	bool bOnSpawn= false;
+
 
 	UFUNCTION()
 	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

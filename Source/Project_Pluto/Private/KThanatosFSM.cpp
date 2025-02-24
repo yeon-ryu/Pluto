@@ -8,6 +8,7 @@
 #include "KDestroyBox.h"
 #include "Monster.h"
 #include "KSkillBox.h"
+#include "KCHeart.h"
 
 
 UKThanatosFSM::UKThanatosFSM()
@@ -23,8 +24,7 @@ void UKThanatosFSM::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GM = Cast<AHadesGameMode>(GetWorld()->GetAuthGameMode());
-
+	//GM = Cast<AHadesGameMode>(GetWorld()->GetAuthGameMode());
 
 	// ...
 	//월드에서 Enemy를 찾아오기
@@ -63,9 +63,11 @@ void UKThanatosFSM::BeginPlay()
 		Anim->AnimState = mState;
 	}
 
-
+	bCanDestroySelf = false;
 
 }
+
+
 
 void UKThanatosFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -85,7 +87,28 @@ void UKThanatosFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	case EThanatosState::MoveFar: { State_MoveFar(); } break;
 	case EThanatosState::Attack1: { State_Attack1(); } break;
 	case EThanatosState::Attack2: { State_Attack2(); } break;
+
+	case EThanatosState::EndGame: { State_EndGame(); } break;
 	}
+
+	/*
+	if (bCanAttack == false)
+	{
+		attackCurrent += DeltaTime;
+
+		if (attackCurrent > status.attackDelayTime_1)
+		{
+			bCanAttack = true;
+			attackCurrent = 0.f;
+		}
+	}
+	*/
+
+	if (bCanDestroySelf == true)
+	{
+		me->Destroy();
+	}
+
 }
 
 
@@ -109,6 +132,13 @@ void UKThanatosFSM::State_Idle()
 {	
 	SearchEnemy();
 
+
+	if (endGameCount > 3)
+	{
+		mState = EThanatosState::EndGame;
+		Anim->AnimState = mState;
+	}
+
 	//시간이 흐르다가
 	currentTime += GetWorld()->DeltaTimeSeconds;
 
@@ -126,7 +156,9 @@ void UKThanatosFSM::State_Idle()
 
 		//전환 후 시간 초기화
 		currentTime = 0.0f;
+		endGameCount += 1;
 	}
+
 
 }
 
@@ -222,32 +254,42 @@ void UKThanatosFSM::State_Attack1()
 
 	//시간이 흐르다가
 	currentTime += GetWorld()->DeltaTimeSeconds;
+	SearchEnemy();
 
-	
-
-	//공격 시간이되면 공격을 실행
 	if (currentTime > status.attackDelayTime_1)
 	{
-		me->SetSkillBox();
+		//if (target_Enemy != nullptr && target_Enemy->GetNowHp() > 0.f && 171.239894)
+		if (target_Enemy != nullptr)
+		{
+			if (target_Enemy->GetNowHp() > 0.f)
+			{
+				me->SetSkillBox();
 
-		//공격 파트
-		//target_Enemy->SetbSoonDead();
-		//target_Enemy->DamageToSelf(9999);
+				//공격 파트 - 걍 즉사기로 바꿈
+				//target_Enemy->SetbSoonDead();
+				//target_Enemy->DamageToSelf(9999);
 
+				me->destroyCount += 1;
 
-		target_Enemy->Destroy();
-		++skillCount;
+				//UE_LOG(LogTemp, Error, TEXT("destroy : %d"), me->destroyCount);
+
+				++skillCount;
+
+			}
+			
+			target_Enemy->Destroy();
+		}
+
 
 		if (skillCount == maxSkillCount)
 		{
 			status.attackRange = 2000.0f;
 		}
-		
-		currentTime = 0.0f;
-
 
 		EndAttackProcess();
+
 	}
+
 }
 
 
@@ -255,23 +297,58 @@ void UKThanatosFSM::State_Attack2()
 {
 
 	currentTime += GetWorld()->DeltaTimeSeconds;
-	
 
 	//공격 시간이되면 공격을 실행
 	if (currentTime > status.attackDelayTime_2)
 	{
+		SearchEnemy();
 
-		skillCount = 0;
+		if (target_Enemy != nullptr && target_Enemy->GetNowHp() > 0.f)
+		{
+			skillCount = 0;
 
-		status.attackRange = 1000.0f;
+			status.attackRange = 1000.0f;
 
-		currentTime = 0.0f;
-		me->SetDestroyBox();
+			currentTime = 0.0f;
+			me->SetDestroyBox();
+		
+		}
+
+		if (target_Enemy != nullptr)
+		{
+			target_Enemy->Destroy();
+		}
 
 		EndAttackProcess();
 
 	}
 }
+
+/*
+void UKThanatosFSM::State_Attack2()
+{
+
+	SearchEnemy();
+	
+	if (bCanAttack == true)
+	{
+		if (target_Enemy != nullptr && target_Enemy->GetNowHp() > 0.f)
+		{
+			skillCount = 0;
+
+			status.attackRange = 1000.0f;
+
+			currentTime = 0.0f;
+			me->SetDestroyBox();
+
+
+		}
+
+		EndAttackProcess();
+	}
+
+}
+*/
 
 
 void UKThanatosFSM::OnDamagedProcess()
@@ -282,12 +359,12 @@ void UKThanatosFSM::OnDamagedProcess()
 void UKThanatosFSM::OnAttackProcess()
 {
 	FVector destination = target_Enemy->GetActorLocation();
-	FVector dir = me->GetActorLocation() - destination;
+	FVector dir = destination - me->GetActorLocation();
 
 	FRotator TargetRotation = dir.Rotation();
 
 	FRotator NewRotation = me->GetActorRotation();
-	NewRotation.Yaw = TargetRotation.Yaw + 180.f ;
+	NewRotation.Yaw = TargetRotation.Yaw ;
 
 	me->SetActorRotation(NewRotation);
 
@@ -307,12 +384,14 @@ void UKThanatosFSM::OnAttackProcess()
 			Anim->AnimState = mState;
 		}
 
+		endGameCount = 0;
 }
 
 
 void UKThanatosFSM::EndAttackProcess()
 {
-	//테스트용 패트롤.
+	//bCanAttack = false;
+
 	mState = EThanatosState::Idle2;
 	Anim->AnimState = mState;
 
@@ -321,13 +400,7 @@ void UKThanatosFSM::EndAttackProcess()
 
 	OnAttackEnd();
 
-	
-//	if (스킬 걸리지 않은 에너미가 있을 시)
-//	{
-//		그 쪽으로 향함.
-//	}
-//
-//	else (랜덤 패트롤)
+	endGameCount = 0;
 	
 }
 
@@ -355,9 +428,8 @@ void UKThanatosFSM::SearchEnemy()
 	}
 }
 
-
 //UGameplayStatics::GetAllActorsOfClass(GetWorld(), ENEMYCLASS::StaticClass(), target_Enemy_Array);
-
+//TArray로 받아보려고 했는데 이럼 너무 많은 곳에서 배열 정보를 공유해야 해서 이번엔 폐기했슴다 ㅠ
 /*
 
 void UKThanatosFSM::SearchEnemy()
@@ -379,7 +451,6 @@ void UKThanatosFSM::SearchEnemy()
 
 */
 
-
 FVector UKThanatosFSM::ReturnDest()
 {
 	FVector destination = target_Enemy->GetActorLocation();
@@ -388,4 +459,52 @@ FVector UKThanatosFSM::ReturnDest()
 }
 
 
+void UKThanatosFSM::State_EndGame()
+{
+	
+	FVector dir = lastPos - me->GetActorLocation();
+
+	if (bEndGame == false)
+	{
+		if (dir.Size() < 5.f)
+		{
+			bEndGame = true;
+		}
+
+		else
+		{
+			me->AddMovementInput(dir.GetSafeNormal());
+		}
+
+	}
+
+	else
+	{
+		auto auto_heartBox = UGameplayStatics::GetActorOfClass(GetWorld(), AKCHeart::StaticClass());
+
+		if (auto_heartBox != nullptr)
+		{
+			
+			
+			//타나토스가 (지금 상정은 MAX 11마리) 8마리 이상 잡았다면
+			if (me->destroyCount > 8)
+			{
+				//보상이 지급되지 않음
+				me->heartBox->Destroy();
+				bCanDestroySelf = true;
+			}
+
+			//그 외의 경우에는 보상 지급
+			else 
+			{
+				me->SetHeartBox();
+
+			}
+
+		}
+
+	}
+
+	
+}
 

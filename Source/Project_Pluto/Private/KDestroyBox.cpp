@@ -7,6 +7,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Monster.h"
+#include "KThanatos.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -33,6 +35,8 @@ void AKDestroyBox::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	thanatos = Cast<AKThanatos>(UGameplayStatics::GetActorOfClass(GetWorld(), AKThanatos::StaticClass()));
+
 	//BoxComp->SetRelativeLocation(FVector(2000.f));
 }
 
@@ -65,6 +69,9 @@ void AKDestroyBox::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 	if (enemy != nullptr)
 	{
 		enemy->Destroy();
+		thanatos->destroyCount += 1 ;
+		UE_LOG(LogTemp, Error, TEXT("destroy : %d"), thanatos->destroyCount);
+
 	}
 
 }
