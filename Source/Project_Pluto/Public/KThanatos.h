@@ -54,6 +54,6 @@ public:
 	void SetDestroyBox();
 	void SetSkillBox();
 	void SetHeartBox();
-	//void OnDestroyProcess();
+	void OnDestroyProcess();
 	
 };

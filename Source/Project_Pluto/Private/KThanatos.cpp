@@ -71,7 +71,7 @@ void AKThanatos::SetHeartBox()
 }
 
 //뭔가 해보려고 했더니 터지네요 지금은 오후 9시반... 드랍...
-/*
+
 void AKThanatos::OnDestroyProcess()
 {
 	currentTime += GetWorld()->GetDeltaSeconds();
@@ -84,7 +84,8 @@ void AKThanatos::OnDestroyProcess()
 		this->Destroy();
 	}
 }
-*/
+
+
 /*
 // Called to bind functionality to input
 void AKThanatos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

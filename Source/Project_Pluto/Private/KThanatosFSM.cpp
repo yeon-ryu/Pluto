@@ -265,7 +265,7 @@ void UKThanatosFSM::State_Attack1()
 			{
 				me->SetSkillBox();
 
-				//공격 파트
+				//공격 파트 - 걍 즉사기로 바꿈
 				//target_Enemy->SetbSoonDead();
 				//target_Enemy->DamageToSelf(9999);
 
@@ -359,12 +359,12 @@ void UKThanatosFSM::OnDamagedProcess()
 void UKThanatosFSM::OnAttackProcess()
 {
 	FVector destination = target_Enemy->GetActorLocation();
-	FVector dir = me->GetActorLocation() - destination;
+	FVector dir = destination - me->GetActorLocation();
 
 	FRotator TargetRotation = dir.Rotation();
 
 	FRotator NewRotation = me->GetActorRotation();
-	NewRotation.Yaw = TargetRotation.Yaw + 180.f ;
+	NewRotation.Yaw = TargetRotation.Yaw ;
 
 	me->SetActorRotation(NewRotation);
 
@@ -459,8 +459,6 @@ FVector UKThanatosFSM::ReturnDest()
 }
 
 
-
-
 void UKThanatosFSM::State_EndGame()
 {
 	
@@ -484,7 +482,7 @@ void UKThanatosFSM::State_EndGame()
 	{
 		auto auto_heartBox = UGameplayStatics::GetActorOfClass(GetWorld(), AKCHeart::StaticClass());
 
-		if (me->heartBox != nullptr)
+		if (auto_heartBox != nullptr)
 		{
 			
 			
@@ -505,16 +503,6 @@ void UKThanatosFSM::State_EndGame()
 
 		}
 
-		//하트가 사라질 경우엔 타나토스 또한 사라진다
-		//이상하게 
-		/*
-		else
-		{
-			me->Destroy();
-
-			UE_LOG(LogTemp, Error, TEXT("THANA"));
-		}
-		*/
 	}
 
 	
