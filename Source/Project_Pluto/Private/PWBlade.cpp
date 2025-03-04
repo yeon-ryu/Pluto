@@ -18,9 +18,9 @@ APWBlade::APWBlade()
 {
 	// 주석 처리 : 충돌을 칼날 부분에 맞도록 했을 경우. 플레이어의 타격감을 위해 충돌 범위를 확 늘림
 
-	CollisionComp->SetBoxExtent(FVector(50.0f, 50.0f, 100.0f));
+	CollisionComp->SetBoxExtent(FVector(50.0f, 50.0f, 110.0f));
 	//CollisionComp->SetBoxExtent(FVector(10.0f, 10.0f, 60.0f));
-	CollisionComp->SetRelativeLocation(FVector(-6.0f, 4.0f, 90.0f));
+	CollisionComp->SetRelativeLocation(FVector(-6.0f, 4.0f, 100.0f));
 	//CollisionComp->SetRelativeLocation(FVector(-6.0f, 4.0f, 105.0f));
 
 	// 검 에셋
@@ -32,7 +32,7 @@ APWBlade::APWBlade()
 	if (TempMesh.Succeeded()) {
 		MeshComp->SetStaticMesh(TempMesh.Object);
 		MeshComp->SetRelativeScale3D(FVector(0.08f));
-		MeshComp->SetRelativeLocationAndRotation(FVector(45.0f, 45.0f, 50.0f), FRotator(-23.0f, -23.0f, 36.0f));
+		MeshComp->SetRelativeLocationAndRotation(FVector(45.0f, 45.0f, 40.0f), FRotator(-23.0f, -23.0f, 36.0f));
 		//MeshComp->SetRelativeLocationAndRotation(FVector(45.0f, 45.0f, 25.0f), FRotator(-23.0f, -23.0f, 36.0f));
 	}
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);

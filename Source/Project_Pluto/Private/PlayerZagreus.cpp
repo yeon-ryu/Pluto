@@ -339,6 +339,8 @@ void APlayerZagreus::AttackProcess()
 		}
 	}
 	else { // 어택 애니메이션 종료 후 로직
+		bAttackProcess = false;
+
 		if (!bReserveAttack) {
 			Combo = 0;
 			if (NowState == EPlayerBehaviorState::Attack) {
@@ -346,8 +348,10 @@ void APlayerZagreus::AttackProcess()
 			}
 			weapon->EndAttack();
 		}
-		
-		bAttackProcess = false;
+		else { // 콤보 도중이면 그냥 바로 공격 실행하도록
+			weapon->StartAttack();
+			AttackProcess();
+		}
 	}
 }
 
