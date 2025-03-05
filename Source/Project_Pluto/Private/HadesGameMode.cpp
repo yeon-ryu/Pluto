@@ -9,6 +9,53 @@
 #include "GameClearWidget.h"
 #include "HadesSaveGame.h"
 
+
+//생성자 파트는 전부 사운드 추가 파트입니다.
+AHadesGameMode::AHadesGameMode()
+{
+
+	//노래 이것저것 넣어두고 랜덤재생 시킴
+	//잔잔한 노래라... 게임 오버에나 맞을듯... 시프트에서 빼버렸습니다.
+	//ConstructorHelpers::FObjectFinder<USoundBase> tmpSound_0(TEXT("/Script/Engine.SoundWave'/Game/KJY/RSS/God_of_the_Dead_-//_Hades_mp3.God_of_the_Dead_-_Hades_mp3'"));
+	
+
+	//1-3번만 랜덤에 포함시킴
+	ConstructorHelpers::FObjectFinder<USoundBase> tmpSound_1(TEXT("/Script/Engine.SoundWave'/Game/KJY/RSS/Hades_-_The_Painful_Way.Hades_-_The_Painful_Way'"));
+
+	ConstructorHelpers::FObjectFinder<USoundBase> tmpSound_2(TEXT("/Script/Engine.SoundWave'/Game/KJY/RSS/Mouth_of_Styx_-_Hades_OST.Mouth_of_Styx_-_Hades_OST'"));
+
+	ConstructorHelpers::FObjectFinder<USoundBase> tmpSound_3(TEXT("/Script/Engine.SoundWave'/Game/KJY/RSS/Out_of_Tartarus_-_Hades_OST.Out_of_Tartarus_-_Hades_OST'"));
+
+	int32 randMusic = FMath::RandRange(1,3);
+
+	while (randMusic == beforeMusic)
+	{
+		randMusic = FMath::RandRange(1, 3);
+	}
+
+		switch (randMusic)
+		{
+		case 1:
+			GameSound = tmpSound_1.Object;
+			beforeMusic = randMusic;
+			break;
+
+		case 2:
+			GameSound = tmpSound_2.Object;
+			beforeMusic = randMusic;
+			break;
+
+		case 3:
+			GameSound = tmpSound_3.Object;
+			beforeMusic = randMusic;
+			break;
+		}
+
+
+}
+
+
+
 void AHadesGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -56,6 +103,10 @@ void AHadesGameMode::BeginPlay()
 		//gameClearUI->AddToViewport();
 		//gameClearUI->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+
+	//사운드 플레이 추가
+	UGameplayStatics::PlaySound2D(GetWorld(), GameSound);
 }
 
 void AHadesGameMode::SetPlayerHP(int32 Cur, int32 Max)
