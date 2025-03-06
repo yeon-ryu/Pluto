@@ -15,6 +15,10 @@ class PROJECT_PLUTO_API AHadesGameMode : public AGameModeBase
 	GENERATED_BODY()
 	
 public:
+	//사운드 추가를 위한 생성자 만들기
+	AHadesGameMode();
+
+public:
 	virtual void BeginPlay() override;
 
 public:
@@ -58,4 +62,8 @@ public:
 
 	void SaveGameData();
 	void LoadGameData();
+
+	UPROPERTY()
+	class USoundBase* GameSound;
+	int32 beforeMusic = 0;
 };

@@ -133,7 +133,7 @@ void UKThanatosFSM::State_Idle()
 	SearchEnemy();
 
 
-	if (endGameCount > 3)
+	if (endGameCount > 4)
 	{
 		mState = EThanatosState::EndGame;
 		Anim->AnimState = mState;
