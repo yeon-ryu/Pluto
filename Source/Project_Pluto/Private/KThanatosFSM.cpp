@@ -75,7 +75,7 @@ void UKThanatosFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 
 	// 실행창에 상태 메시지 출력하기
 	FString logMsg = UEnum::GetValueAsString(mState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, logMsg);
+	//GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, logMsg);
 	
 
 	switch (mState)
