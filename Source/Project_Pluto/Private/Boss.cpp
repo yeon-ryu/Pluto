@@ -14,6 +14,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "HadesGameMode.h"
+#include "PlateActor.h"
 
 
 // Sets default values
@@ -82,7 +83,7 @@ void ABoss::BeginPlay()
 void ABoss::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	Debug::Print(FString::SanitizeFloat(GetNowHp() / GetMaxHp()));
+	//Debug::Print(FString::SanitizeFloat(GetNowHp() / GetMaxHp()));
 
 }
 

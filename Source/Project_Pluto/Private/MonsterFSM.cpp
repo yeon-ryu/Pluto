@@ -56,7 +56,7 @@ void UMonsterFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	// ...
 
 	FString logMsg = UEnum::GetValueAsString(mState);
-	Debug::Print(logMsg);
+	//Debug::Print(logMsg);
 
 	switch (mState)
 	{

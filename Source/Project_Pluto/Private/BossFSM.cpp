@@ -48,7 +48,7 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// ...
 
 	FString logMsg = UEnum::GetValueAsString(state);
-	Debug::Print(logMsg);
+	//Debug::Print(logMsg);
 	
 
 	switch (state)
