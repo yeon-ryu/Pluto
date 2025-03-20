@@ -4,6 +4,7 @@
 #include "MonsterSpawner.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
+#include "Monster.h"
 
 // Sets default values
 AMonsterSpawner::AMonsterSpawner()
